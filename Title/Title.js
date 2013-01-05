@@ -37,16 +37,24 @@ function canvasApp() {
 	var state = stateInitial;
 
 	// Loader variables
-	var itemsToLoad = 2;
+	var itemsToLoad = 4;
 	var loadCount = 0;
 
 	// Image resources
 	var imgBackground = new Image();
 	var imgTiles = new Image();
+	var imgBorderBlack = new Image();
+	var imgBorderRed = new Image();
 
 	// General variables
 	var mouseX = 0;
 	var mouseY = 0;
+
+	// Boarders
+	const maxBorder = 150;
+	var borderStatus = new Array(maxBorder);
+	var borderX = new Array(maxBorder);
+	var borderY = new Array(maxBorder);
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -103,6 +111,12 @@ function canvasApp() {
 		imgTiles.src = "Tile.png";
 		imgTiles.onload = eventItemLoaded;
 
+		imgBorderBlack.src = "BorderBlack.png";
+		imgBorderBlack.onload = eventItemLoaded;
+
+		imgBorderRed.src = "BorderRed.png";
+		imgBorderRed.onload = eventItemloaded;
+
 		if(itemsToLoad != 0) {
 			state = stateLoading;
 		} else {
@@ -127,6 +141,7 @@ function canvasApp() {
 	}
 
 	function reset() {
+		resetBorder();
 		state = stateTitle;
 	}
 
@@ -134,6 +149,20 @@ function canvasApp() {
 	function drawTitle() {
 		// Clear background
 		backContext.drawImage(imgBackground, 0, 0);
+
+		// Try to draw tiles
+		var startX = 200, startY = 100;
+		var i, j, offset;
+		for(i = 0; i < 6; i++) {
+			if(i % 2 == 0) {
+				offset = 0;
+			} else {
+				offset = 22;
+			}
+			for(j = 0; j < 10; j++) {
+				backContext.drawImage(imgTiles, startX + j * 44 + offset, startY + i * 37); 
+			}			
+		}
 
 		// Flip
 		context.drawImage(backCanvas, 0, 0);
@@ -144,6 +173,15 @@ function canvasApp() {
 		context.font = "14px monospace";
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
+	}
+
+	function resetBorder() {
+		var i;
+		for(i = 0; i < maxBorder; i++) {
+			borderStatus[i] = -1;
+			borderX[i] = -1;
+			borderY[i] = -1;
+		}
 	}
 
 	const FPS = 30;
