@@ -157,10 +157,10 @@ function canvasApp() {
 			if(i % 2 == 0) {
 				offset = 0;
 			} else {
-				offset = 22;
+				offset = 20;
 			}
 			for(j = 0; j < 10; j++) {
-				backContext.drawImage(imgTiles, startX + j * 44 + offset, startY + i * 37); 
+				backContext.drawImage(imgTiles, startX + j * 40 + offset, startY + i * 34); 
 			}			
 		}
 
