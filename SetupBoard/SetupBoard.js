@@ -37,24 +37,22 @@ function canvasApp() {
 	var state = stateInitial;
 
 	// Loader variables
-	var itemsToLoad = 4;
+	var itemsToLoad = 2;
 	var loadCount = 0;
 
 	// Image resources
 	var imgBackground = new Image();
 	var imgTiles = new Image();
-	var imgBorderBlack = new Image();
-	var imgBorderRed = new Image();
 
 	// General variables
 	var mouseX = 0;
 	var mouseY = 0;
+	
+	// AI class
+	var AI = new ColoringProblem();
 
-	// Boarders
-	const maxBorder = 150;
-	var borderStatus = new Array(maxBorder);
-	var borderX = new Array(maxBorder);
-	var borderY = new Array(maxBorder);
+	// Game board variables
+	var maxCol, maxRow;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -111,12 +109,6 @@ function canvasApp() {
 		imgTiles.src = "Tile.png";
 		imgTiles.onload = eventItemLoaded;
 
-		imgBorderBlack.src = "BorderBlack.png";
-		imgBorderBlack.onload = eventItemLoaded;
-
-		imgBorderRed.src = "BorderRed.png";
-		imgBorderRed.onload = eventItemloaded;
-
 		if(itemsToLoad != 0) {
 			state = stateLoading;
 		} else {
@@ -141,7 +133,10 @@ function canvasApp() {
 	}
 
 	function reset() {
-		resetBorder();
+		AI.setupBoard();
+		maxCol = AI.getMaxCol();
+		maxRow = AI.getMaxRow();
+
 		state = stateTitle;
 	}
 
@@ -173,15 +168,6 @@ function canvasApp() {
 		context.font = "14px monospace";
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
-	}
-
-	function resetBorder() {
-		var i;
-		for(i = 0; i < maxBorder; i++) {
-			borderStatus[i] = -1;
-			borderX[i] = -1;
-			borderY[i] = -1;
-		}
 	}
 
 	const FPS = 30;
