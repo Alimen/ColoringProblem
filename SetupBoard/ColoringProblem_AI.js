@@ -87,6 +87,8 @@ function ColoringProblem() {
 				}
 			}
 		}
+
+		this.subGraph(62);
 	}
 
 	function emptyBoard(emptyCells) {
@@ -235,6 +237,94 @@ function ColoringProblem() {
 		}
 
 		return output;
+	}
+
+	this.subGraph = function(target) {
+		var w, h;
+		var i, j, k, curRow;
+		var rect = this.findBorder(target);
+		var t = rect[0], r = rect[1], b = rect[2], l = rect[3];
+		w = Math.floor(r) - Math.floor(l) + 1;
+		h = b - t + 1;
+
+		var subGraph = new Array(maxCol * maxRow);
+		k = 0;
+		for(i = t; i <= b; i++) {
+			curRow = i * maxCol;
+			for(j = Math.floor(l); j <= Math.floor(r); j++) {
+				if(board[curRow+j] == target) {
+					subGraph[k] = board[curRow+j];
+				} else {
+					subGraph[k] = ' ';
+				}
+				k++;
+			}
+		}
+
+		return;
+	}
+
+	this.findBorder = function(target) {
+		var i, j, curRow, curCol;
+		var t = -1, b = -1, l = -1, r = -1;
+
+		// Find top
+   		for(i = 0; i < maxRow; i++) {
+			curRow = i * maxCol;
+			for(j = 0; j < maxCol; j++) {
+				if(target == board[curRow+j]) {
+					t = i;
+					break;
+				}
+			}
+	   		if(t > -1) {
+				break;
+			}
+		}
+	
+		// Find bottom
+		for(; i < maxRow; i++) {
+			curRow = i * maxCol;
+			for(j = 0; j < maxCol; j++) {
+				if(target == board[curRow+j]) {
+					b = i;
+					break;
+				}
+			}
+			if(b < i) {
+				break;
+			}
+		}
+	
+		// Find left
+		for(i = 0; i < 2 * maxCol; i++) {
+			curCol = (i%2)? (maxCol + (i-1)/2): i/2;
+			for(j = curCol; j < maxCol * maxRow; j += maxCol * 2) {
+				if(target == board[j]) {
+					l = i/2;
+					break;
+				}
+			}
+			if(l > -1) {
+				break;
+			}
+		}	
+	
+		// Find right
+		for(i = 2 * maxCol - 1; i >= 0; i--) {
+			curCol = (i%2)? (maxCol + (i-1)/2): i/2;
+			for(j = curCol; j < maxCol * maxRow; j += maxCol * 2) {
+				if(target == board[j]) {
+					r = i/2;
+					break;
+				}
+			}
+			if(r > -1) {
+				break;
+			}		
+		}
+
+		return [t, r, b, l];
 	}
 
 	function shuffle(target) {
