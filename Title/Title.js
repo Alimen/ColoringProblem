@@ -46,6 +46,11 @@ function canvasApp() {
 	var imgBorderBlack = new Image();
 	var imgBorderRed = new Image();
 
+	// Canvas resources
+	const maxGraph = 3;
+	var graphCanvas = new Array(maxGraph);
+	var graphContext = new Array(maxGraph);
+
 	// General variables
 	var mouseX = 0;
 	var mouseY = 0;
@@ -155,6 +160,7 @@ function canvasApp() {
 
 	function reset() {
 		slideT = 0;
+		resetCanvas();
 		resetBorder();
 		state = stateTitle;
 	}
@@ -178,6 +184,9 @@ function canvasApp() {
 			}			
 		}
 
+		// Play with graphCanvas
+		backContext.drawImage(graphCanvas[0], 50, 50);
+
 		// Flip
 		context.drawImage(backCanvas, 0, 0);
 
@@ -189,6 +198,18 @@ function canvasApp() {
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
 		context.fillText(slideT, screenWidth, 14);
+	}
+
+	function resetCanvas() {
+		var i;
+		for(i = 0; i < maxGraph; i++) {
+			graphCanvas[i] = document.createElement("canvas");
+			graphCanvas[i].width = 200;
+			graphCanvas[i].height = 200;
+			graphContext[i] = graphCanvas[i].getContext("2d");
+
+			graphContext[i].drawImage(imgTiles, 0, 0);
+		}
 	}
 
 	function resetBorder() {
