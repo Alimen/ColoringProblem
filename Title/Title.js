@@ -50,6 +50,9 @@ function canvasApp() {
 	var mouseX = 0;
 	var mouseY = 0;
 
+	// Slide-in variables
+	var slideT;	
+
 	// Boarders
 	const maxBorder = 150;
 	var borderStatus = new Array(maxBorder);
@@ -66,6 +69,14 @@ function canvasApp() {
 		loadCount = loadCount + 1;
 		if(loadCount == itemsToLoad) {
 			state = stateReset;
+		}
+	}
+
+	function eventKeyUp(e) {
+		if(e.keyCode == 188) {
+			slideT--;
+		} else if(e.keyCode == 190) {
+			slideT++;
 		}
 	}
 
@@ -105,6 +116,8 @@ function canvasApp() {
 
 	// Initializations
 	function init() {
+		document.addEventListener("keyup", eventKeyUp, true);
+
 		imgBackground.src = "WhiteRoom.jpg";
 		imgBackground.onload = eventItemLoaded;
 
@@ -141,6 +154,7 @@ function canvasApp() {
 	}
 
 	function reset() {
+		slideT = 0;
 		resetBorder();
 		state = stateTitle;
 	}
@@ -168,11 +182,13 @@ function canvasApp() {
 		context.drawImage(backCanvas, 0, 0);
 
 		// Debug message
+		var debugText = "T = " + slideT;
 		context.textBaseline = "top";	
 		context.fillStyle = "#000000";
 		context.font = "14px monospace";
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
+		context.fillText(slideT, screenWidth, 14);
 	}
 
 	function resetBorder() {
