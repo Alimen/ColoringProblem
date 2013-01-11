@@ -24,6 +24,10 @@ function ColoringProblem() {
 		return board;
 	}
 
+	this.getGraphSize = function() {
+		return graph.length;
+	}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Board setup subroutines
@@ -33,7 +37,6 @@ function ColoringProblem() {
 	this.setupBoard = function() {
 		const removed = 8;
 		const seed = 5;
-
 		var emptyCells = new Array();
 		var setupSeq = new Array(maxCol * maxRow);
 		var i, j, tmp;
@@ -88,7 +91,7 @@ function ColoringProblem() {
 			}
 		}
 
-		this.subGraph(62);
+		return;
 	}
 
 	function emptyBoard(emptyCells) {

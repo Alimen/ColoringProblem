@@ -52,7 +52,13 @@ function canvasApp() {
 	var AI = new ColoringProblem();
 
 	// Game board variables
-	var maxCol, maxRow;
+	const tileW = 40, tileH = 46;
+	var maxCol, maxRow, maxGraph;
+
+	// Slide-in animation variables
+	var slideT;
+	var graphCanvas = new Array();
+	var graphContext = new Array();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -64,6 +70,14 @@ function canvasApp() {
 		loadCount = loadCount + 1;
 		if(loadCount == itemsToLoad) {
 			state = stateReset;
+		}
+	}
+
+	function eventKeyUp(e) {
+		if(e.keyCode == 188) {
+			slideT--;
+		} else if(e.keyCode == 190) {
+			slideT++;
 		}
 	}
 
@@ -103,6 +117,8 @@ function canvasApp() {
 
 	// Initializations
 	function init() {
+		document.addEventListener("keyup", eventKeyUp, true);
+
 		imgBackground.src = "WhiteRoom.jpg";
 		imgBackground.onload = eventItemLoaded;
 
@@ -136,6 +152,15 @@ function canvasApp() {
 		AI.setupBoard();
 		maxCol = AI.getMaxCol();
 		maxRow = AI.getMaxRow();
+		maxGraph = AI.getGraphSize();
+
+		var i, rect;
+		slideT = 0;
+		graphCanvas.length = 0;
+		graphContext.length = 0;
+		for(i = 0; i < maxGraph; i++) {
+			graphCanvas.push(document.createElement("canvas"));
+		}
 
 		state = stateTitle;
 	}
@@ -152,10 +177,10 @@ function canvasApp() {
 			if(i % 2 == 0) {
 				offset = 0;
 			} else {
-				offset = 20;
+				offset = tileW/2;
 			}
 			for(j = 0; j < 10; j++) {
-				backContext.drawImage(imgTiles, startX + j * 40 + offset, startY + i * 34); 
+				backContext.drawImage(imgTiles, startX + j * tileW + offset, startY + i * tileH * 0.75);
 			}			
 		}
 
@@ -168,6 +193,7 @@ function canvasApp() {
 		context.font = "14px monospace";
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
+		context.fillText(slideT, screenWidth, 14);
 	}
 
 	const FPS = 30;
