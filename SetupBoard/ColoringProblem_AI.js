@@ -90,8 +90,6 @@ function ColoringProblem() {
 				}
 			}
 		}
-
-		return;
 	}
 
 	function emptyBoard(emptyCells) {
@@ -264,7 +262,7 @@ function ColoringProblem() {
 			}
 		}
 
-		return;
+		return subGraph;
 	}
 
 	this.findBorder = function(target) {

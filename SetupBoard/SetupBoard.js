@@ -56,9 +56,12 @@ function canvasApp() {
 	var maxCol, maxRow, maxGraph;
 
 	// Slide-in animation variables
+	const maxCanvas = 20;
 	var slideT;
-	var graphCanvas = new Array();
+	var graphCanvas = new Array(maxCanvas);
 	var graphContext = new Array();
+	var graphX = new Array()
+	var graphY = new Array();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -117,14 +120,22 @@ function canvasApp() {
 
 	// Initializations
 	function init() {
+		// Setup keyboard events
 		document.addEventListener("keyup", eventKeyUp, true);
 
+		// Setup image loader events
 		imgBackground.src = "WhiteRoom.jpg";
 		imgBackground.onload = eventItemLoaded;
 
 		imgTiles.src = "Tile.png";
 		imgTiles.onload = eventItemLoaded;
+		
+		// Create off-screen canvas
+		for(var i = 0; i < maxCanvas; i++) {
+			graphCanvas[i] = document.createElement("canvas");
+		}
 
+		// Switch to next state
 		if(itemsToLoad != 0) {
 			state = stateLoading;
 		} else {
@@ -134,6 +145,7 @@ function canvasApp() {
 
 	// Loading screen
 	function drawLoading() {
+		// Caculate loader
 		var percentage = Math.round(loadCount / itemsToLoad * 100);
 
 		// Clear Background
@@ -154,13 +166,8 @@ function canvasApp() {
 		maxRow = AI.getMaxRow();
 		maxGraph = AI.getGraphSize();
 
-		var i, rect;
 		slideT = 0;
-		graphCanvas.length = 0;
-		graphContext.length = 0;
-		for(i = 0; i < maxGraph; i++) {
-			graphCanvas.push(document.createElement("canvas"));
-		}
+		drawSubGraph();
 
 		state = stateTitle;
 	}
@@ -170,7 +177,13 @@ function canvasApp() {
 		// Clear background
 		backContext.drawImage(imgBackground, 0, 0);
 
-		// Try to draw tiles
+		// draw graphs to backCanvas
+		var i;
+		for(i = 0; i < maxGraph; i++) {
+			backContext.drawImage(graphCanvas[i], graphX[i]*slideT/5, graphY);
+		}
+
+/*		// Try to draw tiles
 		var startX = 200, startY = 100;
 		var i, j, offset;
 		for(i = 0; i < 6; i++) {
@@ -183,7 +196,7 @@ function canvasApp() {
 				backContext.drawImage(imgTiles, startX + j * tileW + offset, startY + i * tileH * 0.75);
 			}			
 		}
-
+*/
 		// Flip
 		context.drawImage(backCanvas, 0, 0);
 
@@ -194,6 +207,38 @@ function canvasApp() {
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
 		context.fillText(slideT, screenWidth, 14);
+	}
+
+	function drawSubGraph() {
+		var i, j, curRow;
+		var w, h;
+		var startX = 200, startY = 100, offset;
+
+		graphContext.length = 0;
+		graphX.length = 0;
+		graphY.length = 0;
+		for(i = 0; i < maxGraph; i++) {
+			rect = AI.findBorder(i + 61);
+//			graphCanvas[i].width = (rect[1] - rect[3] + 1) * tileW;
+//			graphCanvas[i].height = (rect[2] - rect[0]) * tileH * 0.75 + tileH;
+			graphCanvas[i].width = tileW;
+			graphCanvas[i].height = tileH;
+			graphContext.push(graphCanvas[i].getContext("2d"));
+
+			graphContext[i].drawImage(imgTiles, 0, 0);
+
+			if(rect[0] % 2 == 0) {
+				offset = 0;
+			} else {
+				offset = tileW/2;
+			}
+			
+			graphX.push(400);
+			graphY.push(i * 10);
+
+			//graphX.push(startX + rect[3] * tileW + offset);
+			//graphY.push(startY + rect[0] * tileH * 0.75);
+		}
 	}
 
 	const FPS = 30;
