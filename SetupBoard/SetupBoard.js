@@ -167,7 +167,7 @@ function canvasApp() {
 		maxGraph = AI.getGraphSize();
 
 		slideT = 0;
-		drawSubGraph();
+		prepareSubGraph();
 
 		state = stateTitle;
 	}
@@ -179,24 +179,11 @@ function canvasApp() {
 
 		// draw graphs to backCanvas
 		var i;
-		for(i = 0; i < maxGraph; i++) {
-			backContext.drawImage(graphCanvas[i], graphX[i]*slideT/5, graphY);
+		//for(i = 0; i < maxGraph; i++) {
+		for(i = 0; i < 2; i++) {
+			backContext.drawImage(graphCanvas[i], graphX[i] * slideT/5, graphY[i]);
 		}
 
-/*		// Try to draw tiles
-		var startX = 200, startY = 100;
-		var i, j, offset;
-		for(i = 0; i < 6; i++) {
-			if(i % 2 == 0) {
-				offset = 0;
-			} else {
-				offset = tileW/2;
-			}
-			for(j = 0; j < 10; j++) {
-				backContext.drawImage(imgTiles, startX + j * tileW + offset, startY + i * tileH * 0.75);
-			}			
-		}
-*/
 		// Flip
 		context.drawImage(backCanvas, 0, 0);
 
@@ -209,35 +196,50 @@ function canvasApp() {
 		context.fillText(slideT, screenWidth, 14);
 	}
 
-	function drawSubGraph() {
+	function prepareSubGraph() {
 		var i, j, curRow;
 		var w, h;
-		var startX = 200, startY = 100, offset;
+		var startX = 100, startY = 50, offset;
 
 		graphContext.length = 0;
 		graphX.length = 0;
 		graphY.length = 0;
 		for(i = 0; i < maxGraph; i++) {
 			rect = AI.findBorder(i + 61);
-//			graphCanvas[i].width = (rect[1] - rect[3] + 1) * tileW;
-//			graphCanvas[i].height = (rect[2] - rect[0]) * tileH * 0.75 + tileH;
-			graphCanvas[i].width = tileW;
-			graphCanvas[i].height = tileH;
+			graphCanvas[i].width = (rect[1] - rect[3] + 1) * tileW;
+			graphCanvas[i].height = (rect[2] - rect[0]) * tileH * 0.75 + tileH;
 			graphContext.push(graphCanvas[i].getContext("2d"));
 
-			graphContext[i].drawImage(imgTiles, 0, 0);
+			//graphContext[i].drawImage(imgTiles, 0, 0);
+			drawSubGraph(i, Math.floor(rect[1])-Math.floor(rect[3])+1, rect[2]-rect[0]+1, rect[0]);
 
 			if(rect[0] % 2 == 0) {
 				offset = 0;
 			} else {
 				offset = tileW/2;
 			}
-			
-			graphX.push(400);
-			graphY.push(i * 10);
+			graphX.push(startX + rect[3] * tileW + offset);
+			graphY.push(startY + rect[0] * tileH * 0.75);
+		}
+	}
 
-			//graphX.push(startX + rect[3] * tileW + offset);
-			//graphY.push(startY + rect[0] * tileH * 0.75);
+	function drawSubGraph(target, w, h, t) {
+		var i, j, curRow, offset;
+		var subGraph = AI.subGraph(target+61);
+
+		for(i = 0; i < h; i++) {
+			curRow = i * w;
+			if((t+i)%2 == 1) {
+				offset = tileW/2;
+			} else {
+				offset = 0;
+			}
+
+			for(j = 0; j < w; j++) {
+				if(subGraph[curRow+j] != ' ') {
+					graphContext[target].drawImage(imgTiles, j * tileW + offset, i * tileH * 0.75);
+				}
+			}
 		}
 	}
 
