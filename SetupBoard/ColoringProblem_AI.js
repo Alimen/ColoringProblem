@@ -35,7 +35,7 @@ function ColoringProblem() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	this.setupBoard = function() {
-		const removed = 8;
+		const removed = 1;
 		const seed = 5;
 		var emptyCells = new Array();
 		var setupSeq = new Array(maxCol * maxRow);

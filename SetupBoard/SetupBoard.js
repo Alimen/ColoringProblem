@@ -178,9 +178,9 @@ function canvasApp() {
 		backContext.drawImage(imgBackground, 0, 0);
 
 		// draw graphs to backCanvas
+		var board = AI.getBoard();
 		var i;
-		//for(i = 0; i < maxGraph; i++) {
-		for(i = 0; i < 2; i++) {
+		for(i = 0; i < maxGraph; i++) {
 			backContext.drawImage(graphCanvas[i], graphX[i] * slideT/5, graphY[i]);
 		}
 
@@ -210,26 +210,23 @@ function canvasApp() {
 			graphCanvas[i].height = (rect[2] - rect[0]) * tileH * 0.75 + tileH;
 			graphContext.push(graphCanvas[i].getContext("2d"));
 
-			//graphContext[i].drawImage(imgTiles, 0, 0);
-			drawSubGraph(i, Math.floor(rect[1])-Math.floor(rect[3])+1, rect[2]-rect[0]+1, rect[0]);
+			drawSubGraph(i, rect);
 
-			if(rect[0] % 2 == 0) {
-				offset = 0;
-			} else {
-				offset = tileW/2;
-			}
-			graphX.push(startX + rect[3] * tileW + offset);
+			graphX.push(startX + rect[3] * tileW);
 			graphY.push(startY + rect[0] * tileH * 0.75);
 		}
 	}
 
-	function drawSubGraph(target, w, h, t) {
+	function drawSubGraph(target, rect) {
+		var w = Math.floor(rect[1])-Math.floor(rect[3])+1, h = rect[2]-rect[0]+1;
+		var t = rect[0], l = rect[3];
+		var odd = (l-Math.floor(l) > 0)? 1: 0;
 		var i, j, curRow, offset;
 		var subGraph = AI.subGraph(target+61);
 
 		for(i = 0; i < h; i++) {
 			curRow = i * w;
-			if((t+i)%2 == 1) {
+			if( ((odd==1)&&((t+i)%2==0)) || ((odd==0)&&((t+i)%2==1)) ) {
 				offset = tileW/2;
 			} else {
 				offset = 0;
