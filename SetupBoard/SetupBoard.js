@@ -177,11 +177,30 @@ function canvasApp() {
 		// Clear background
 		backContext.drawImage(imgBackground, 0, 0);
 
-		// draw graphs to backCanvas
+		// Draw graphs to backCanvas
 		var board = AI.getBoard();
 		var i;
 		for(i = 0; i < maxGraph; i++) {
 			backContext.drawImage(graphCanvas[i], graphX[i] * slideT/5, graphY[i]);
+		}
+
+		// Draw board for debug
+		var j, curRow, offset;
+		var startX = 100, startY = 50;
+		for(i = 0; i < maxRow; i++) {
+			curRow = i * maxCol;
+			if(i % 2 == 1) {
+				offset = tileW/2;
+			} else {
+				offset = 0;
+			}
+
+			for(j = 0; j < maxCol; j++) {
+				if(board[curRow+j] == ' ') {
+					continue;
+				}
+				backContext.fillText(board[curRow+j]-61, startX + j * tileW + offset + tileW/2, startY + i * tileH * 0.75 + tileH/2);
+			}
 		}
 
 		// Flip
@@ -222,19 +241,23 @@ function canvasApp() {
 		var t = rect[0], l = rect[3];
 		var odd = (l-Math.floor(l) > 0)? 1: 0;
 		var i, j, curRow, offset;
+		var x, y;
 		var subGraph = AI.subGraph(target+61);
 
 		for(i = 0; i < h; i++) {
 			curRow = i * w;
-			if( ((odd==1)&&((t+i)%2==0)) || ((odd==0)&&((t+i)%2==1)) ) {
-				offset = tileW/2;
+			if(odd == 1) {
+				offset = ((t+i)%2==0)? (-1)*tileW/2: 0;
 			} else {
-				offset = 0;
+				offset = ((t+i)%2==1)? tileW/2: 0;
 			}
 
 			for(j = 0; j < w; j++) {
 				if(subGraph[curRow+j] != ' ') {
-					graphContext[target].drawImage(imgTiles, j * tileW + offset, i * tileH * 0.75);
+					x = j * tileW + offset;
+					y = i * tileH * 0.75;
+					graphContext[target].drawImage(imgTiles, x, y);
+					graphContext[target].fillText(target, x+15, y+15);
 				}
 			}
 		}
