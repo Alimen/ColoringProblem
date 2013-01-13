@@ -37,12 +37,14 @@ function canvasApp() {
 	var state = stateInitial;
 
 	// Loader variables
-	var itemsToLoad = 2;
+	var itemsToLoad = 4;
 	var loadCount = 0;
 
 	// Image resources
 	var imgBackground = new Image();
 	var imgTiles = new Image();
+	var imgTileBorder = new Image();
+	var imgShadow = new Image();
 
 	// General variables
 	var mouseX = 0;
@@ -126,9 +128,12 @@ function canvasApp() {
 		// Setup image loader events
 		imgBackground.src = "WhiteRoom.jpg";
 		imgBackground.onload = eventItemLoaded;
-
 		imgTiles.src = "Tile.png";
 		imgTiles.onload = eventItemLoaded;
+		imgTileBorder.src = "tileBorder.png";
+		imgTileBorder.onload = eventItemLoaded;
+		imgShadow.src = "Shadow.png";
+		imgShadow.onload = eventItemLoaded;
 		
 		// Create off-screen canvas
 		for(var i = 0; i < maxCanvas; i++) {
@@ -176,6 +181,9 @@ function canvasApp() {
 	function drawTitle() {
 		// Clear background
 		backContext.drawImage(imgBackground, 0, 0);
+
+		// Draw shadow
+		backContext.drawImage(imgShadow, 100, 430);
 
 		// Draw graphs to backCanvas
 		var board = AI.getBoard();
