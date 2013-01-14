@@ -192,25 +192,6 @@ function canvasApp() {
 			backContext.drawImage(graphCanvas[i], graphX[i] * slideT/5, graphY[i]);
 		}
 
-		// Draw board for debug
-		var j, curRow, offset;
-		var startX = 100, startY = 50;
-		for(i = 0; i < maxRow; i++) {
-			curRow = i * maxCol;
-			if(i % 2 == 1) {
-				offset = tileW/2;
-			} else {
-				offset = 0;
-			}
-
-			for(j = 0; j < maxCol; j++) {
-				if(board[curRow+j] == ' ') {
-					continue;
-				}
-				backContext.fillText(board[curRow+j]-61, startX + j * tileW + offset + tileW/2, startY + i * tileH * 0.75 + tileH/2);
-			}
-		}
-
 		// Flip
 		context.drawImage(backCanvas, 0, 0);
 
@@ -226,13 +207,12 @@ function canvasApp() {
 	function prepareSubGraph() {
 		var i, j, curRow;
 		var w, h;
-		var startX = 100, startY = 50, offset;
+		var startX = 100, startY = 30, offset;
 
 		graphContext.length = 0;
 		graphX.length = 0;
 		graphY.length = 0;
-		//for(i = 0; i < maxGraph; i++) {
-		for(i = 0; i < 1; i++) {
+		for(i = 0; i < maxGraph; i++) {
 			rect = AI.findBorder(i + 61);
 			graphCanvas[i].width = (rect[1] - rect[3] + 1) * tileW;
 			graphCanvas[i].height = (rect[2] - rect[0]) * tileH * 0.75 + tileH;
@@ -267,9 +247,8 @@ function canvasApp() {
 					x = j * tileW + offset;
 					y = i * tileH * 0.75;
 					graphContext[target].drawImage(imgTiles, x, y);
-					graphContext[target].fillText(target, x+15, y+15);
 					
-					neighbor = checkNeighbor(subGraph, curRow+j, w, h, t+i);	
+					neighbor = checkNeighbor(subGraph, curRow+j, w, h, t);	
 					if(neighbor[0] == 1) {
 						graphContext[target].drawImage(imgTileBorder, 0, 0, tileW, tileH, x, y, tileW, tileH);
 					}
@@ -279,23 +258,18 @@ function canvasApp() {
 					if(neighbor[2] == 1) {
 						graphContext[target].drawImage(imgTileBorder, 2*tileW, 0, tileW, tileH, x, y, tileW, tileH);
 					}
-				} else {
-					x = j * tileW + offset;
-					y = i * tileH * 0.75;
-
-					graphContext[target].fillText('X', x+15, y+15);
 				}
 			}
 		}
 	}
 
 	function checkNeighbor(subGraph, xy, w, h, t) {
-		var output = [1, 0, 0];
+		var output = [1, 1, 1];
 		if(subGraph[xy] == ' ') {
 			return output;
 		}
-		var row = Math.floor(xy / w);
 		var col = xy % w;
+		var row = Math.floor(xy / w);
 		var target;
 
 		if(col == (w-1)) {
@@ -304,30 +278,22 @@ function canvasApp() {
 			output[0] = 0;
 		}
 
+		target = ((t+row)%2 == 1)? xy + w + 1: xy + w;
 		if(row == (h-1)) {
-			output[1] = 1;
 		} else if( ((t+row)%2 == 1) && (col == (w-1)) ) {
-			output[1] = 1;
+		} else if(subGraph[target] == ' ') {
 		} else {
 			output[1] = 0;
 		}
 
+		target = ((t+row)%2 == 1)? xy + w: xy + w - 1;
 		if(row == (h-1)) {
-			output[2] = 1;
+		} else if( ((t+row)%2 == 0) && (col == 0) ) {
+		} else if(subGraph[target] == ' ') {
 		} else {
 			output[2] = 0;
 		}
 
-/*		target = ((t+row)%2 == 1)? xy + w + 1: xy + w;
-		if( (row==(h-1)) || (target<w*h)&&(subGraph[target]==' ') ) {
-			output[1] = 1;
-		}
-		
-		target = ((t+row)%2 == 1)? xy + w: xy + w - 1;
-		if( (row==(h-1)) || (target<w*h)&&(subGraph[target]==' ') ) {
-			output[2] = 1;
-		}
-*/
 		return output;
 	}
 

@@ -1,7 +1,7 @@
 function ColoringProblem() {
 	// The board
-	const maxRow = 10;
-	const maxCol = 10;
+	const maxRow = 12;
+	const maxCol = 15;
 	var board = new Array(maxCol * maxRow);
 	var groups = new Array();
 	var graph = new Array();
@@ -35,8 +35,8 @@ function ColoringProblem() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	this.setupBoard = function() {
-		const removed = 1;
-		const seed = 5;
+		const removed = 3;
+		const seed = 15;
 		var emptyCells = new Array();
 		var setupSeq = new Array(maxCol * maxRow);
 		var i, j, tmp;
@@ -191,54 +191,6 @@ function ColoringProblem() {
 // General utilities
 //
 ///////////////////////////////////////////////////////////////////////////////
-
-	this.checkNeighbor = function(xy) {
-		var output = [0, 0, 0, 0, 0, 0];
-		var row = Math.floor(xy / maxCol);
-		var odd, target;
-		if(row % 2 == 1) {
-			odd = 1;
-		} else {
-			odd = -1;
-		}
-
-		target = xy - maxCol;
-		if(board[xy] != board[target]) {
-			output[0] = 1;
-		}
-		target = xy - maxCol + odd;
-		if(board[xy] != board[target]) {
-			output[1] = 1;
-		}
-		target = xy - 1;
-		if(board[xy] != board[target]) {
-			output[2] = 1;
-		}
-		target = xy + 1;
-		if(board[xy] != board[target]) {
-			output[3] = 1;
-		}
-		target = xy + maxCol;
-		if(board[xy] != board[target]) {
-			output[4] = 1;
-		}
-		target = xy + maxCol + odd;
-		if(board[xy] != board[target]) {
-			output[5] = 1;
-		}
-
-		if(row % 2 == 0) {
-			target = output[0];
-			output[0] = output[1];
-			output[1] = target;
-
-			target = output[4];
-			output[4] = output[5];
-			output[5] = target;
-		}
-
-		return output;
-	}
 
 	this.subGraph = function(target) {
 		var w, h;
