@@ -231,7 +231,8 @@ function canvasApp() {
 		graphContext.length = 0;
 		graphX.length = 0;
 		graphY.length = 0;
-		for(i = 0; i < maxGraph; i++) {
+		//for(i = 0; i < maxGraph; i++) {
+		for(i = 0; i < 1; i++) {
 			rect = AI.findBorder(i + 61);
 			graphCanvas[i].width = (rect[1] - rect[3] + 1) * tileW;
 			graphCanvas[i].height = (rect[2] - rect[0]) * tileH * 0.75 + tileH;
@@ -251,6 +252,7 @@ function canvasApp() {
 		var i, j, curRow, offset;
 		var x, y;
 		var subGraph = AI.subGraph(target+61);
+		var neighbor;
 
 		for(i = 0; i < h; i++) {
 			curRow = i * w;
@@ -266,9 +268,67 @@ function canvasApp() {
 					y = i * tileH * 0.75;
 					graphContext[target].drawImage(imgTiles, x, y);
 					graphContext[target].fillText(target, x+15, y+15);
+					
+					neighbor = checkNeighbor(subGraph, curRow+j, w, h, t+i);	
+					if(neighbor[0] == 1) {
+						graphContext[target].drawImage(imgTileBorder, 0, 0, tileW, tileH, x, y, tileW, tileH);
+					}
+					if(neighbor[1] == 1) {
+						graphContext[target].drawImage(imgTileBorder, tileW, 0, tileW, tileH, x, y, tileW, tileH);
+					}
+					if(neighbor[2] == 1) {
+						graphContext[target].drawImage(imgTileBorder, 2*tileW, 0, tileW, tileH, x, y, tileW, tileH);
+					}
+				} else {
+					x = j * tileW + offset;
+					y = i * tileH * 0.75;
+
+					graphContext[target].fillText('X', x+15, y+15);
 				}
 			}
 		}
+	}
+
+	function checkNeighbor(subGraph, xy, w, h, t) {
+		var output = [1, 0, 0];
+		if(subGraph[xy] == ' ') {
+			return output;
+		}
+		var row = Math.floor(xy / w);
+		var col = xy % w;
+		var target;
+
+		if(col == (w-1)) {
+		} else if(subGraph[xy+1]==' ') {
+		} else {
+			output[0] = 0;
+		}
+
+		if(row == (h-1)) {
+			output[1] = 1;
+		} else if( ((t+row)%2 == 1) && (col == (w-1)) ) {
+			output[1] = 1;
+		} else {
+			output[1] = 0;
+		}
+
+		if(row == (h-1)) {
+			output[2] = 1;
+		} else {
+			output[2] = 0;
+		}
+
+/*		target = ((t+row)%2 == 1)? xy + w + 1: xy + w;
+		if( (row==(h-1)) || (target<w*h)&&(subGraph[target]==' ') ) {
+			output[1] = 1;
+		}
+		
+		target = ((t+row)%2 == 1)? xy + w: xy + w - 1;
+		if( (row==(h-1)) || (target<w*h)&&(subGraph[target]==' ') ) {
+			output[2] = 1;
+		}
+*/
+		return output;
 	}
 
 	const FPS = 30;
