@@ -220,7 +220,7 @@ function canvasApp() {
 			drawSubGraph(i, rect);
 
 			graphTargetX.push(startX + rect[3] * tileW);
-			x = Math.floor(Math.random() * 50);
+			x = i * 3;
 			if(Math.random() > 0.5) {
 				x += Math.ceil((graphTargetX[i] + graphCanvas[i].width) / slideSpeed);
 				graphX.push(graphTargetX[i] - x * slideSpeed);
