@@ -59,6 +59,7 @@ function canvasApp() {
 
 	// Slide-in animation variables
 	const maxCanvas = 20;
+	const slideSpeed = 10;
 	var slidingCount;
 	var graphCanvas = new Array(maxCanvas);
 	var graphContext = new Array();
@@ -175,6 +176,8 @@ function canvasApp() {
 
 	// Title screen
 	function drawTitle() {
+		pushSlide();
+
 		// Clear background
 		backContext.drawImage(imgBackground, 0, 0);
 
@@ -185,7 +188,7 @@ function canvasApp() {
 		var board = AI.getBoard();
 		var i;
 		for(i = 0; i < maxGraph; i++) {
-//			backContext.drawImage(graphCanvas[i], graphX[i], graphY[i], graphCanvas[i].width, graphCanvas[i].height);
+			backContext.drawImage(graphCanvas[i], graphX[i], graphY[i], graphCanvas[i].width, graphCanvas[i].height);
 		}
 
 		// Flip
@@ -201,7 +204,7 @@ function canvasApp() {
 
 	function prepareSubGraph() {
 		var i, j, curRow;
-		var w, h;
+		var w, h, x;
 		var startX = 100, startY = 30, offset;
 
 		graphContext.length = 0;
@@ -217,10 +220,13 @@ function canvasApp() {
 			drawSubGraph(i, rect);
 
 			graphTargetX.push(startX + rect[3] * tileW);
+			x = Math.floor(Math.random() * 50);
 			if(Math.random() > 0.5) {
-				graphX.push((-1)*graphCanvas[i].width);
+				x += Math.ceil((graphTargetX[i] + graphCanvas[i].width) / slideSpeed);
+				graphX.push(graphTargetX[i] - x * slideSpeed);
 			} else {
-				graphX.push(screenWidth);
+				x += Math.ceil((screenWidth - graphTargetX[i]) / slideSpeed);
+				graphX.push(graphTargetX[i] + x * slideSpeed);
 			}
 			graphY.push(startY + rect[0] * tileH * 0.75);
 		}
@@ -301,6 +307,15 @@ function canvasApp() {
 	function pushSlide() {
 		if(slidingCount == 0) {
 			return;
+		}
+
+		var i;
+		for(i = 0; i < maxGraph; i++) {
+			if(graphX[i] < graphTargetX[i]) {
+				graphX[i] += slideSpeed;
+			} else if(graphX[i] > graphTargetX[i]) {
+				graphX[i] -= slideSpeed;
+			}
 		}
 	}
 
