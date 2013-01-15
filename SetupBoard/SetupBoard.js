@@ -59,10 +59,11 @@ function canvasApp() {
 
 	// Slide-in animation variables
 	const maxCanvas = 20;
-	var slideT;
+	var slidingCount;
 	var graphCanvas = new Array(maxCanvas);
 	var graphContext = new Array();
-	var graphX = new Array()
+	var graphTargetX = new Array();
+	var graphX = new Array();
 	var graphY = new Array();
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -79,11 +80,6 @@ function canvasApp() {
 	}
 
 	function eventKeyUp(e) {
-		if(e.keyCode == 188) {
-			slideT--;
-		} else if(e.keyCode == 190) {
-			slideT++;
-		}
 	}
 
 	function eventMouseMove(e) {
@@ -170,8 +166,8 @@ function canvasApp() {
 		maxCol = AI.getMaxCol();
 		maxRow = AI.getMaxRow();
 		maxGraph = AI.getGraphSize();
+		slidingCount = maxGraph;
 
-		slideT = 0;
 		prepareSubGraph();
 
 		state = stateTitle;
@@ -189,7 +185,7 @@ function canvasApp() {
 		var board = AI.getBoard();
 		var i;
 		for(i = 0; i < maxGraph; i++) {
-			backContext.drawImage(graphCanvas[i], graphX[i] * slideT/5, graphY[i]);
+//			backContext.drawImage(graphCanvas[i], graphX[i], graphY[i], graphCanvas[i].width, graphCanvas[i].height);
 		}
 
 		// Flip
@@ -201,7 +197,6 @@ function canvasApp() {
 		context.font = "14px monospace";
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
-		context.fillText(slideT, screenWidth, 14);
 	}
 
 	function prepareSubGraph() {
@@ -210,6 +205,7 @@ function canvasApp() {
 		var startX = 100, startY = 30, offset;
 
 		graphContext.length = 0;
+		graphTargetX.length = 0;
 		graphX.length = 0;
 		graphY.length = 0;
 		for(i = 0; i < maxGraph; i++) {
@@ -220,7 +216,12 @@ function canvasApp() {
 
 			drawSubGraph(i, rect);
 
-			graphX.push(startX + rect[3] * tileW);
+			graphTargetX.push(startX + rect[3] * tileW);
+			if(Math.random() > 0.5) {
+				graphX.push((-1)*graphCanvas[i].width);
+			} else {
+				graphX.push(screenWidth);
+			}
 			graphY.push(startY + rect[0] * tileH * 0.75);
 		}
 	}
@@ -295,6 +296,12 @@ function canvasApp() {
 		}
 
 		return output;
+	}
+
+	function pushSlide() {
+		if(slidingCount == 0) {
+			return;
+		}
 	}
 
 	const FPS = 30;
