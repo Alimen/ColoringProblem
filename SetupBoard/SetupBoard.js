@@ -83,9 +83,7 @@ function canvasApp() {
 
 	function eventKeyUp(e) {
 		if(e.keyCode == 65) {
-			if(slideState == 0) {
-				resetSlideIn();
-			} else if(slideState == 3) {
+			if(slideState == 3) {
 				resetSlideOut();
 			}
 		}
@@ -171,7 +169,7 @@ function canvasApp() {
 	}
 
 	function reset() {
-		slideState = 0;
+		resetSlideIn();
 		state = stateTitle;
 	}
 
@@ -182,16 +180,17 @@ function canvasApp() {
 		// Clear background
 		backContext.drawImage(imgBackground, 0, 0);
 
-		// Draw shadow
-		backContext.drawImage(imgShadow, 100, 430);
-
 		// Draw graphs to backCanvas
 		var board = AI.getBoard();
-		var i, dx, dy;
+		var i, dx, dy, dw, dh;
 		for(i = 0; i < maxGraph; i++) {
-			dx = graphCanvas[i].width * graphZ[i];
-			dy = graphCanvas[i].height * graphZ[i];
-			backContext.drawImage(graphCanvas[i], graphX[i] + dx/2, graphY[i] + dy/2, graphCanvas[i].width - dx, graphCanvas[i].height - dy);
+			dx = (graphX[i] - screenWidth/2) * (1 - graphZ[i]) + screenWidth/2;
+			dy = (graphY[i] - screenHeight/2) * (1 - graphZ[i]) + screenHeight/2;
+			dw = graphCanvas[i].width * graphZ[i];
+			dh = graphCanvas[i].height * graphZ[i];
+
+			backContext.drawImage(graphCanvas[i], dx, dy, graphCanvas[i].width - dw, graphCanvas[i].height - dh);
+			backContext.drawImage(imgShadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
 		}
 
 		// Flip
@@ -216,14 +215,12 @@ function canvasApp() {
 	}
 
 	function resetSlideOut() {
-		var i, x;
+		var i, x = Math.ceil(screenWidth / slideSpeed) * slideSpeed;;
 		for(i = 0; i < maxGraph; i++) {
 			if(Math.random() > 0.5) {
-				x = Math.ceil((graphX[i] + graphCanvas[i].width) / slideSpeed);
-				graphTargetX[i] = graphX[i] - x * slideSpeed;
+				graphTargetX[i] = graphX[i] - x;
 			} else {
-				x = Math.ceil((screenWidth - graphX[i]) / slideSpeed);
-				graphTargetX[i] = graphX[i] + x * slideSpeed;
+				graphTargetX[i] = graphX[i] + x;
 			}
 		}
 
@@ -232,8 +229,9 @@ function canvasApp() {
 
 	function prepareSubGraph() {
 		var i, j, curRow;
-		var w, h, x;
+		var w, h;
 		var startX = 100, startY = 30, offset;
+		var x = Math.ceil(screenWidth / slideSpeed) * slideSpeed;
 
 		graphContext.length = 0;
 		graphTargetX.length = 0;
@@ -249,16 +247,13 @@ function canvasApp() {
 			drawSubGraph(i, rect);
 
 			graphTargetX.push(startX + rect[3] * tileW);
-			x = i * 3;
 			if(Math.random() > 0.5) {
-				x += Math.ceil((graphTargetX[i] + graphCanvas[i].width) / slideSpeed);
-				graphX.push(graphTargetX[i] - x * slideSpeed);
+				graphX.push(graphTargetX[i] - x);
 			} else {
-				x += Math.ceil((screenWidth - graphTargetX[i]) / slideSpeed);
-				graphX.push(graphTargetX[i] + x * slideSpeed);
+				graphX.push(graphTargetX[i] + x);
 			}
 			graphY.push(startY + rect[0] * tileH * 0.75);
-			graphZ.push((maxGraph-i-1) * 0.03);
+			graphZ.push((maxGraph-i-1) * 0.02);
 		}
 	}
 
@@ -376,7 +371,7 @@ function canvasApp() {
 		case 4:
 			check = maxGraph;
 			for(i = 0; i < maxGraph; i++) {
-				if(graphZ[i] < (maxGraph-i-1) * 0.03) {
+				if(graphZ[i] < (maxGraph-i-1) * 0.02) {
 					graphZ[i] += 0.01;
 				} else {
 					check--;
@@ -399,7 +394,7 @@ function canvasApp() {
 				}
 			}
 			if(check == 0) {
-				slideState = 0;
+				resetSlideIn();
 			}
 			break;
 		}
