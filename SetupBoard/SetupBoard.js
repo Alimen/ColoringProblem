@@ -60,12 +60,13 @@ function canvasApp() {
 	// Slide-in animation variables
 	const maxCanvas = 20;
 	const slideSpeed = 10;
-	var slidingCount;
+	var slideState;
 	var graphCanvas = new Array(maxCanvas);
 	var graphContext = new Array();
 	var graphTargetX = new Array();
 	var graphX = new Array();
 	var graphY = new Array();
+	var graphZ = new Array();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -167,9 +168,9 @@ function canvasApp() {
 		maxCol = AI.getMaxCol();
 		maxRow = AI.getMaxRow();
 		maxGraph = AI.getGraphSize();
-		slidingCount = maxGraph;
 
 		prepareSubGraph();
+		slideState = 1;
 
 		state = stateTitle;
 	}
@@ -186,9 +187,11 @@ function canvasApp() {
 
 		// Draw graphs to backCanvas
 		var board = AI.getBoard();
-		var i;
+		var i, dx, dy;
 		for(i = 0; i < maxGraph; i++) {
-			backContext.drawImage(graphCanvas[i], graphX[i], graphY[i], graphCanvas[i].width, graphCanvas[i].height);
+			dx = graphCanvas[i].width * graphZ[i];
+			dy = graphCanvas[i].height * graphZ[i];
+			backContext.drawImage(graphCanvas[i], graphX[i] + dx/2, graphY[i] + dy/2, graphCanvas[i].width - dx, graphCanvas[i].height - dy);
 		}
 
 		// Flip
@@ -211,6 +214,7 @@ function canvasApp() {
 		graphTargetX.length = 0;
 		graphX.length = 0;
 		graphY.length = 0;
+		graphZ.length = 0;
 		for(i = 0; i < maxGraph; i++) {
 			rect = AI.findBorder(i + 61);
 			graphCanvas[i].width = (rect[1] - rect[3] + 1) * tileW;
@@ -229,6 +233,7 @@ function canvasApp() {
 				graphX.push(graphTargetX[i] + x * slideSpeed);
 			}
 			graphY.push(startY + rect[0] * tileH * 0.75);
+			graphZ.push((maxGraph-i) * 0.03);
 		}
 	}
 
@@ -305,17 +310,43 @@ function canvasApp() {
 	}
 
 	function pushSlide() {
-		if(slidingCount == 0) {
-			return;
-		}
+		var i, check;
+		switch(slideState) {
+		case 0:
+			break;
 
-		var i;
-		for(i = 0; i < maxGraph; i++) {
-			if(graphX[i] < graphTargetX[i]) {
-				graphX[i] += slideSpeed;
-			} else if(graphX[i] > graphTargetX[i]) {
-				graphX[i] -= slideSpeed;
+		case 1:
+			check = maxGraph;
+			for(i = 0; i < maxGraph; i++) {
+				if(graphX[i] < graphTargetX[i]) {
+					graphX[i] += slideSpeed;
+				} else if(graphX[i] > graphTargetX[i]) {
+					graphX[i] -= slideSpeed;
+				} else {
+					check--;
+				}
 			}
+			if(check == 0) {
+				slideState = 2;
+			}
+			break;
+
+		case 2:
+			check = maxGraph;
+			for(i = 0; i < maxGraph; i++) {
+				if(graphZ[i] > 0) {
+					graphZ[i] -= 0.01;
+				} else {
+					check--;
+				}
+			}
+			if(check == 0) {
+				slideState = 3;
+			}
+			break;
+
+		case 3:
+			break;
 		}
 	}
 
