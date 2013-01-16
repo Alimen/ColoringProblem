@@ -82,6 +82,13 @@ function canvasApp() {
 	}
 
 	function eventKeyUp(e) {
+		if(e.keyCode == 65) {
+			if(slideState == 0) {
+				resetSlideIn();
+			} else if(slideState == 3) {
+				resetSlideOut();
+			}
+		}
 	}
 
 	function eventMouseMove(e) {
@@ -164,14 +171,7 @@ function canvasApp() {
 	}
 
 	function reset() {
-		AI.setupBoard();
-		maxCol = AI.getMaxCol();
-		maxRow = AI.getMaxRow();
-		maxGraph = AI.getGraphSize();
-
-		prepareSubGraph();
-		slideState = 1;
-
+		slideState = 0;
 		state = stateTitle;
 	}
 
@@ -205,6 +205,31 @@ function canvasApp() {
 		context.fillText("so far so good!", screenWidth, 0);
 	}
 
+	function resetSlideIn() {
+		AI.setupBoard();
+		maxCol = AI.getMaxCol();
+		maxRow = AI.getMaxRow();
+		maxGraph = AI.getGraphSize();
+
+		prepareSubGraph();
+		slideState = 1;
+	}
+
+	function resetSlideOut() {
+		var i, x;
+		for(i = 0; i < maxGraph; i++) {
+			if(Math.random() > 0.5) {
+				x = Math.ceil((graphX[i] + graphCanvas[i].width) / slideSpeed);
+				graphTargetX[i] = graphX[i] - x * slideSpeed;
+			} else {
+				x = Math.ceil((screenWidth - graphX[i]) / slideSpeed);
+				graphTargetX[i] = graphX[i] + x * slideSpeed;
+			}
+		}
+
+		slideState = 4;
+	}
+
 	function prepareSubGraph() {
 		var i, j, curRow;
 		var w, h, x;
@@ -233,7 +258,7 @@ function canvasApp() {
 				graphX.push(graphTargetX[i] + x * slideSpeed);
 			}
 			graphY.push(startY + rect[0] * tileH * 0.75);
-			graphZ.push((maxGraph-i) * 0.03);
+			graphZ.push((maxGraph-i-1) * 0.03);
 		}
 	}
 
@@ -346,6 +371,36 @@ function canvasApp() {
 			break;
 
 		case 3:
+			break;
+
+		case 4:
+			check = maxGraph;
+			for(i = 0; i < maxGraph; i++) {
+				if(graphZ[i] < (maxGraph-i-1) * 0.03) {
+					graphZ[i] += 0.01;
+				} else {
+					check--;
+				}
+			}
+			if(check == 0) {
+				slideState = 5;
+			}
+			break;
+
+		case 5:
+			check = maxGraph;
+			for(i = 0; i < maxGraph; i++) {
+				if(graphX[i] < graphTargetX[i]) {
+					graphX[i] += slideSpeed;
+				} else if(graphX[i] > graphTargetX[i]) {
+					graphX[i] -= slideSpeed;
+				} else {
+					check--;
+				}
+			}
+			if(check == 0) {
+				slideState = 0;
+			}
 			break;
 		}
 	}
