@@ -192,6 +192,16 @@ function ColoringProblem() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+	this.findGroup = function(xy) {
+		var i;
+		for(i = 0; i < groups.length; i++) {
+			if(groups[i].indexOf(xy) != -1) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	this.subGraph = function(target) {
 		var w, h;
 		var i, j, k, curRow;

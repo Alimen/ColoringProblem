@@ -56,9 +56,11 @@ function canvasApp() {
 	// Game board variables
 	const tileW = 40, tileH = 46;
 	var maxCol, maxRow, maxGraph;
+	var selected;
 
 	// Slide-in animation variables
 	const maxCanvas = 20;
+	const startX = 100, startY = 30;
 	const slideSpeed = 10;
 	var slideState;
 	var graphCanvas = new Array(maxCanvas);
@@ -98,6 +100,10 @@ function canvasApp() {
 			mouseY = e.layerY - theCanvas.offsetTop;
 		}
 	}
+	
+	function eventMouseClick(e) {
+		selection(mouseX, mouseY);
+	}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -127,6 +133,10 @@ function canvasApp() {
 	function init() {
 		// Setup keyboard events
 		document.addEventListener("keyup", eventKeyUp, true);
+	
+		// Setup mouse events
+		theCanvas.addEventListener("mousemove", eventMouseMove, true);
+		theCanvas.addEventListener("click", eventMouseClick, true);	
 
 		// Setup image loader events
 		imgBackground.src = "WhiteRoom.jpg";
@@ -170,6 +180,7 @@ function canvasApp() {
 
 	function reset() {
 		resetSlideIn();
+		selected = 2;
 		state = stateTitle;
 	}
 
@@ -188,9 +199,22 @@ function canvasApp() {
 			dy = (graphY[i] - screenHeight/2) * (1 - graphZ[i]) + screenHeight/2;
 			dw = graphCanvas[i].width * graphZ[i];
 			dh = graphCanvas[i].height * graphZ[i];
-
-			backContext.drawImage(graphCanvas[i], dx, dy, graphCanvas[i].width - dw, graphCanvas[i].height - dh);
 			backContext.drawImage(imgShadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
+
+//			if(slideState != 0 || slideState != 3) {
+//				if(selected === i) {
+//					continue;
+//				}
+				backContext.drawImage(graphCanvas[i], dx, dy, graphCanvas[i].width - dw, graphCanvas[i].height - dh);
+/*			} else {
+				if(selected == i) {
+					continue;
+				}
+				backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);
+			}
+*/		}
+		if(selected != -1 && (slideState == 0 || slideState == 3)) {
+			//backContext.drawImage(graphCanvas[selected], graphX[selected], graphY[selected], graphCanvas[selected].width * 1.1, graphCanvas[selected].height * 1.1);
 		}
 
 		// Flip
@@ -202,6 +226,8 @@ function canvasApp() {
 		context.font = "14px monospace";
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
+		context.fillText("mouse = (" + mouseX + ", " + mouseY + ")", screenWidth, 15);
+		context.fillText("slideState = " + slideState + ", selected = " + selected, screenWidth, 30);
 	}
 
 	function resetSlideIn() {
@@ -230,7 +256,6 @@ function canvasApp() {
 	function prepareSubGraph() {
 		var i, j, curRow;
 		var w, h;
-		var startX = 100, startY = 30, offset;
 		var x = Math.ceil(screenWidth / slideSpeed) * slideSpeed;
 
 		graphContext.length = 0;
@@ -279,6 +304,8 @@ function canvasApp() {
 					x = j * tileW + offset;
 					y = i * tileH * 0.75;
 					graphContext[target].drawImage(imgTiles, x, y);
+
+					graphContext[target].fillText(target, x + 15, y + 15);
 					
 					neighbor = checkNeighbor(subGraph, curRow+j, w, h, t);	
 					if(neighbor[0] == 1) {
@@ -398,6 +425,62 @@ function canvasApp() {
 			}
 			break;
 		}
+	}
+
+	function selection(x, y) {
+		var i;
+		var blockX = -1, blockY = -1;
+
+		for(i = 0; i < maxCol; i += 0.5) {
+			if( (x >= startX+tileW*i) && (x < startX+tileW*(i+0.5)) ) {
+				blockX = i;
+				break;
+			}
+		}
+		for(i = 0; i < maxRow; i++) {
+			if( (y >= startY+tileH*i*0.75) && (y < startY+tileH*(i+1)*0.75) ) {
+				blockY = i;
+				break;
+			}
+		}
+		if(blockX == -1 || blockY == -1 || blockY == 0) {
+			selected = -1;
+			return;
+		}
+
+		var odd = (blockX > Math.floor(blockX))? 1: 0;
+		var cx1, cx2, cy1, cy2;
+		cy1 = startY + blockY * tileH * 0.75 + tileH/2;
+		cy2 = startY + (blockY-1) * tileH * 0.75 + tileH/2;
+		if( ((blockY%2==0)&&(odd==0)) || ((blockY%2==1)&&(odd==1)) ) {
+			cx2 = startX + blockX * tileW;
+			cx1 = cx2 + tileW/2;
+		} else {
+			cx1 = startX + blockX * tileW;
+			cx2 = cx1 + tileW/2;
+		}
+
+		var d1, d2, xy;
+		d1 = (x-cx1)*(x-cx1) + (y-cy1)*(y-cy1);
+		d2 = (x-cx2)*(x-cx2) + (y-cy2)*(y-cy2);
+		if(d1 < d2) {
+			xy = blockY * maxCol;
+			if(blockY%2 == 1) {
+				xy += Math.floor(blockX - 0.5);
+			} else {
+				xy += Math.floor(blockX);
+			}
+		} else {
+			xy = (blockY-1) * maxCol;
+			if(blockY%2 == 1) {
+				xy += Math.floor(blockX);
+			} else {
+				xy += Math.floor(blockX - 0.5);
+			}
+		}
+		console.log([blockX, blockY, odd], [cx1, cy1], [cx2, cy2], [d1, d2], xy);
+
+		selected = AI.findGroup(xy);
 	}
 
 	const FPS = 30;
