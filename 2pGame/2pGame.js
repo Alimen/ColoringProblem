@@ -180,7 +180,7 @@ function canvasApp() {
 
 	function reset() {
 		resetSlideIn();
-		selected = 2;
+		selected = -1;
 		state = stateTitle;
 	}
 
@@ -202,9 +202,9 @@ function canvasApp() {
 			backContext.drawImage(imgShadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
 
 //			if(slideState != 0 || slideState != 3) {
-//				if(selected === i) {
-//					continue;
-//				}
+				if(selected === i) {
+					continue;
+				}
 				backContext.drawImage(graphCanvas[i], dx, dy, graphCanvas[i].width - dw, graphCanvas[i].height - dh);
 /*			} else {
 				if(selected == i) {
@@ -226,8 +226,6 @@ function canvasApp() {
 		context.font = "14px monospace";
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
-		context.fillText("mouse = (" + mouseX + ", " + mouseY + ")", screenWidth, 15);
-		context.fillText("slideState = " + slideState + ", selected = " + selected, screenWidth, 30);
 	}
 
 	function resetSlideIn() {
@@ -478,7 +476,6 @@ function canvasApp() {
 				xy += Math.floor(blockX - 0.5);
 			}
 		}
-		console.log([blockX, blockY, odd], [cx1, cy1], [cx2, cy2], [d1, d2], xy);
 
 		selected = AI.findGroup(xy);
 	}
