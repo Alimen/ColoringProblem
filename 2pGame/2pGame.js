@@ -144,7 +144,7 @@ function canvasApp() {
 		// Setup image loader events
 		imgBackground.src = "WhiteRoom.jpg";
 		imgBackground.onload = eventItemLoaded;
-		imgTiles.src = "Tile.png";
+		imgTiles.src = "Tiles.png";
 		imgTiles.onload = eventItemLoaded;
 		imgTileBorder.src = "tileBorder.png";
 		imgTileBorder.onload = eventItemLoaded;
@@ -328,7 +328,7 @@ function canvasApp() {
 				if(subGraph[curRow+j] != ' ') {
 					x = glowRadius + j * tileW + offset;
 					y = glowRadius + i * tileH * 0.75;
-					graphContext[target].drawImage(imgTiles, x, y);
+					graphContext[target].drawImage(imgTiles, 0, 0, tileW, tileH, x, y, tileW, tileH);
 
 					graphContext[target].fillText(target, x + 15, y + 15);
 					
