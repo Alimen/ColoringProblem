@@ -71,6 +71,7 @@ function canvasApp() {
 	var graphX = new Array();
 	var graphY = new Array();
 	var graphZ = new Array();
+	var graphFrame = new Array();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -101,11 +102,14 @@ function canvasApp() {
 			mouseX = e.layerX - theCanvas.offsetLeft;
 			mouseY = e.layerY - theCanvas.offsetTop;
 		}
-		selection(mouseX, mouseY);
+
+		if(slideState == 0 || slideState == 3) {
+			selection(mouseX, mouseY);
+		}
 	}
 	
 	function eventMouseClick(e) {
-		//selection(mouseX, mouseY);
+		paint(selected, Math.floor(Math.random()* 4));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -201,19 +205,21 @@ function canvasApp() {
 		var i, dx, dy, dw, dh;
 		var rect;
 		for(i = 0; i < maxGraph; i++) {
-			dx = (graphX[i] - screenWidth/2) * (1 - graphZ[i]) + screenWidth/2;
-			dy = (graphY[i] - screenHeight/2) * (1 - graphZ[i]) + screenHeight/2;
-			dw = graphCanvas[i].width * graphZ[i];
-			dh = graphCanvas[i].height * graphZ[i];
-			backContext.drawImage(imgShadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
-
-			if(slideState != 0 && slideState != 3) {
+			if(graphZ[i] > 0) {
+				dx = (graphX[i] - screenWidth/2) * (1 - graphZ[i]) + screenWidth/2;
+				dy = (graphY[i] - screenHeight/2) * (1 - graphZ[i]) + screenHeight/2;
+				dw = graphCanvas[i].width * graphZ[i];
+				dh = graphCanvas[i].height * graphZ[i];
 				backContext.drawImage(graphCanvas[i], dx, dy, graphCanvas[i].width - dw, graphCanvas[i].height - dh);
+				backContext.drawImage(imgShadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
 			} else {
-				if(selected == i) {
-					continue;
+				if(selected != i) {
+					backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);				
 				}
-				backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);
+				if(graphFrame[i] != -1) {
+					drawSubGraph(i, AI.findBorder(i + 61), 0);	
+				}
+				backContext.drawImage(imgShadow, graphX[i], 430,  graphCanvas[i].width, 50);
 			}
 		}
 		if(selected != -1 && (slideState == 0 || slideState == 3)) {
@@ -229,7 +235,8 @@ function canvasApp() {
 		context.font = "14px monospace";
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
-		context.fillText("slideState = " + slideState + ", selected = " + selected, screenWidth, 15);
+		context.fillText("mouse = (" + mouseX + ", " + mouseY + ")", screenWidth, 15);
+		context.fillText("slideState = " + slideState + ", selected = " + selected, screenWidth, 30);
 	}
 
 	function resetSlideIn() {
@@ -239,6 +246,8 @@ function canvasApp() {
 		maxGraph = AI.getGraphSize();
 
 		prepareSubGraph();
+		
+		selected = -1;
 		slideState = 1;
 	}
 
@@ -252,6 +261,7 @@ function canvasApp() {
 			}
 		}
 
+		selected = -1;
 		slideState = 4;
 	}
 
@@ -264,13 +274,12 @@ function canvasApp() {
 		graphX.length = 0;
 		graphY.length = 0;
 		graphZ.length = 0;
+		graphFrame.length = 0;
 		for(i = 0; i < maxGraph; i++) {
 			rect = AI.findBorder(i + 61);
 			graphCanvas[i].width = (rect[1] - rect[3] + 1) * tileW + 2 * glowRadius;
 			graphCanvas[i].height = (rect[2] - rect[0]) * tileH * 0.75 + tileH + 2 * glowRadius;
 			graphContext.push(graphCanvas[i].getContext("2d"));
-
-			drawSubGraph(i, rect, 0);
 
 			graphTargetX.push(startX + rect[3] * tileW);
 			if(Math.random() > 0.5) {
@@ -280,6 +289,9 @@ function canvasApp() {
 			}
 			graphY.push(startY + rect[0] * tileH * 0.75);
 			graphZ.push((maxGraph-i-1) * 0.02);
+			graphFrame.push(-1);
+
+			drawSubGraph(i, rect, 0);
 		}
 	}
 
@@ -287,15 +299,14 @@ function canvasApp() {
 		var w = Math.floor(rect[1])-Math.floor(rect[3])+1, h = rect[2]-rect[0]+1;
 		var t = rect[0], l = rect[3];
 		var odd = (l-Math.floor(l) > 0)? 1: 0;
-		var i, j, curRow, offset;
-		var x, y;
 		var subGraph = AI.subGraph(target+61);
-		var neighbor;
 
 		// Clean up subgraph rectangle
 		graphContext[target].clearRect(0, 0, graphCanvas[target].width, graphCanvas[target].height);
 
 		// Draw glow
+		var i, j, curRow, offset;
+		var x, y;
 		if(glowing != 0) {
 			for(i = 0; i < h; i++) {
 				curRow = i * w;
@@ -316,6 +327,8 @@ function canvasApp() {
 		}
 
 		// Draw tiles
+		var color = AI.getColor(target);
+		var neighbor;
 		for(i = 0; i < h; i++) {
 			curRow = i * w;
 			if(odd == 1) {
@@ -328,10 +341,22 @@ function canvasApp() {
 				if(subGraph[curRow+j] != ' ') {
 					x = glowRadius + j * tileW + offset;
 					y = glowRadius + i * tileH * 0.75;
-					graphContext[target].drawImage(imgTiles, 0, 0, tileW, tileH, x, y, tileW, tileH);
 
-					graphContext[target].fillText(target, x + 15, y + 15);
+					// Draw tiles
+					if(graphFrame[target] != -1) {
+						graphContext[target].drawImage(imgTiles, tileW * graphFrame[target], tileH * color, tileW, tileH, x, y, tileW, tileH);
+					} else {
+						if(color != -1) {
+							graphContext[target].drawImage(imgTiles, tileW * 10, tileH * color, tileW, tileH, x, y, tileW, tileH);
+						} else {
+							graphContext[target].drawImage(imgTiles, 0, 0, tileW, tileH, x, y, tileW, tileH);
+						}
+					}
 					
+					// Draw target# for debug
+					//graphContext[target].fillText(target, x + 15, y + 15);
+					
+					// Draw borders
 					neighbor = checkNeighbor(subGraph, curRow+j, w, h, t);	
 					if(neighbor[0] == 1) {
 						graphContext[target].drawImage(imgTileBorder, 0, 0, tileW, tileH, x, y, tileW, tileH);
@@ -343,6 +368,14 @@ function canvasApp() {
 						graphContext[target].drawImage(imgTileBorder, 2*tileW, 0, tileW, tileH, x, y, tileW, tileH);
 					}
 				}
+			}
+		}
+
+		// Push animation
+		if(graphFrame[target] != -1) {
+			graphFrame[target]++;
+			if(graphFrame[target] > 10) {
+				graphFrame[target] = -1;
 			}
 		}
 	}
@@ -379,6 +412,16 @@ function canvasApp() {
 		}
 
 		return output;
+	}
+
+	function paint(groupID, color) {
+		if(groupID == -1) {
+			return;
+		}
+
+		AI.setColor(groupID, color);
+		graphFrame[groupID] = 0;
+		selected = -1;
 	}
 
 	function pushSlide() {
@@ -470,8 +513,10 @@ function canvasApp() {
 			}
 		}
 		if(blockX == -1 || blockY == -1 || blockY == 0) {
-			rect = AI.findBorder(selected + 61);
-			drawSubGraph(selected, rect, 0);
+			if(selected != -1) {
+				rect = AI.findBorder(selected + 61);
+				drawSubGraph(selected, rect, 0);
+			}
 			selected = -1;
 			return;
 		}

@@ -5,6 +5,7 @@ function ColoringProblem() {
 	var board = new Array(maxCol * maxRow);
 	var groups = new Array();
 	var graph = new Array();
+	var uncolored = new Array();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -28,6 +29,18 @@ function ColoringProblem() {
 		return graph.length;
 	}
 
+	this.getColor = function(groupID) {
+		return getColor(groupID);
+	}
+
+	this.setColor = function(groupID, color) {
+		return setColor(groupID, color);
+	}
+
+	this.getUncoloredCount = function() {
+		return uncolored.length;
+	}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Board setup subroutines
@@ -36,14 +49,14 @@ function ColoringProblem() {
 
 	this.setupBoard = function() {
 		const removed = 3;
-		const seed = 15;
+		const seed = 20;
 		var emptyCells = new Array();
 		var setupSeq = new Array(maxCol * maxRow);
 		var i, j, tmp;
 
 		// Step 1. Empty the board
 		emptyBoard(emptyCells);
-		for(i = 0; i < seed; i = i+1) {
+		for(i = 0; i < seed; i++) {
 			groups[i] = new Array();
 			graph[i] = new Array();
 		}
@@ -51,7 +64,7 @@ function ColoringProblem() {
 		// Step 2. Remove some cells for randomize
 		setupSeq = emptyCells.slice(0);
 		shuffle(setupSeq);
-		for(i = 0; i < removed; i = i+1) {
+		for(i = 0; i < removed; i++) {
 			board[setupSeq[i]] = ' ';
 			emptyCells.splice(emptyCells.indexOf(setupSeq[i]), 1);
 		}
@@ -59,7 +72,7 @@ function ColoringProblem() {
 		// Step 3. Generate grouping seeds
 		setupSeq = emptyCells.slice(0);
 		shuffle(setupSeq);
-		for(i = 0; i < seed; i = i+1) {
+		for(i = 0; i < seed; i++) {
 			board[setupSeq[i]] = i + 61;
 			groups[i].push(setupSeq[i]);
 			emptyCells.splice(emptyCells.indexOf(setupSeq[i]), 1);
@@ -71,7 +84,7 @@ function ColoringProblem() {
 			setupSeq = emptyCells.slice(0);
 			shuffle(setupSeq);
 
-			for(i = 0; i < j; i = i+1) {
+			for(i = 0; i < j; i++) {
 				tmp = grouping(setupSeq[i]);
 				if(tmp >= 0) {
 					board[setupSeq[i]] = tmp + 61;
@@ -82,7 +95,7 @@ function ColoringProblem() {
 		}
 
 		// Step 5. Confirm the graph
-		for(i = 0; i < seed-1; i = i+1) {
+		for(i = 0; i < seed-1; i++) {
 			for(j = i+1; j < seed; j = j+1) {
 				if(isNeighborG2G(groups[i], groups[j]) == 1) {
 					graph[i].push(j);
@@ -90,13 +103,18 @@ function ColoringProblem() {
 				}
 			}
 		}
+
+		// Step 6. Fill the uncolored array
+		for(i = 0; i < seed; i++) {
+			uncolored.push(i);
+		}
 	}
 
 	function emptyBoard(emptyCells) {
 		var i;
 
 		emptyCells.length = 0;
-		for(i = 0; i < maxCol*maxRow; i = i+1) {
+		for(i = 0; i < maxCol*maxRow; i++) {
 			if(isEdge(i) == 1) {
 				board[i] = ' ';
 			} else {
@@ -116,7 +134,7 @@ function ColoringProblem() {
 		var candidates = new Array();
 		var i, min;
 
-		for(i = 0; i < groups.length; i = i+1) {
+		for(i = 0; i < groups.length; i++) {
 			if(isNeighborG2P(groups[i], xy) == 1) {
 				candidates.push(i);
 			}
@@ -128,7 +146,7 @@ function ColoringProblem() {
 			return candidates[0];
 		} else {
 			min = 0;
-			for(i = 1; i < candidates.length; i = i+1) {
+			for(i = 1; i < candidates.length; i++) {
 				if(groups[i].length < groups[min].length) {
 					min = i;
 				}
@@ -137,8 +155,24 @@ function ColoringProblem() {
 		}
 	}
 
+	function getColor(groupID) {
+		if(groups[groupID][0] > 3 || groups[groupID][0] < 0) {
+			return -1;
+		} else {
+			return groups[groupID][0];
+		}
+	}
+
+	function setColor(groupID, color) {
+		var i;
+		for(i = 0; i < groups[groupID].length; i++) {
+			groups[groupID][i] = color;
+		}
+		uncolored.splice(uncolored.indexOf(groupID), 1);
+	}
+
 	function isNeighborG2G(g1, g2) {
-		for(var i = 0; i < g2.length; i = i+1) {
+		for(var i = 0; i < g2.length; i++) {
 			if(isNeighborG2P(g1, g2[i]) == 1) {
 				return 1;
 			}
@@ -147,7 +181,7 @@ function ColoringProblem() {
 	}
 
 	function isNeighborG2P(g, xy) {
-		for(var i = 0; i < g.length; i = i+1) {
+		for(var i = 0; i < g.length; i++) {
 			if(isNeighborP2P(g[i], xy) == 1) {
 				return 1;
 			}
@@ -195,7 +229,7 @@ function ColoringProblem() {
 	this.findGroup = function(xy) {
 		var i;
 		for(i = 0; i < groups.length; i++) {
-			if(groups[i].indexOf(xy) != -1) {
+			if(groups[i].indexOf(xy) != -1 && getColor(i) == -1) {
 				return i;
 			}
 		}
@@ -292,7 +326,7 @@ function ColoringProblem() {
 
 	function shuffle(target) {
 		var a, b, tmp;
-		for(var i = 0; i < target.length; i = i+1) {
+		for(var i = 0; i < target.length; i++) {
 			a = Math.random();
 			a = a * target.length;
 			a = Math.floor(a);
