@@ -61,7 +61,7 @@ function canvasApp() {
 
 	// Slide-in animation variables
 	const maxCanvas = 20;
-	const startX = 80, startY = 10;
+	const startX = 20, startY = 10;
 	const slideSpeed = 10;
 	const glowRadius = 20;
 	var slideState;
@@ -252,7 +252,7 @@ function canvasApp() {
 	}
 
 	function resetSlideOut() {
-		var i, x = Math.ceil(screenWidth / slideSpeed) * slideSpeed;;
+		var i, x = Math.ceil(screenWidth * 1.5 / slideSpeed) * slideSpeed;
 		for(i = 0; i < maxGraph; i++) {
 			if(Math.random() > 0.5) {
 				graphTargetX[i] = graphX[i] - x;

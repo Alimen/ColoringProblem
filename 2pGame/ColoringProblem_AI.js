@@ -1,7 +1,7 @@
 function ColoringProblem() {
 	// The board
 	const maxRow = 12;
-	const maxCol = 15;
+	const maxCol = 18;
 	var board = new Array(maxCol * maxRow);
 	var groups = new Array();
 	var graph = new Array();
