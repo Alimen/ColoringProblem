@@ -46,11 +46,13 @@ function canvasApp() {
 	var imgBottons = new Image();
 
 	// Panel variables
+	const maxPanelT = 4;
 	var panelState;
 	var panelT;
 	var panelX, panelY;
-	var bottonShowed;
 	const bottonW = 80, bottonH = 20;
+	var bottonShowed;
+	var bottonPress;
 
 	// General variables
 	var mouseX = 0;
@@ -77,16 +79,27 @@ function canvasApp() {
 			mouseX = e.layerX - theCanvas.offsetLeft;
 			mouseY = e.layerY - theCanvas.offsetTop;
 		}
+
+		if(panelState == 2) {
+			if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+10 && mouseY < panelY+10+bottonH) {
+				bottonPress = 0;
+			} else if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+35 && mouseY < panelY+35+bottonH) {
+				bottonPress = 1;
+			} else if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+60 && mouseY < panelY+60+bottonH) {
+				bottonPress = 2;
+			} else {
+				bottonPress = -1;
+			}
+		}
 	}
 	
 	function eventMouseClick(e) {
 		if(panelState == 0) {
-			panelX = mouseX;
-			panelY = mouseY - 80;
+			panelX = mouseX ;
+			panelY = mouseY - 45;
 			panelT = 0;
 			panelState = 1;
 		} else if(panelState == 2) {
-			panelT = 80;
 			panelState = 3;
 		}
 	}
@@ -156,12 +169,15 @@ function canvasApp() {
 
 	function reset() {
 		panelState = 0;
-		bottonShowed = [0, 1, 2];
+		bottonShowed = [4, 5, 6];
+		bottonPress = -1;
 		state = stateTitle;
 	}
 
 	// Title screen
 	function drawTitle() {
+		pushPanel();
+
 		// Clear background
 		backContext.drawImage(imgBackground, 0, 0);
 
@@ -182,19 +198,56 @@ function canvasApp() {
 	}
 
 	function drawPanel() {
+		var w;
 		if(panelState == 0) {
 			return;
 		} else if(panelState == 2) {
 			backContext.drawImage(imgPanel, panelX, panelY);
-			backContext.drawImage(imgBottons, 0, bottonH * bottonShowed[0], bottonW, bottonH, panelX+10, panelY+10, bottonW, bottonH);
-			backContext.drawImage(imgBottons, 0, bottonH * bottonShowed[1], bottonW, bottonH, panelX+10, panelY+35, bottonW, bottonH);
-			backContext.drawImage(imgBottons, 0, bottonH * bottonShowed[2], bottonW, bottonH, panelX+10, panelY+60, bottonW, bottonH);
+
+			if(bottonPress == 0) {
+				backContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[0], bottonW, bottonH, panelX+10, panelY+10, bottonW, bottonH);
+			} else {
+				backContext.drawImage(imgBottons, 0, bottonH * bottonShowed[0], bottonW, bottonH, panelX+10, panelY+10, bottonW, bottonH);
+			}
+
+			if(bottonPress == 1) {
+				backContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[1], bottonW, bottonH, panelX+10, panelY+35, bottonW, bottonH);
+			} else {
+				backContext.drawImage(imgBottons, 0, bottonH * bottonShowed[1], bottonW, bottonH, panelX+10, panelY+35, bottonW, bottonH);
+			}
+
+			if(bottonPress == 2) {
+				backContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[2], bottonW, bottonH, panelX+10, panelY+60, bottonW, bottonH);
+			} else {
+				backContext.drawImage(imgBottons, 0, bottonH * bottonShowed[2], bottonW, bottonH, panelX+10, panelY+60, bottonW, bottonH);
+			}
 		} else if(panelState == 1 || panelState == 3) {
-			backContext.drawImage(imgPanel, 0, 0, 10, 10, panelX, panelY+70, 10, 10);
-			backContext.drawImage(imgPanel, 0, 80, 10, 10, panelX, panelY+80, 10, 10);
-			backContext.drawImage(imgPanel, 90, 0, 10, 10, panelX+10, panelY+70, 10, 10);
-			backContext.drawImage(imgPanel, 90, 80, 10, 10, panelX+10, panelY+80, 10, 10);
-			
+			w = 80 / maxPanelT * panelT;
+			backContext.drawImage(imgPanel, 0, 0, 10, 90, panelX, panelY, 10, 90);
+			backContext.drawImage(imgPanel, 90-w, 0, 10+w, 90, panelX+10, panelY, 10+w, 90);
+		}
+	}
+	
+	function pushPanel() {
+		if(panelT < 0) {
+			return;
+		}
+
+		switch(panelState) {
+		case 0:
+			break;
+		case 1:
+			panelT++;
+			if(panelT == maxPanelT) {
+				panelState++;
+			}
+			break;
+		case 2:
+			break;
+		case 3:
+			panelState = 0;
+			panelT = -1;
+			break;
 		}
 	}
 
