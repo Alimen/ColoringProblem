@@ -53,6 +53,13 @@ function canvasApp() {
 	var mouseX = 0;
 	var mouseY = 0;
 	
+	// GamePlay states
+	const gameSlide = 0;
+	const gameSelect = 1;
+	const gamePanel = 2;
+	const gameColoring = 3;
+	var gameState;
+
 	// AI class
 	var AI = new ColoringProblem();
 
@@ -116,7 +123,7 @@ function canvasApp() {
 			mouseY = e.layerY - theCanvas.offsetTop;
 		}
 
-		if(slideState == 0 || slideState == 3) {
+		if(gameState == gameSelect) {
 			selection(mouseX, mouseY);
 		}
 		
@@ -134,14 +141,18 @@ function canvasApp() {
 	}
 	
 	function eventMouseClick(e) {
-		if(panelState == 0) {
+		if(gameState == gameSelect && selected != -1) {
 			panelX = mouseX ;
 			panelY = mouseY - panelH;
 			panelT = 0;
 			panelState = 1;
-		} else if(panelState == 2) {
+			gameState = gamePanel;
+		} else if(gameState == gamePanel) {
 			panelState = 3;
-			paint(selected, Math.floor(Math.random()* 4));
+			if(bottonPress != -1) {
+				paint(selected, bottonPress+1);
+				bottonPress = -1;
+			}
 		}
 	}
 
@@ -284,7 +295,7 @@ function canvasApp() {
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
 		context.fillText("mouse = (" + mouseX + ", " + mouseY + ")", screenWidth, 15);
-		context.fillText("slideState = " + slideState + ", selected = " + selected, screenWidth, 30);
+		context.fillText("gameState = " + gameState, screenWidth, 30);
 	}
 
 	function resetSlideIn() {
@@ -296,6 +307,7 @@ function canvasApp() {
 		prepareSubGraph();
 		
 		selected = -1;
+		gameState = gameSlide;
 		slideState = 1;
 	}
 
@@ -310,12 +322,13 @@ function canvasApp() {
 		}
 
 		selected = -1;
+		gameState = gameSlide;
 		slideState = 4;
 	}
 
 	function prepareSubGraph() {
 		var i, j, curRow;
-		var x = Math.ceil(screenWidth / slideSpeed) * slideSpeed;
+		var x = Math.ceil(screenWidth * 1.5 / slideSpeed) * slideSpeed;
 
 		graphContext.length = 0;
 		graphTargetX.length = 0;
@@ -504,6 +517,7 @@ function canvasApp() {
 				}
 			}
 			if(check == 0) {
+				gameState = gameSelect;
 				slideState = 3;
 			}
 			break;
@@ -670,6 +684,7 @@ function canvasApp() {
 			panelT--;
 			if(panelT < 0) {
 					panelState = 0;
+					gameState = gameSelect;
 			}
 			break;
 		}

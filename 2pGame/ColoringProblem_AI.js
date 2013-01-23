@@ -155,22 +155,6 @@ function ColoringProblem() {
 		}
 	}
 
-	function getColor(groupID) {
-		if(groups[groupID][0] > 3 || groups[groupID][0] < 0) {
-			return -1;
-		} else {
-			return groups[groupID][0];
-		}
-	}
-
-	function setColor(groupID, color) {
-		var i;
-		for(i = 0; i < groups[groupID].length; i++) {
-			groups[groupID][i] = color;
-		}
-		uncolored.splice(uncolored.indexOf(groupID), 1);
-	}
-
 	function isNeighborG2G(g1, g2) {
 		for(var i = 0; i < g2.length; i++) {
 			if(isNeighborG2P(g1, g2[i]) == 1) {
@@ -218,6 +202,38 @@ function ColoringProblem() {
 			return 1;
 		}
 		return 0;
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Game related utilities
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function getColor(groupID) {
+		if(groups[groupID][0] > 3 || groups[groupID][0] < 0) {
+			return -1;
+		} else {
+			return groups[groupID][0];
+		}
+	}
+
+	function setColor(groupID, color) {
+		var i;
+		for(i = 0; i < groups[groupID].length; i++) {
+			groups[groupID][i] = color;
+		}
+		uncolored.splice(uncolored.indexOf(groupID), 1);
+	}
+
+	function isColorOK(groupID, color) {
+		var i;
+		for(i = 0; i < graph[groupID].length; i++) {
+			if(board[group[graph[i]][0]] == color) {
+				return 0;
+			}
+		}
+		return 1;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
