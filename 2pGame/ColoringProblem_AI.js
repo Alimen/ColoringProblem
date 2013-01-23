@@ -37,6 +37,10 @@ function ColoringProblem() {
 		return setColor(groupID, color);
 	}
 
+	this.isColorOK = function(groupID, color) {
+		return isColorOK(groupID, color);
+	}
+
 	this.getUncoloredCount = function() {
 		return uncolored.length;
 	}
@@ -103,7 +107,10 @@ function ColoringProblem() {
 				}
 			}
 		}
-
+/*		for(i = 0; i < seed; i++) {
+			console.log(i, graph[i]);
+		}
+*/
 		// Step 6. Fill the uncolored array
 		for(i = 0; i < seed; i++) {
 			uncolored.push(i);
@@ -221,7 +228,7 @@ function ColoringProblem() {
 	function setColor(groupID, color) {
 		var i;
 		for(i = 0; i < groups[groupID].length; i++) {
-			groups[groupID][i] = color;
+			board[groups[groupID][i]] = color;
 		}
 		uncolored.splice(uncolored.indexOf(groupID), 1);
 	}
@@ -229,7 +236,7 @@ function ColoringProblem() {
 	function isColorOK(groupID, color) {
 		var i;
 		for(i = 0; i < graph[groupID].length; i++) {
-			if(board[group[graph[i]][0]] == color) {
+			if(board[groups[ graph[groupID][i] ][0]] == color) {
 				return 0;
 			}
 		}

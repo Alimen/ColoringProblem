@@ -128,11 +128,11 @@ function canvasApp() {
 		}
 		
 		if(panelState == 2) {
-			if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+10 && mouseY < panelY+10+bottonH) {
+			if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+10 && mouseY < panelY+10+bottonH && bottonShowed[0] != 3) {
 				bottonPress = 0;
-			} else if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+35 && mouseY < panelY+35+bottonH) {
+			} else if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+35 && mouseY < panelY+35+bottonH && bottonShowed[1] != 4) {
 				bottonPress = 1;
-			} else if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+60 && mouseY < panelY+60+bottonH) {
+			} else if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+60 && mouseY < panelY+60+bottonH && bottonShowed[2] != 5) {
 				bottonPress = 2;
 			} else {
 				bottonPress = -1;
@@ -142,16 +142,12 @@ function canvasApp() {
 	
 	function eventMouseClick(e) {
 		if(gameState == gameSelect && selected != -1) {
-			panelX = mouseX ;
-			panelY = mouseY - panelH;
-			panelT = 0;
-			panelState = 1;
+			resetPanel();
 			gameState = gamePanel;
 		} else if(gameState == gamePanel) {
 			panelState = 3;
 			if(bottonPress != -1) {
 				paint(selected, bottonPress+1);
-				bottonPress = -1;
 			}
 		}
 	}
@@ -415,7 +411,7 @@ function canvasApp() {
 					}
 					
 					// Draw target# for debug
-					//graphContext[target].fillText(target, x + 15, y + 15);
+					graphContext[target].fillText(target, x + 15, y + 15);
 					
 					// Draw borders
 					neighbor = checkNeighbor(subGraph, curRow+j, w, h, t);	
@@ -626,6 +622,31 @@ function canvasApp() {
 			}
 			selected = output;
 		}
+	}
+
+	function resetPanel() {
+		if(AI.isColorOK(selected, 1) == 1) {
+			bottonShowed[0] = 0;
+		} else {
+			bottonShowed[0] = 3;
+		}
+		if(AI.isColorOK(selected, 2) == 1) {
+			bottonShowed[1] = 1;
+		} else {
+			bottonShowed[1] = 4;
+		}
+		if(AI.isColorOK(selected, 3) == 1) {
+			bottonShowed[2] = 2;
+		} else {
+			bottonShowed[2] = 5;
+		}
+		console.log(bottonShowed);
+		bottonPress = -1;
+
+		panelX = mouseX ;
+		panelY = mouseY - panelH;
+		panelT = 0;
+		panelState = 1;
 	}
 
 	function drawPanel() {
