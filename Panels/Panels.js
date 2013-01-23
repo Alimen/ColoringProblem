@@ -47,9 +47,11 @@ function canvasApp() {
 
 	// Panel variables
 	const maxPanelT = 4;
+	const panelW = 100, panelH = 90;
 	var panelState;
 	var panelT;
 	var panelX, panelY;
+	var panelCanvas, panelContext;
 	const bottonW = 80, bottonH = 20;
 	var bottonShowed;
 	var bottonPress;
@@ -96,7 +98,7 @@ function canvasApp() {
 	function eventMouseClick(e) {
 		if(panelState == 0) {
 			panelX = mouseX ;
-			panelY = mouseY - 45;
+			panelY = mouseY - panelH;
 			panelT = 0;
 			panelState = 1;
 		} else if(panelState == 2) {
@@ -141,6 +143,12 @@ function canvasApp() {
 		imgPanel.onload = eventItemLoaded;
 		imgBottons.src = "Bottons.png";
 		imgBottons.onload = eventItemLoaded;
+	
+		// Create off-screen canvas
+		panelCanvas = document.createElement("canvas");
+		panelCanvas.width = panelW;
+		panelCanvas.height = panelH;
+		panelContext = panelCanvas.getContext("2d");
 
 		// Switch to next state
 		if(itemsToLoad != 0) {
@@ -198,33 +206,38 @@ function canvasApp() {
 	}
 
 	function drawPanel() {
-		var w;
 		if(panelState == 0) {
 			return;
-		} else if(panelState == 2) {
-			backContext.drawImage(imgPanel, panelX, panelY);
+		}
 
-			if(bottonPress == 0) {
-				backContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[0], bottonW, bottonH, panelX+10, panelY+10, bottonW, bottonH);
-			} else {
-				backContext.drawImage(imgBottons, 0, bottonH * bottonShowed[0], bottonW, bottonH, panelX+10, panelY+10, bottonW, bottonH);
-			}
-
-			if(bottonPress == 1) {
-				backContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[1], bottonW, bottonH, panelX+10, panelY+35, bottonW, bottonH);
-			} else {
-				backContext.drawImage(imgBottons, 0, bottonH * bottonShowed[1], bottonW, bottonH, panelX+10, panelY+35, bottonW, bottonH);
-			}
-
-			if(bottonPress == 2) {
-				backContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[2], bottonW, bottonH, panelX+10, panelY+60, bottonW, bottonH);
-			} else {
-				backContext.drawImage(imgBottons, 0, bottonH * bottonShowed[2], bottonW, bottonH, panelX+10, panelY+60, bottonW, bottonH);
-			}
+		var w, h;
+		panelContext.drawImage(imgPanel, 0, 0);
+		if(bottonPress == 0) {
+			panelContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[0], bottonW, bottonH, 10, 10, bottonW, bottonH);
+		} else {
+			panelContext.drawImage(imgBottons, 0, bottonH * bottonShowed[0], bottonW, bottonH, 10, 10, bottonW, bottonH);
+		}
+		if(bottonPress == 1) {
+			panelContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[1], bottonW, bottonH, 10, 35, bottonW, bottonH);
+		} else {
+			panelContext.drawImage(imgBottons, 0, bottonH * bottonShowed[1], bottonW, bottonH, 10, 35, bottonW, bottonH);
+		}
+		if(bottonPress == 2) {
+			panelContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[2], bottonW, bottonH, 10, 60, bottonW, bottonH);
+		} else {
+			panelContext.drawImage(imgBottons, 0, bottonH * bottonShowed[2], bottonW, bottonH, 10, 60, bottonW, bottonH);
+		}
+		
+		if(panelState == 2) {
+			backContext.drawImage(panelCanvas, panelX, panelY);
 		} else if(panelState == 1 || panelState == 3) {
-			w = 80 / maxPanelT * panelT;
-			backContext.drawImage(imgPanel, 0, 0, 10, 90, panelX, panelY, 10, 90);
-			backContext.drawImage(imgPanel, 90-w, 0, 10+w, 90, panelX+10, panelY, 10+w, 90);
+			w = (panelW - 20) / maxPanelT * panelT;
+			h = (panelH - 20) / maxPanelT * panelT;
+		
+			backContext.drawImage(panelCanvas, 0, panelH-10, 10+w, 10, panelX, panelY+panelH-10, 10+w, 10);
+			backContext.drawImage(panelCanvas, panelW-10, panelH-10, 10, 10, panelX+10+w, panelY+panelH-10, 10, 10);
+			backContext.drawImage(panelCanvas, 0, 0, 10+w, 10+h, panelX, panelY+panelH-20-h, 10+w, 10+h);
+			backContext.drawImage(panelCanvas, panelW-10, 0, 10, 10+h, panelX+10+w, panelY+panelH-20-h, 10, 10+h);
 		}
 	}
 	
@@ -245,8 +258,10 @@ function canvasApp() {
 		case 2:
 			break;
 		case 3:
-			panelState = 0;
-			panelT = -1;
+			panelT--;
+			if(panelT < 0) {
+					panelState = 0;
+			}
 			break;
 		}
 	}
