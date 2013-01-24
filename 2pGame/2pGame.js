@@ -37,7 +37,7 @@ function canvasApp() {
 	var state = stateInitial;
 
 	// Loader variables
-	var itemsToLoad = 5;
+	var itemsToLoad = 7;
 	var loadCount = 0;
 
 	// Image resources
@@ -46,11 +46,20 @@ function canvasApp() {
 	var imgTileBorder = new Image();
 	var imgShadow = new Image();
 	var imgGlow = new Image();
+	var imgPanel = new Image();
+	var imgBottons = new Image();
 
 	// General variables
 	var mouseX = 0;
 	var mouseY = 0;
 	
+	// GamePlay states
+	const gameSlide = 0;
+	const gameSelect = 1;
+	const gamePanel = 2;
+	const gameColoring = 3;
+	var gameState;
+
 	// AI class
 	var AI = new ColoringProblem();
 
@@ -61,7 +70,7 @@ function canvasApp() {
 
 	// Slide-in animation variables
 	const maxCanvas = 20;
-	const startX = 80, startY = 10;
+	const startX = 20, startY = 10;
 	const slideSpeed = 10;
 	const glowRadius = 20;
 	var slideState;
@@ -71,6 +80,18 @@ function canvasApp() {
 	var graphX = new Array();
 	var graphY = new Array();
 	var graphZ = new Array();
+	var graphFrame = new Array();
+
+	// Panel variables
+	const maxPanelT = 4;
+	const panelW = 100, panelH = 90;
+	var panelState;
+	var panelT;
+	var panelX, panelY;
+	var panelCanvas, panelContext;
+	const bottonW = 80, bottonH = 20;
+	var bottonShowed;
+	var bottonPress;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -101,11 +122,34 @@ function canvasApp() {
 			mouseX = e.layerX - theCanvas.offsetLeft;
 			mouseY = e.layerY - theCanvas.offsetTop;
 		}
-		selection(mouseX, mouseY);
+
+		if(gameState == gameSelect) {
+			selection(mouseX, mouseY);
+		}
+		
+		if(panelState == 2) {
+			if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+10 && mouseY < panelY+10+bottonH && bottonShowed[0] != 3) {
+				bottonPress = 0;
+			} else if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+35 && mouseY < panelY+35+bottonH && bottonShowed[1] != 4) {
+				bottonPress = 1;
+			} else if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+60 && mouseY < panelY+60+bottonH && bottonShowed[2] != 5) {
+				bottonPress = 2;
+			} else {
+				bottonPress = -1;
+			}
+		}
 	}
 	
 	function eventMouseClick(e) {
-		//selection(mouseX, mouseY);
+		if(gameState == gameSelect && selected != -1) {
+			resetPanel();
+			gameState = gamePanel;
+		} else if(gameState == gamePanel) {
+			panelState = 3;
+			if(bottonPress != -1) {
+				paint(selected, bottonPress+1);
+			}
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -152,11 +196,19 @@ function canvasApp() {
 		imgShadow.onload = eventItemLoaded;
 		imgGlow.src = "Glow.png";
 		imgGlow.onload = eventItemLoaded;
+		imgPanel.src = "Panel.png";
+		imgPanel.onload = eventItemLoaded;
+		imgBottons.src = "Bottons.png";
+		imgBottons.onload = eventItemLoaded;
 		
 		// Create off-screen canvas
 		for(var i = 0; i < maxCanvas; i++) {
 			graphCanvas[i] = document.createElement("canvas");
 		}
+		panelCanvas = document.createElement("canvas");
+		panelCanvas.width = panelW;
+		panelCanvas.height = panelH;
+		panelContext = panelCanvas.getContext("2d");
 
 		// Switch to next state
 		if(itemsToLoad != 0) {
@@ -184,6 +236,9 @@ function canvasApp() {
 	}
 
 	function reset() {
+		panelState = 0;
+		bottonShowed = [0, 1, 2];
+		bottonPress = -1;
 		resetSlideIn();
 		selected = -1;
 		state = stateTitle;
@@ -192,6 +247,7 @@ function canvasApp() {
 	// Title screen
 	function drawTitle() {
 		pushSlide();
+		pushPanel();
 
 		// Clear background
 		backContext.drawImage(imgBackground, 0, 0);
@@ -199,26 +255,30 @@ function canvasApp() {
 		// Draw graphs to backCanvas
 		var board = AI.getBoard();
 		var i, dx, dy, dw, dh;
-		var rect;
 		for(i = 0; i < maxGraph; i++) {
-			dx = (graphX[i] - screenWidth/2) * (1 - graphZ[i]) + screenWidth/2;
-			dy = (graphY[i] - screenHeight/2) * (1 - graphZ[i]) + screenHeight/2;
-			dw = graphCanvas[i].width * graphZ[i];
-			dh = graphCanvas[i].height * graphZ[i];
-			backContext.drawImage(imgShadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
-
-			if(slideState != 0 && slideState != 3) {
+			if(graphZ[i] > 0) {
+				dx = (graphX[i] - screenWidth/2) * (1 - graphZ[i]) + screenWidth/2;
+				dy = (graphY[i] - screenHeight/2) * (1 - graphZ[i]) + screenHeight/2;
+				dw = graphCanvas[i].width * graphZ[i];
+				dh = graphCanvas[i].height * graphZ[i];
 				backContext.drawImage(graphCanvas[i], dx, dy, graphCanvas[i].width - dw, graphCanvas[i].height - dh);
+				backContext.drawImage(imgShadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
 			} else {
-				if(selected == i) {
-					continue;
+				if(selected != i) {
+					backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);				
 				}
-				backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);
+				if(graphFrame[i] != -1) {
+					drawSubGraph(i, AI.getBorder(i), 0);	
+				}
+				backContext.drawImage(imgShadow, graphX[i], 430,  graphCanvas[i].width, 50);
 			}
 		}
 		if(selected != -1 && (slideState == 0 || slideState == 3)) {
 			backContext.drawImage(graphCanvas[selected], graphX[selected], graphY[selected]);
 		}
+
+		// Draw panel
+		drawPanel();
 
 		// Flip
 		context.drawImage(backCanvas, 0, 0);
@@ -229,7 +289,8 @@ function canvasApp() {
 		context.font = "14px monospace";
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
-		context.fillText("slideState = " + slideState + ", selected = " + selected, screenWidth, 15);
+		context.fillText("mouse = (" + mouseX + ", " + mouseY + ")", screenWidth, 15);
+		context.fillText("gameState = " + gameState, screenWidth, 30);
 	}
 
 	function resetSlideIn() {
@@ -239,11 +300,14 @@ function canvasApp() {
 		maxGraph = AI.getGraphSize();
 
 		prepareSubGraph();
+		
+		selected = -1;
+		gameState = gameSlide;
 		slideState = 1;
 	}
 
 	function resetSlideOut() {
-		var i, x = Math.ceil(screenWidth / slideSpeed) * slideSpeed;;
+		var i, x = Math.ceil(screenWidth * 1.5 / slideSpeed) * slideSpeed;
 		for(i = 0; i < maxGraph; i++) {
 			if(Math.random() > 0.5) {
 				graphTargetX[i] = graphX[i] - x;
@@ -252,25 +316,26 @@ function canvasApp() {
 			}
 		}
 
+		selected = -1;
+		gameState = gameSlide;
 		slideState = 4;
 	}
 
 	function prepareSubGraph() {
 		var i, j, curRow;
-		var x = Math.ceil(screenWidth / slideSpeed) * slideSpeed;
+		var x = Math.ceil(screenWidth * 1.5 / slideSpeed) * slideSpeed;
 
 		graphContext.length = 0;
 		graphTargetX.length = 0;
 		graphX.length = 0;
 		graphY.length = 0;
 		graphZ.length = 0;
+		graphFrame.length = 0;
 		for(i = 0; i < maxGraph; i++) {
-			rect = AI.findBorder(i + 61);
+			rect = AI.getBorder(i);
 			graphCanvas[i].width = (rect[1] - rect[3] + 1) * tileW + 2 * glowRadius;
 			graphCanvas[i].height = (rect[2] - rect[0]) * tileH * 0.75 + tileH + 2 * glowRadius;
 			graphContext.push(graphCanvas[i].getContext("2d"));
-
-			drawSubGraph(i, rect, 0);
 
 			graphTargetX.push(startX + rect[3] * tileW);
 			if(Math.random() > 0.5) {
@@ -280,6 +345,9 @@ function canvasApp() {
 			}
 			graphY.push(startY + rect[0] * tileH * 0.75);
 			graphZ.push((maxGraph-i-1) * 0.02);
+			graphFrame.push(-1);
+
+			drawSubGraph(i, rect, 0);
 		}
 	}
 
@@ -287,15 +355,14 @@ function canvasApp() {
 		var w = Math.floor(rect[1])-Math.floor(rect[3])+1, h = rect[2]-rect[0]+1;
 		var t = rect[0], l = rect[3];
 		var odd = (l-Math.floor(l) > 0)? 1: 0;
-		var i, j, curRow, offset;
-		var x, y;
-		var subGraph = AI.subGraph(target+61);
-		var neighbor;
+		var subGraph = AI.getSubGraph(target);
 
 		// Clean up subgraph rectangle
 		graphContext[target].clearRect(0, 0, graphCanvas[target].width, graphCanvas[target].height);
 
 		// Draw glow
+		var i, j, curRow, offset;
+		var x, y;
 		if(glowing != 0) {
 			for(i = 0; i < h; i++) {
 				curRow = i * w;
@@ -316,6 +383,8 @@ function canvasApp() {
 		}
 
 		// Draw tiles
+		var color = AI.getColor(target);
+		var neighbor;
 		for(i = 0; i < h; i++) {
 			curRow = i * w;
 			if(odd == 1) {
@@ -328,10 +397,22 @@ function canvasApp() {
 				if(subGraph[curRow+j] != ' ') {
 					x = glowRadius + j * tileW + offset;
 					y = glowRadius + i * tileH * 0.75;
-					graphContext[target].drawImage(imgTiles, 0, 0, tileW, tileH, x, y, tileW, tileH);
 
+					// Draw tiles
+					if(graphFrame[target] != -1) {
+						graphContext[target].drawImage(imgTiles, tileW * graphFrame[target], tileH * color, tileW, tileH, x, y, tileW, tileH);
+					} else {
+						if(color != -1) {
+							graphContext[target].drawImage(imgTiles, tileW * 10, tileH * color, tileW, tileH, x, y, tileW, tileH);
+						} else {
+							graphContext[target].drawImage(imgTiles, 0, 0, tileW, tileH, x, y, tileW, tileH);
+						}
+					}
+					
+					// Draw target# for debug
 					graphContext[target].fillText(target, x + 15, y + 15);
 					
+					// Draw borders
 					neighbor = checkNeighbor(subGraph, curRow+j, w, h, t);	
 					if(neighbor[0] == 1) {
 						graphContext[target].drawImage(imgTileBorder, 0, 0, tileW, tileH, x, y, tileW, tileH);
@@ -343,6 +424,14 @@ function canvasApp() {
 						graphContext[target].drawImage(imgTileBorder, 2*tileW, 0, tileW, tileH, x, y, tileW, tileH);
 					}
 				}
+			}
+		}
+
+		// Push animation
+		if(graphFrame[target] != -1) {
+			graphFrame[target]++;
+			if(graphFrame[target] > 10) {
+				graphFrame[target] = -1;
 			}
 		}
 	}
@@ -381,6 +470,23 @@ function canvasApp() {
 		return output;
 	}
 
+	function paint(groupID, color) {
+		if(groupID == -1) {
+			return;
+		}
+
+		AI.setColor(groupID, color);
+		graphFrame[groupID] = 0;
+		
+		var i, black = AI.getBlackout();
+		for(i = 0; i < black.length; i++) {
+			AI.setColor(black[i], 0);
+			graphFrame[black[i]] = 0;
+		}
+
+		selected = -1;
+	}
+
 	function pushSlide() {
 		var i, check;
 		switch(slideState) {
@@ -413,6 +519,7 @@ function canvasApp() {
 				}
 			}
 			if(check == 0) {
+				gameState = gameSelect;
 				slideState = 3;
 			}
 			break;
@@ -470,8 +577,10 @@ function canvasApp() {
 			}
 		}
 		if(blockX == -1 || blockY == -1 || blockY == 0) {
-			rect = AI.findBorder(selected + 61);
-			drawSubGraph(selected, rect, 0);
+			if(selected != -1) {
+				rect = AI.getBorder(selected);
+				drawSubGraph(selected, rect, 0);
+			}
 			selected = -1;
 			return;
 		}
@@ -510,14 +619,100 @@ function canvasApp() {
 		var output = AI.findGroup(xy);
 		if(selected != output) {
 			if(selected != -1) {
-				rect = AI.findBorder(selected + 61);
+				rect = AI.getBorder(selected);
 				drawSubGraph(selected, rect, 0);
 			}
 			if(output != -1) {
-				rect = AI.findBorder(output + 61);
+				rect = AI.getBorder(output);
 				drawSubGraph(output, rect, 1);
 			}
 			selected = output;
+		}
+	}
+
+	function resetPanel() {
+		if(AI.isColorOK(selected, 1) == 1) {
+			bottonShowed[0] = 0;
+		} else {
+			bottonShowed[0] = 3;
+		}
+		if(AI.isColorOK(selected, 2) == 1) {
+			bottonShowed[1] = 1;
+		} else {
+			bottonShowed[1] = 4;
+		}
+		if(AI.isColorOK(selected, 3) == 1) {
+			bottonShowed[2] = 2;
+		} else {
+			bottonShowed[2] = 5;
+		}
+		bottonPress = -1;
+
+		panelX = mouseX ;
+		panelY = mouseY - panelH;
+		panelT = 0;
+		panelState = 1;
+	}
+
+	function drawPanel() {
+		if(panelState == 0) {
+			return;
+		}
+
+		var w, h;
+		panelContext.drawImage(imgPanel, 0, 0);
+		if(bottonPress == 0) {
+			panelContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[0], bottonW, bottonH, 10, 10, bottonW, bottonH);
+		} else {
+			panelContext.drawImage(imgBottons, 0, bottonH * bottonShowed[0], bottonW, bottonH, 10, 10, bottonW, bottonH);
+		}
+		if(bottonPress == 1) {
+			panelContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[1], bottonW, bottonH, 10, 35, bottonW, bottonH);
+		} else {
+			panelContext.drawImage(imgBottons, 0, bottonH * bottonShowed[1], bottonW, bottonH, 10, 35, bottonW, bottonH);
+		}
+		if(bottonPress == 2) {
+			panelContext.drawImage(imgBottons, bottonW, bottonH * bottonShowed[2], bottonW, bottonH, 10, 60, bottonW, bottonH);
+		} else {
+			panelContext.drawImage(imgBottons, 0, bottonH * bottonShowed[2], bottonW, bottonH, 10, 60, bottonW, bottonH);
+		}
+		
+		if(panelState == 2) {
+			backContext.drawImage(panelCanvas, panelX, panelY);
+		} else if(panelState == 1 || panelState == 3) {
+			w = (panelW - 20) / maxPanelT * panelT;
+			h = (panelH - 20) / maxPanelT * panelT;
+		
+			backContext.drawImage(panelCanvas, 0, panelH-10, 10+w, 10, panelX, panelY+panelH-10, 10+w, 10);
+			backContext.drawImage(panelCanvas, panelW-10, panelH-10, 10, 10, panelX+10+w, panelY+panelH-10, 10, 10);
+			backContext.drawImage(panelCanvas, 0, 0, 10+w, 10+h, panelX, panelY+panelH-20-h, 10+w, 10+h);
+			backContext.drawImage(panelCanvas, panelW-10, 0, 10, 10+h, panelX+10+w, panelY+panelH-20-h, 10, 10+h);
+		}
+	}
+	
+	function pushPanel() {
+		if(panelT < 0) {
+			return;
+		}
+
+		switch(panelState) {
+		case 0:
+			break;
+		case 1:
+			panelT++;
+			if(panelT == maxPanelT) {
+				panelState++;
+			}
+			break;
+		case 2:
+			break;
+		case 3:
+			panelT--;
+			if(panelT < 0) {
+					panelState = 0;
+					gameState = gameSelect;
+			}
+			break;
 		}
 	}
 
