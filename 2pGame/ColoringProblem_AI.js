@@ -5,6 +5,8 @@ function ColoringProblem() {
 	var board = new Array(maxCol * maxRow);
 	var groups = new Array();
 	var graph = new Array();
+	var subgraphs = new Array();
+	var borders = new Array();
 	var uncolored = new Array();
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -39,6 +41,18 @@ function ColoringProblem() {
 
 	this.isColorOK = function(groupID, color) {
 		return isColorOK(groupID, color);
+	}
+
+	this.getSubGraph = function(groupID) {
+		return subgraphs[groupID];
+	}
+
+	this.getBorder = function(groupID) {
+		return borders[groupID];
+	}
+
+	this.getBlackout = function() {
+		return blackout();
 	}
 
 	this.getUncoloredCount = function() {
@@ -107,11 +121,16 @@ function ColoringProblem() {
 				}
 			}
 		}
-/*		for(i = 0; i < seed; i++) {
-			console.log(i, graph[i]);
+
+		// Step 6. Extract subgraphs
+		subgraphs.length = 0;
+		borders.length = 0;
+		for(i = 0; i < seed; i++) {
+			subgraphs.push(subGraph(i + 61));
+			borders.push(findBorder(i + 61));
 		}
-*/
-		// Step 6. Fill the uncolored array
+
+		// Step 7. Fill the uncolored array
 		for(i = 0; i < seed; i++) {
 			uncolored.push(i);
 		}
@@ -211,6 +230,94 @@ function ColoringProblem() {
 		return 0;
 	}
 
+	function subGraph(groupID) {
+		var w, h;
+		var i, j, k, curRow;
+		var rect = findBorder(groupID);
+		var t = rect[0], r = rect[1], b = rect[2], l = rect[3];
+		w = Math.floor(r) - Math.floor(l) + 1;
+		h = b - t + 1;
+
+		var subGraph = new Array(maxCol * maxRow);
+		k = 0;
+		for(i = t; i <= b; i++) {
+			curRow = i * maxCol;
+			for(j = Math.floor(l); j <= Math.floor(r); j++) {
+				if(board[curRow+j] == groupID) {
+					subGraph[k] = board[curRow+j];
+				} else {
+					subGraph[k] = ' ';
+				}
+				k++;
+			}
+		}
+
+		return subGraph;
+	}
+
+	function findBorder(groupID) {
+		var i, j, curRow, curCol;
+		var t = -1, b = -1, l = -1, r = -1;
+
+		// Find top
+   		for(i = 0; i < maxRow; i++) {
+			curRow = i * maxCol;
+			for(j = 0; j < maxCol; j++) {
+				if(groupID == board[curRow+j]) {
+					t = i;
+					break;
+				}
+			}
+	   		if(t > -1) {
+				break;
+			}
+		}
+	
+		// Find bottom
+		for(; i < maxRow; i++) {
+			curRow = i * maxCol;
+			for(j = 0; j < maxCol; j++) {
+				if(groupID == board[curRow+j]) {
+					b = i;
+					break;
+				}
+			}
+			if(b < i) {
+				break;
+			}
+		}
+	
+		// Find left
+		for(i = 0; i < 2 * maxCol; i++) {
+			curCol = (i%2)? (maxCol + (i-1)/2): i/2;
+			for(j = curCol; j < maxCol * maxRow; j += maxCol * 2) {
+				if(groupID == board[j]) {
+					l = i/2;
+					break;
+				}
+			}
+			if(l > -1) {
+				break;
+			}
+		}	
+	
+		// Find right
+		for(i = 2 * maxCol - 1; i >= 0; i--) {
+			curCol = (i%2)? (maxCol + (i-1)/2): i/2;
+			for(j = curCol; j < maxCol * maxRow; j += maxCol * 2) {
+				if(groupID == board[j]) {
+					r = i/2;
+					break;
+				}
+			}
+			if(r > -1) {
+				break;
+			}		
+		}
+
+		return [t, r, b, l];
+	}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Game related utilities
@@ -218,10 +325,10 @@ function ColoringProblem() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	function getColor(groupID) {
-		if(groups[groupID][0] > 3 || groups[groupID][0] < 0) {
+		if(board[groups[groupID][0]] > 3 || board[groups[groupID][0]] < 0) {
 			return -1;
 		} else {
-			return groups[groupID][0];
+			return board[groups[groupID][0]];
 		}
 	}
 
@@ -243,6 +350,24 @@ function ColoringProblem() {
 		return 1;
 	}
 
+	function isBlack(groupID) {
+		if(isColorOK(groupID, 1) == 0 && isColorOK(groupID, 2) == 0 && isColorOK(groupID, 3) == 0) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	function blackout() {
+		var i, output = new Array();
+		for(i = 0; i < uncolored.length; i++) {
+			if(isBlack(uncolored[i]) == 1) {
+				output.push(uncolored[i]);
+			}
+		}
+		return output;
+	}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // General utilities
@@ -257,94 +382,6 @@ function ColoringProblem() {
 			}
 		}
 		return -1;
-	}
-
-	this.subGraph = function(target) {
-		var w, h;
-		var i, j, k, curRow;
-		var rect = this.findBorder(target);
-		var t = rect[0], r = rect[1], b = rect[2], l = rect[3];
-		w = Math.floor(r) - Math.floor(l) + 1;
-		h = b - t + 1;
-
-		var subGraph = new Array(maxCol * maxRow);
-		k = 0;
-		for(i = t; i <= b; i++) {
-			curRow = i * maxCol;
-			for(j = Math.floor(l); j <= Math.floor(r); j++) {
-				if(board[curRow+j] == target) {
-					subGraph[k] = board[curRow+j];
-				} else {
-					subGraph[k] = ' ';
-				}
-				k++;
-			}
-		}
-
-		return subGraph;
-	}
-
-	this.findBorder = function(target) {
-		var i, j, curRow, curCol;
-		var t = -1, b = -1, l = -1, r = -1;
-
-		// Find top
-   		for(i = 0; i < maxRow; i++) {
-			curRow = i * maxCol;
-			for(j = 0; j < maxCol; j++) {
-				if(target == board[curRow+j]) {
-					t = i;
-					break;
-				}
-			}
-	   		if(t > -1) {
-				break;
-			}
-		}
-	
-		// Find bottom
-		for(; i < maxRow; i++) {
-			curRow = i * maxCol;
-			for(j = 0; j < maxCol; j++) {
-				if(target == board[curRow+j]) {
-					b = i;
-					break;
-				}
-			}
-			if(b < i) {
-				break;
-			}
-		}
-	
-		// Find left
-		for(i = 0; i < 2 * maxCol; i++) {
-			curCol = (i%2)? (maxCol + (i-1)/2): i/2;
-			for(j = curCol; j < maxCol * maxRow; j += maxCol * 2) {
-				if(target == board[j]) {
-					l = i/2;
-					break;
-				}
-			}
-			if(l > -1) {
-				break;
-			}
-		}	
-	
-		// Find right
-		for(i = 2 * maxCol - 1; i >= 0; i--) {
-			curCol = (i%2)? (maxCol + (i-1)/2): i/2;
-			for(j = curCol; j < maxCol * maxRow; j += maxCol * 2) {
-				if(target == board[j]) {
-					r = i/2;
-					break;
-				}
-			}
-			if(r > -1) {
-				break;
-			}		
-		}
-
-		return [t, r, b, l];
 	}
 
 	function shuffle(target) {

@@ -255,7 +255,6 @@ function canvasApp() {
 		// Draw graphs to backCanvas
 		var board = AI.getBoard();
 		var i, dx, dy, dw, dh;
-		var rect;
 		for(i = 0; i < maxGraph; i++) {
 			if(graphZ[i] > 0) {
 				dx = (graphX[i] - screenWidth/2) * (1 - graphZ[i]) + screenWidth/2;
@@ -269,7 +268,7 @@ function canvasApp() {
 					backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);				
 				}
 				if(graphFrame[i] != -1) {
-					drawSubGraph(i, AI.findBorder(i + 61), 0);	
+					drawSubGraph(i, AI.getBorder(i), 0);	
 				}
 				backContext.drawImage(imgShadow, graphX[i], 430,  graphCanvas[i].width, 50);
 			}
@@ -333,7 +332,7 @@ function canvasApp() {
 		graphZ.length = 0;
 		graphFrame.length = 0;
 		for(i = 0; i < maxGraph; i++) {
-			rect = AI.findBorder(i + 61);
+			rect = AI.getBorder(i);
 			graphCanvas[i].width = (rect[1] - rect[3] + 1) * tileW + 2 * glowRadius;
 			graphCanvas[i].height = (rect[2] - rect[0]) * tileH * 0.75 + tileH + 2 * glowRadius;
 			graphContext.push(graphCanvas[i].getContext("2d"));
@@ -356,7 +355,7 @@ function canvasApp() {
 		var w = Math.floor(rect[1])-Math.floor(rect[3])+1, h = rect[2]-rect[0]+1;
 		var t = rect[0], l = rect[3];
 		var odd = (l-Math.floor(l) > 0)? 1: 0;
-		var subGraph = AI.subGraph(target+61);
+		var subGraph = AI.getSubGraph(target);
 
 		// Clean up subgraph rectangle
 		graphContext[target].clearRect(0, 0, graphCanvas[target].width, graphCanvas[target].height);
@@ -478,6 +477,13 @@ function canvasApp() {
 
 		AI.setColor(groupID, color);
 		graphFrame[groupID] = 0;
+		
+		var i, black = AI.getBlackout();
+		for(i = 0; i < black.length; i++) {
+			AI.setColor(black[i], 0);
+			graphFrame[black[i]] = 0;
+		}
+
 		selected = -1;
 	}
 
@@ -572,7 +578,7 @@ function canvasApp() {
 		}
 		if(blockX == -1 || blockY == -1 || blockY == 0) {
 			if(selected != -1) {
-				rect = AI.findBorder(selected + 61);
+				rect = AI.getBorder(selected);
 				drawSubGraph(selected, rect, 0);
 			}
 			selected = -1;
@@ -613,11 +619,11 @@ function canvasApp() {
 		var output = AI.findGroup(xy);
 		if(selected != output) {
 			if(selected != -1) {
-				rect = AI.findBorder(selected + 61);
+				rect = AI.getBorder(selected);
 				drawSubGraph(selected, rect, 0);
 			}
 			if(output != -1) {
-				rect = AI.findBorder(output + 61);
+				rect = AI.getBorder(output);
 				drawSubGraph(output, rect, 1);
 			}
 			selected = output;
@@ -640,7 +646,6 @@ function canvasApp() {
 		} else {
 			bottonShowed[2] = 5;
 		}
-		console.log(bottonShowed);
 		bottonPress = -1;
 
 		panelX = mouseX ;
