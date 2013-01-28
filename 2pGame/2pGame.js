@@ -80,8 +80,8 @@ function canvasApp() {
 	var graphX = new Array();
 	var graphY = new Array();
 	var graphZ = new Array();
-	var graphFrame = new Array();
-	var graphFrameTile = new Array();
+	var graphRedraw = new Array();
+	var graphTileFrames = new Array();
 
 	// Panel variables
 	const maxPanelT = 4;
@@ -268,7 +268,7 @@ function canvasApp() {
 				if(selected != i) {
 					backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);				
 				}
-				if(graphFrame[i] != -1) {
+				if(graphRedraw[i] != -1) {
 					drawSubGraph(i, 0);	
 				}
 				backContext.drawImage(imgShadow, graphX[i], 430,  graphCanvas[i].width, 50);
@@ -308,7 +308,7 @@ function canvasApp() {
 	}
 
 	function resetSlideOut() {
-		var i, x = Math.ceil(screenWidth * 1.5 / slideSpeed) * slideSpeed;
+		var i, x = Math.ceil(screenWidth * 1.2 / slideSpeed) * slideSpeed;
 		for(i = 0; i < maxGraph; i++) {
 			if(Math.random() > 0.5) {
 				graphTargetX[i] = graphX[i] - x;
@@ -324,15 +324,15 @@ function canvasApp() {
 
 	function prepareSubGraph() {
 		var i, j, curRow, rect;
-		var x = Math.ceil(screenWidth * 1.5 / slideSpeed) * slideSpeed;
+		var x = Math.ceil(screenWidth * 1.2 / slideSpeed) * slideSpeed;
 
 		graphContext.length = 0;
 		graphTargetX.length = 0;
 		graphX.length = 0;
 		graphY.length = 0;
 		graphZ.length = 0;
-		graphFrame.length = 0;
-		graphFrameTile.length = 0;
+		graphRedraw.length = 0;
+		graphTileFrames.length = 0;
 		for(i = 0; i < maxGraph; i++) {
 			rect = AI.getBorder(i);
 			graphCanvas[i].width = (rect[1] - rect[3] + 1) * tileW + 2 * glowRadius;
@@ -347,8 +347,8 @@ function canvasApp() {
 			}
 			graphY.push(startY + rect[0] * tileH * 0.75);
 			graphZ.push((maxGraph-i-1) * 0.02);
-			graphFrame.push(-1);
-			graphFrameTile[i] = new Array();
+			graphRedraw.push(-1);
+			graphTileFrames[i] = new Array();
 
 			drawSubGraph(i, 0);
 		}
@@ -405,11 +405,11 @@ function canvasApp() {
 					y = glowRadius + i * tileH * 0.75;
 
 					// Draw tiles
-					if(graphFrame[target] != -1) {
-						if(graphFrameTile[target][tmp] <= 0) {
+					if(graphRedraw[target] != -1) {
+						if(graphTileFrames[target][tmp] <= 0) {
 							graphContext[target].drawImage(imgTiles, 0, 0, tileW, tileH, x, y, tileW, tileH);
-						} else if(graphFrameTile[target][tmp] > 0 && graphFrameTile[target][tmp] <= 10) {
-							graphContext[target].drawImage(imgTiles, tileW * graphFrameTile[target][tmp], tileH * color, tileW, tileH, x, y, tileW, tileH);
+						} else if(graphTileFrames[target][tmp] > 0 && graphTileFrames[target][tmp] <= 10) {
+							graphContext[target].drawImage(imgTiles, tileW * graphTileFrames[target][tmp], tileH * color, tileW, tileH, x, y, tileW, tileH);
 						} else {
 							graphContext[target].drawImage(imgTiles, tileW * 10, tileH * color, tileW, tileH, x, y, tileW, tileH);
 						}
@@ -422,7 +422,7 @@ function canvasApp() {
 					}
 					
 					// Draw target# for debug
-					graphContext[target].fillText(target, x + 15, y + 15);
+					//graphContext[target].fillText(target, x + 15, y + 15);
 					
 					// Draw borders
 					neighbor = checkNeighbor(subGraph, curRow+j, w, h, t);	
@@ -442,16 +442,16 @@ function canvasApp() {
 		// Push animation
 		var stop = -1;
 		var min = w * h * (-1);
-		if(graphFrame[target] != -1) {
+		if(graphRedraw[target] != -1) {
 			for(i = 0; i < w*h; i++) {
-				if(graphFrameTile[target][i] != min) {
-					graphFrameTile[target][i]++;
+				if(graphTileFrames[target][i] != min) {
+					graphTileFrames[target][i]++;
 				}
-				if(graphFrameTile[target][i] <= 10) {
+				if(graphTileFrames[target][i] <= 10) {
 					stop = 0;
 				}
 			}
-			graphFrame[target] = stop;
+			graphRedraw[target] = stop;
 		}
 	}
 
@@ -507,7 +507,7 @@ function canvasApp() {
 	}
 
 	function resetPaintTile(groupID) {
-		graphFrame[groupID] = 0;
+		graphRedraw[groupID] = 0;
 
 		var sub = AI.getSubGraph(groupID);
 		var rect = AI.getBorder(groupID);
@@ -515,12 +515,12 @@ function canvasApp() {
 		var min = w * h * (-1);
 		var i;
 
-		graphFrameTile[groupID].length = 0;
+		graphTileFrames[groupID].length = 0;
 		for(i = 0; i < w*h; i++) {
 			if(sub[i] == ' ') {
-				graphFrameTile[groupID].push(min);
+				graphTileFrames[groupID].push(min);
 			} else {
-				graphFrameTile[groupID].push((-1)*i);
+				graphTileFrames[groupID].push((-1)*i);
 			}
 		}
 
@@ -533,12 +533,11 @@ function canvasApp() {
 				b = Math.floor(Math.random() * (w*h));
 			} while(sub[b] == ' ');
 
-			tmp = graphFrameTile[groupID][a];
-			graphFrameTile[groupID][a] = graphFrameTile[groupID][b];
-			graphFrameTile[groupID][b] = tmp;
+			tmp = graphTileFrames[groupID][a];
+			graphTileFrames[groupID][a] = graphTileFrames[groupID][b];
+			graphTileFrames[groupID][b] = tmp;
 		}
 
-		console.log(groupID, graphFrameTile[groupID]);
 	}
 
 	function pushSlide() {
