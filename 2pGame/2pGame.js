@@ -81,6 +81,7 @@ function canvasApp() {
 	var graphY = new Array();
 	var graphZ = new Array();
 	var graphFrame = new Array();
+	var graphFrameTile = new Array();
 
 	// Panel variables
 	const maxPanelT = 4;
@@ -268,7 +269,7 @@ function canvasApp() {
 					backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);				
 				}
 				if(graphFrame[i] != -1) {
-					drawSubGraph(i, AI.getBorder(i), 0);	
+					drawSubGraph(i, 0);	
 				}
 				backContext.drawImage(imgShadow, graphX[i], 430,  graphCanvas[i].width, 50);
 			}
@@ -322,7 +323,7 @@ function canvasApp() {
 	}
 
 	function prepareSubGraph() {
-		var i, j, curRow;
+		var i, j, curRow, rect;
 		var x = Math.ceil(screenWidth * 1.5 / slideSpeed) * slideSpeed;
 
 		graphContext.length = 0;
@@ -331,6 +332,7 @@ function canvasApp() {
 		graphY.length = 0;
 		graphZ.length = 0;
 		graphFrame.length = 0;
+		graphFrameTile.length = 0;
 		for(i = 0; i < maxGraph; i++) {
 			rect = AI.getBorder(i);
 			graphCanvas[i].width = (rect[1] - rect[3] + 1) * tileW + 2 * glowRadius;
@@ -346,12 +348,14 @@ function canvasApp() {
 			graphY.push(startY + rect[0] * tileH * 0.75);
 			graphZ.push((maxGraph-i-1) * 0.02);
 			graphFrame.push(-1);
+			graphFrameTile[i] = new Array();
 
-			drawSubGraph(i, rect, 0);
+			drawSubGraph(i, 0);
 		}
 	}
 
-	function drawSubGraph(target, rect, glowing) {
+	function drawSubGraph(target, glowing) {
+		var rect = AI.getBorder(target);
 		var w = Math.floor(rect[1])-Math.floor(rect[3])+1, h = rect[2]-rect[0]+1;
 		var t = rect[0], l = rect[3];
 		var odd = (l-Math.floor(l) > 0)? 1: 0;
@@ -385,6 +389,7 @@ function canvasApp() {
 		// Draw tiles
 		var color = AI.getColor(target);
 		var neighbor;
+		var tmp;
 		for(i = 0; i < h; i++) {
 			curRow = i * w;
 			if(odd == 1) {
@@ -395,12 +400,19 @@ function canvasApp() {
 
 			for(j = 0; j < w; j++) {
 				if(subGraph[curRow+j] != ' ') {
+					tmp = curRow + j;
 					x = glowRadius + j * tileW + offset;
 					y = glowRadius + i * tileH * 0.75;
 
 					// Draw tiles
 					if(graphFrame[target] != -1) {
-						graphContext[target].drawImage(imgTiles, tileW * graphFrame[target], tileH * color, tileW, tileH, x, y, tileW, tileH);
+						if(graphFrameTile[target][tmp] <= 0) {
+							graphContext[target].drawImage(imgTiles, 0, 0, tileW, tileH, x, y, tileW, tileH);
+						} else if(graphFrameTile[target][tmp] > 0 && graphFrameTile[target][tmp] <= 10) {
+							graphContext[target].drawImage(imgTiles, tileW * graphFrameTile[target][tmp], tileH * color, tileW, tileH, x, y, tileW, tileH);
+						} else {
+							graphContext[target].drawImage(imgTiles, tileW * 10, tileH * color, tileW, tileH, x, y, tileW, tileH);
+						}
 					} else {
 						if(color != -1) {
 							graphContext[target].drawImage(imgTiles, tileW * 10, tileH * color, tileW, tileH, x, y, tileW, tileH);
@@ -428,11 +440,18 @@ function canvasApp() {
 		}
 
 		// Push animation
+		var stop = -1;
+		var min = w * h * (-1);
 		if(graphFrame[target] != -1) {
-			graphFrame[target]++;
-			if(graphFrame[target] > 10) {
-				graphFrame[target] = -1;
+			for(i = 0; i < w*h; i++) {
+				if(graphFrameTile[target][i] != min) {
+					graphFrameTile[target][i]++;
+				}
+				if(graphFrameTile[target][i] <= 10) {
+					stop = 0;
+				}
 			}
+			graphFrame[target] = stop;
 		}
 	}
 
@@ -476,15 +495,50 @@ function canvasApp() {
 		}
 
 		AI.setColor(groupID, color);
-		graphFrame[groupID] = 0;
+		resetPaintTile(groupID);
 		
 		var i, black = AI.getBlackout();
 		for(i = 0; i < black.length; i++) {
 			AI.setColor(black[i], 0);
-			graphFrame[black[i]] = 0;
+			resetPaintTile(black[i]);
 		}
 
 		selected = -1;
+	}
+
+	function resetPaintTile(groupID) {
+		graphFrame[groupID] = 0;
+
+		var sub = AI.getSubGraph(groupID);
+		var rect = AI.getBorder(groupID);
+		var w = Math.floor(rect[1])-Math.floor(rect[3])+1, h = rect[2]-rect[0]+1;
+		var min = w * h * (-1);
+		var i;
+
+		graphFrameTile[groupID].length = 0;
+		for(i = 0; i < w*h; i++) {
+			if(sub[i] == ' ') {
+				graphFrameTile[groupID].push(min);
+			} else {
+				graphFrameTile[groupID].push((-1)*i);
+			}
+		}
+
+		var a, b, tmp;
+		for(i = 0; i < w*h; i++) {
+			do {
+				a = Math.floor(Math.random() * (w*h));
+			} while(sub[a] == ' ');
+			do {
+				b = Math.floor(Math.random() * (w*h));
+			} while(sub[b] == ' ');
+
+			tmp = graphFrameTile[groupID][a];
+			graphFrameTile[groupID][a] = graphFrameTile[groupID][b];
+			graphFrameTile[groupID][b] = tmp;
+		}
+
+		console.log(groupID, graphFrameTile[groupID]);
 	}
 
 	function pushSlide() {
@@ -561,7 +615,6 @@ function canvasApp() {
 
 	function selection(x, y) {
 		var blockX = -1, blockY = -1;
-		var rect;
 		var i;
 
 		for(i = 0; i < maxCol; i += 0.5) {
@@ -578,8 +631,7 @@ function canvasApp() {
 		}
 		if(blockX == -1 || blockY == -1 || blockY == 0) {
 			if(selected != -1) {
-				rect = AI.getBorder(selected);
-				drawSubGraph(selected, rect, 0);
+				drawSubGraph(selected, 0);
 			}
 			selected = -1;
 			return;
@@ -619,12 +671,10 @@ function canvasApp() {
 		var output = AI.findGroup(xy);
 		if(selected != output) {
 			if(selected != -1) {
-				rect = AI.getBorder(selected);
-				drawSubGraph(selected, rect, 0);
+				drawSubGraph(selected, 0);
 			}
 			if(output != -1) {
-				rect = AI.getBorder(output);
-				drawSubGraph(output, rect, 1);
+				drawSubGraph(output, 1);
 			}
 			selected = output;
 		}
