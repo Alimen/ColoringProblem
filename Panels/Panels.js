@@ -10,15 +10,15 @@ function canvasSupport() {
 function canvasApp() {
 	if(!canvasSupport) {
 		return;
-	} else {
-		var theCanvas = document.getElementById("canvas");
-		var context = theCanvas.getContext("2d");
-		var backCanvas  = document.createElement("canvas");
-		backCanvas.width = theCanvas.width;
-		backCanvas.height = theCanvas.height;
-		var backContext = backCanvas.getContext("2d");
 	}
 
+	var theCanvas = document.getElementById("canvas");
+	var context = theCanvas.getContext("2d");
+	var backCanvas  = document.createElement("canvas");
+	backCanvas.width = theCanvas.width;
+	backCanvas.height = theCanvas.height;
+	var backContext = backCanvas.getContext("2d");
+	
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Variable declearation
@@ -37,13 +37,14 @@ function canvasApp() {
 	var state = stateInitial;
 
 	// Loader variables
-	var itemsToLoad = 3;
+	var itemsToLoad = 4;
 	var loadCount = 0;
 
 	// Image resources
 	var imgBackground = new Image();
 	var imgPanel = new Image();
 	var imgBottons = new Image();
+	var imgBeams = new Image();
 
 	// Panel variables
 	const maxPanelT = 4;
@@ -55,6 +56,12 @@ function canvasApp() {
 	const bottonW = 80, bottonH = 20;
 	var bottonShowed;
 	var bottonPress;
+
+	// Beams variables
+	const maxBeamT = 90;
+	var beamT;
+	var beamFromX, beamFromY, beamToX, beamToY;
+	var beamColor;
 
 	// General variables
 	var mouseX = 0;
@@ -103,6 +110,9 @@ function canvasApp() {
 			panelState = 1;
 		} else if(panelState == 2) {
 			panelState = 3;
+			if(bottonPress != -1) {
+				resetBeam();
+			}
 		}
 	}
 
@@ -143,6 +153,8 @@ function canvasApp() {
 		imgPanel.onload = eventItemLoaded;
 		imgBottons.src = "Bottons.png";
 		imgBottons.onload = eventItemLoaded;
+		imgBeams.src = "Beam.png";
+		imgBeams.onload = eventItemLoaded;
 	
 		// Create off-screen canvas
 		panelCanvas = document.createElement("canvas");
@@ -177,20 +189,25 @@ function canvasApp() {
 
 	function reset() {
 		panelState = 0;
-		bottonShowed = [4, 5, 6];
+		bottonShowed = [0, 1, 2];
 		bottonPress = -1;
+		beamT = -1;
 		state = stateTitle;
 	}
 
 	// Title screen
 	function drawTitle() {
 		pushPanel();
+		pushBeam();
 
 		// Clear background
 		backContext.drawImage(imgBackground, 0, 0);
 
 		// Draw panel
 		drawPanel();
+
+		// Draw beam
+		drawBeam();
 
 		// Flip
 		context.drawImage(backCanvas, 0, 0);
@@ -202,7 +219,7 @@ function canvasApp() {
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
 		context.fillText("mouse = (" + mouseX + ", " + mouseY + ")", screenWidth , 15);
-		context.fillText("panelState = " + panelState, screenWidth, 30);
+		context.fillText("beamT = " + beamT, screenWidth, 30);
 	}
 
 	function drawPanel() {
@@ -263,6 +280,42 @@ function canvasApp() {
 					panelState = 0;
 			}
 			break;
+		}
+	}
+
+	function resetBeam() {
+		beamT = 0;
+		beamFromX = 50;
+		beamFromY = 430;
+		beamToX = panelX;
+		beamToY = panelY + panelH;
+		beamColor = bottonPress;
+	}
+
+	function drawBeam() {
+		if(beamT < 0) {
+			return;
+		}
+
+		var l = Math.sqrt( (beamToX-beamFromX)*(beamToX-beamFromX) + (beamToY-beamFromY)*(beamToY-beamFromY) );
+		var r = Math.asin( (beamToY-beamFromY) / l );
+		
+		backContext.save();
+		backContext.setTransform(1, 0, 0, 1, 0, 0);
+		backContext.translate(beamFromX, beamFromY-20);
+		backContext.rotate(r);
+		backContext.drawImage(imgBeams, 0, 40*beamColor, l, 40, 0, 0, l, 40);
+		backContext.restore();
+	}
+
+	function pushBeam() {
+		if(beamT < 0) {
+			return;
+		}
+
+		beamT++;
+		if(beamT >= maxBeamT) {
+			beamT = -1;
 		}
 	}
 
