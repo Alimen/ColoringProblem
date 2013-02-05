@@ -58,9 +58,10 @@ function canvasApp() {
 	var bottonPress;
 
 	// Beams variables
-	const maxBeamT = 90;
+	const maxBeamT = 10;
 	var beamT;
 	var beamFromX, beamFromY, beamToX, beamToY;
+	var beamSweepFromX, beamSweepFromY, beamSweepToX, beamSweepToY;
 	var beamColor;
 
 	// General variables
@@ -287,8 +288,12 @@ function canvasApp() {
 		beamT = 0;
 		beamFromX = 50;
 		beamFromY = 430;
-		beamToX = panelX;
-		beamToY = panelY + panelH;
+		beamSweepFromX = panelX;
+		beamSweepFromY = panelY + panelH;
+		beamSweepToX = beamSweepFromX + 200;
+		beamSweepToY = beamSweepFromY;
+		beamToX = beamSweepFromX;
+		beamToY = beamSweepFromY;
 		beamColor = bottonPress;
 	}
 
@@ -316,7 +321,12 @@ function canvasApp() {
 		beamT++;
 		if(beamT >= maxBeamT) {
 			beamT = -1;
+			return;
 		}
+
+		var t = beamT / maxBeamT;
+		beamToX = beamSweepFromX + (beamSweepToX - beamSweepFromX) * t;
+		beamToY = beamSweepFromY + (beamSweepToY - beamSweepFromY) * t; 
 	}
 
 	const FPS = 30;
