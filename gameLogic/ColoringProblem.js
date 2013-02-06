@@ -59,6 +59,7 @@ function canvasApp() {
 			initLoader();
 			break;
 		case mainStates.loading:
+			loader.drawLoading(context, backCanvas, backContext);
 			break;
 		case mainStates.resetTitle:
 			break;
@@ -148,12 +149,8 @@ function canvasApp() {
 	var loadCount = 0;
 
 	function initLoader() {
-		// Just for debug
-		context.textBaseline = "top";	
-		context.fillStyle = "#000000";
-		context.font = "14px monospace";
-		context.textAlign = "right";
-		context.fillText("so far so good!", screenWidth, 0);
+		// Switch to next state
+		state = mainStates.loading;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
