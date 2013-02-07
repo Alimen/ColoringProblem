@@ -22,7 +22,11 @@ var coloringProblem = (function() {
 	// Image resources
 	var imgTiles = new Image();
 	var imgTileBorder = new Image();
-	var imgLoading = new Image();
+	var imgBackground = new Image();
+	var imgShadow = new Image();
+	var imgGlow = new Image();
+	var imgPanel = new Image();
+	var imgBottons = new Image();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -129,6 +133,7 @@ var coloringProblem = (function() {
 		if(preload == 1) {
 			fileref.onload = eventItemPreLoaded;
 		} else {
+			fileref.onload = eventItemLoaded;
 		}
 
 		document.getElementsByTagName("head")[0].appendChild(fileref);
@@ -154,6 +159,21 @@ var coloringProblem = (function() {
 	var loadCount = 0;
 
 	function initLoader() {
+		// Setup javascript loader events
+		loadjs("Title.js", 0);
+
+		// Setup image loader events
+		imgBackground.src = "WhiteRoom.jpg";
+		imgBackground.onload = eventItemLoaded;
+		imgShadow.src = "Shadow.png";
+		imgShadow.onload = eventItemLoaded;
+		imgGlow.src = "Glow.png";
+		imgGlow.onload = eventItemLoaded;
+		imgPanel.src = "Panel.png";
+		imgPanel.onload = eventItemLoaded;
+		imgBottons.src = "Bottons.png";
+		imgBottons.onload = eventItemLoaded;
+
 		// Switch to next state
 		state = mainStates.loading;
 	}
