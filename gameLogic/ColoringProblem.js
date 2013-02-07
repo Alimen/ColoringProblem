@@ -1,13 +1,4 @@
-window.addEventListener('load', eventWindowLoaded, false);
-function eventWindowLoaded() {
-	canvasApp();
-}
-
-function canvasSupport() {
-	return !!document.createElement('testcanvas').getContext;
-}
-
-function canvasApp() {
+var coloringProblem = (function() {
 	if(!canvasSupport) {
 		return;
 	}
@@ -19,12 +10,10 @@ function canvasApp() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Canvas
-	var theCanvas = document.getElementById("canvas");
-	var context = theCanvas.getContext("2d");
-	var backCanvas  = document.createElement("canvas");
-	backCanvas.width = theCanvas.width;
-	backCanvas.height = theCanvas.height;
-	var backContext = backCanvas.getContext("2d");
+	var theCanvas;
+	var context;
+	var backCanvas;
+	var backContext;
 
 	// Environmental constants
 	const screenWidth = 800;
@@ -35,7 +24,6 @@ function canvasApp() {
 	var imgTileBorder = new Image();
 	var imgLoading = new Image();
 
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Main state machine
@@ -43,8 +31,16 @@ function canvasApp() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// State enumeration
-	const mainStates = {"initial":0, "preloading":1, "initLoader":2, "loading":3,
-		"resetTitle":4, "title":5, "resetGame":6, "game":7};
+	const mainStates = {
+		initial		: 0, 
+		preloading	: 1, 
+		initLoader	: 2,
+		loading		: 3,
+		resetTitle	: 4,
+		title		: 5,
+		resetGame	: 6,
+		game		: 7
+	};
 	var state = mainStates.initial;
 
 	function timerTick() {
@@ -59,7 +55,8 @@ function canvasApp() {
 			initLoader();
 			break;
 		case mainStates.loading:
-			loader.drawLoading(context, backCanvas, backContext);
+			loader.drawLoading(loadCount / itemsToLoad);
+			flip();
 			break;
 		case mainStates.resetTitle:
 			break;
@@ -93,6 +90,14 @@ function canvasApp() {
 		imgTiles.onload = eventItemPreLoaded;
 		imgTileBorder.src = "TileBorder.png";
 		imgTileBorder.onload = eventItemPreLoaded;
+
+		// Setup canvas
+		theCanvas = document.getElementById("canvas");
+		context = theCanvas.getContext("2d");
+		backCanvas  = document.createElement("canvas");
+		backCanvas.width = theCanvas.width;
+		backCanvas.height = theCanvas.height;
+		backContext = backCanvas.getContext("2d");
 
 		// Switch to next state
 		state = mainStates.preloading;
@@ -153,13 +158,57 @@ function canvasApp() {
 		state = mainStates.loading;
 	}
 
+	function eventItemLoaded(e) {
+		loadCount++;
+		if(loadCount == itemsToLoad) {
+			state = mainStates.resetTitle;
+		}
+		return;
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// General utilities
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function flip() {
+		context.drawImage(backCanvas, 0, 0);
+	}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Start the message loop
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-	const FPS = 30;
-	var intervalTime = 1000 / FPS;
-	setInterval(timerTick, intervalTime);
+	function startMessageLoop() {
+		const FPS = 30;
+		var intervalTime = 1000 / FPS;
+		setInterval(timerTick, intervalTime);
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Public Access
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function getBackContext() {
+		return backContext;
+	}
+
+	return {
+		startMessageLoop : startMessageLoop,
+		getBackContext	 : getBackContext
+	};
+})();
+
+function canvasSupport() {
+	return !!document.createElement('testcanvas').getContext;
 }
+
+function eventWindowLoaded() {
+	coloringProblem.startMessageLoop();
+}
+window.addEventListener('load', eventWindowLoaded, false);
