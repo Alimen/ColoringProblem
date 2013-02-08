@@ -59,7 +59,7 @@ var coloringProblem = (function() {
 			initLoader();
 			break;
 		case mainStates.loading:
-			loader.drawLoading(loadCount / itemsToLoad);
+			loader.draw(loadCount / itemsToLoad);
 			flip();
 			break;
 		case mainStates.resetTitle:
@@ -173,6 +173,12 @@ var coloringProblem = (function() {
 		imgPanel.onload = eventItemLoaded;
 		imgBottons.src = "Bottons.png";
 		imgBottons.onload = eventItemLoaded;
+
+		// Pass resources to loader
+		loader.init({
+			imgTiles : imgTiles,
+			imgTileBorder : imgTileBorder
+		});
 
 		// Switch to next state
 		state = mainStates.loading;
