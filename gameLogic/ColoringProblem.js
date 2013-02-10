@@ -36,6 +36,7 @@ var coloringProblem = (function() {
 
 	// State enumeration
 	const mainStates = {
+		unknown		: -1,
 		initial		: 0, 
 		preloading	: 1, 
 		initLoader	: 2,
@@ -50,6 +51,8 @@ var coloringProblem = (function() {
 	var state = mainStates.initial;
 
 	function timerTick() {
+		var res;
+
 		switch(state) {
 		case mainStates.initial:
 			init();
@@ -72,8 +75,12 @@ var coloringProblem = (function() {
 			state = mainStates.title;
 			break;
 		case mainStates.title:
-			title.draw();
+			res = title.draw();
 			flip();
+			if(res != mainStates.unknown) {
+				console.debug("State change to " + res);
+				state = res;
+			}
 			break;
 		case mainStates.resetGame:
 			break;
