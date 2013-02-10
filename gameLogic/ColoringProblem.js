@@ -209,12 +209,13 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 6;
+	var itemsToLoad = 7;
 	var loadCount = 0;
 
 	function initLoader() {
 		// Setup javascript loader events
 		loadjs("Title.js", 0);
+		loadjs("AI.js", 0);
 
 		// Setup image loader events
 		imgBackground.src = "WhiteRoom.jpg";

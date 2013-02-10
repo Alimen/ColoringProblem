@@ -1,4 +1,4 @@
-var title = (function() {
+var gameLogic = (function() {
 	var backContext;
 	var img;
 	var env;
@@ -18,14 +18,6 @@ var title = (function() {
 		// Clear background
 		backContext.drawImage(img.background, 0, 0);
 
-		// Print text messages
-		backContext.textBaseline = "bottom";	
-		backContext.fillStyle = "#000000";
-		backContext.font = "14px monospace";
-		backContext.textAlign = "center";
-		backContext.fillText("Press '1' for single player game", env.screenWidth / 2, env.screenHeight / 2 - 10);
-		backContext.fillText("Press '2' for two player game", env.screenWidth / 2, env.screenHeight / 2 + 10);
-
 		var res;
 		if(nextState != env.mainStates.unknown) {
 			res = nextState;
@@ -43,12 +35,6 @@ var title = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	function eventKeyUp(e) {
-		if(e.keyCode == 49) { // '1' 
-			console.debug("'1' pressed (dummy)");
-		} else if(e.keyCode == 50) { // '2'
-			console.debug("'2' pressed");
-			nextState = env.mainStates.resetGame;
-		}
 	}
 
 	function eventMouseMove(e) {
