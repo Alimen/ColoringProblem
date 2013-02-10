@@ -40,10 +40,12 @@ var coloringProblem = (function() {
 		preloading	: 1, 
 		initLoader	: 2,
 		loading		: 3,
-		resetTitle	: 4,
-		title		: 5,
-		resetGame	: 6,
-		game		: 7
+		loadComplete: 4,
+		showLogo	: 5,
+		resetTitle	: 6,
+		title		: 7,
+		resetGame	: 8,
+		game		: 9
 	};
 	var state = mainStates.initial;
 
@@ -62,9 +64,16 @@ var coloringProblem = (function() {
 			loader.draw(loadCount / itemsToLoad);
 			flip();
 			break;
+		case mainStates.loadComplete:
+			loadComplete();
+			break;
 		case mainStates.resetTitle:
+			title.reset();
+			state = mainStates.title;
 			break;
 		case mainStates.title:
+			title.draw();
+			flip();
 			break;
 		case mainStates.resetGame:
 			break;
@@ -73,6 +82,30 @@ var coloringProblem = (function() {
 		}
 
 		return;
+	}
+
+	function eventKeyUp(e) {
+		switch(state) {
+		case mainStates.title:
+			title.eventKeyUp(e);
+			break;
+		}
+	}
+
+	function eventMouseMove(e) {
+		switch(state) {
+		case mainStates.title:
+			title.eventMouseMove(e);
+			break;
+		}
+	}
+
+	function eventMouseClick(e) {
+		switch(state) {
+		case mainStates.title:
+			title.eventMouseClick(e);
+			break;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -84,6 +117,13 @@ var coloringProblem = (function() {
 	// Pre-loader counters
 	var itemsToPreload = 3;	// ToDo: Finish loading screen
 	var preloadCount = 0;
+
+	// Prepare global variables
+	var env = {
+		mainStates : mainStates,
+		screenWidth : screenWidth,
+		screenHeight : screenHeight
+	};
 
 	function init() {
 		// Setup javascript loader events
@@ -102,6 +142,13 @@ var coloringProblem = (function() {
 		backCanvas.width = theCanvas.width;
 		backCanvas.height = theCanvas.height;
 		backContext = backCanvas.getContext("2d");
+
+		// Setup keyboard events
+		document.addEventListener("keyup", eventKeyUp, true);
+	
+		// Setup mouse events
+		theCanvas.addEventListener("mousemove", eventMouseMove, true);
+		theCanvas.addEventListener("click", eventMouseClick, true);	
 
 		// Switch to next state
 		state = mainStates.preloading;
@@ -155,7 +202,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 7;
+	var itemsToLoad = 6;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -175,10 +222,11 @@ var coloringProblem = (function() {
 		imgBottons.onload = eventItemLoaded;
 
 		// Pass resources to loader
-		loader.init({
-			imgTiles : imgTiles,
-			imgTileBorder : imgTileBorder
-		});
+		loader.init(env, {
+			tiles : imgTiles,
+			tileBorder : imgTileBorder
+		},
+		backContext);
 
 		// Switch to next state
 		state = mainStates.loading;
@@ -187,9 +235,24 @@ var coloringProblem = (function() {
 	function eventItemLoaded(e) {
 		loadCount++;
 		if(loadCount == itemsToLoad) {
-			state = mainStates.resetTitle;
+			state = mainStates.loadComplete;
 		}
 		return;
+	}
+
+	function loadComplete() {
+		title.init(env, {
+			tiles : imgTiles,
+			tileBorder : imgTileBorder,
+			background : imgBackground,
+			shadow : imgShadow,
+			glow : imgGlow,
+			panel : imgPanel,
+			bottons : imgBottons
+		},
+		backContext);
+
+		state = mainStates.resetTitle;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -204,7 +267,7 @@ var coloringProblem = (function() {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Start the message loop
+// Public Access
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -214,19 +277,8 @@ var coloringProblem = (function() {
 		setInterval(timerTick, intervalTime);
 	}
 
-///////////////////////////////////////////////////////////////////////////////
-//
-// Public Access
-//
-///////////////////////////////////////////////////////////////////////////////
-
-	function getBackContext() {
-		return backContext;
-	}
-
 	return {
-		startMessageLoop : startMessageLoop,
-		getBackContext	 : getBackContext
+		startMessageLoop : startMessageLoop
 	};
 })();
 

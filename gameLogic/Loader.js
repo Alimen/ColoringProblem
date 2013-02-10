@@ -1,18 +1,18 @@
 var loader = (function() {
-	var res;
+	var backContext;
+	var img;
+	var env;
 
-	function init(input) {
-		res = input;
+	function init(_env, _img, _backContext) {
+		env = _env;
+		img = _img;
+		backContext = _backContext;
 	}
 
-	function draw() {
-		var backContext = coloringProblem.getBackContext();
-
+	function draw(percentage) {
 		// Clear background
 		backContext.fillStyle = "#cedfe7";
-		backContext.fillRect(0, 0, 800, 480);
-
-		backContext.drawImage(res.imgTiles, 0, 0);
+		backContext.fillRect(0, 0, env.screenWidth, env.screenHeight);
 	}
 
 	return {
