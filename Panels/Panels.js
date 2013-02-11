@@ -59,7 +59,7 @@ function canvasApp() {
 	var bottonPress;
 
 	// Beams variables
-	const maxBeamT = 100;
+	const maxBeamT = 25;
 	var beamT;
 	var beamFromX, beamFromY, beamToX, beamToY;
 	var beamSweepFromX, beamSweepFromY, beamSweepToX, beamSweepToY;
@@ -294,8 +294,8 @@ function canvasApp() {
 		beamFromY = 430;
 		beamSweepFromX = panelX;
 		beamSweepFromY = panelY + panelH;
-		beamSweepToX = beamSweepFromX + 200;
-		beamSweepToY = beamSweepFromY;
+		beamSweepToX = beamSweepFromX + 100;
+		beamSweepToY = beamSweepFromY + 200;
 		beamToX = beamSweepFromX;
 		beamToY = beamSweepFromY;
 		beamColor = bottonPress;
