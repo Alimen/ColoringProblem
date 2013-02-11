@@ -37,7 +37,7 @@ function canvasApp() {
 	var state = stateInitial;
 
 	// Loader variables
-	var itemsToLoad = 4;
+	var itemsToLoad = 5;
 	var loadCount = 0;
 
 	// Image resources
@@ -45,6 +45,7 @@ function canvasApp() {
 	var imgPanel = new Image();
 	var imgBottons = new Image();
 	var imgBeams = new Image();
+	var imgSparks = new Image();
 
 	// Panel variables
 	const maxPanelT = 4;
@@ -58,11 +59,12 @@ function canvasApp() {
 	var bottonPress;
 
 	// Beams variables
-	const maxBeamT = 10;
+	const maxBeamT = 100;
 	var beamT;
 	var beamFromX, beamFromY, beamToX, beamToY;
 	var beamSweepFromX, beamSweepFromY, beamSweepToX, beamSweepToY;
 	var beamColor;
+	var currentSpark;
 
 	// General variables
 	var mouseX = 0;
@@ -156,6 +158,8 @@ function canvasApp() {
 		imgBottons.onload = eventItemLoaded;
 		imgBeams.src = "Beam.png";
 		imgBeams.onload = eventItemLoaded;
+		imgSparks.src = "Sparks.png";
+		imgSparks.onload = eventItemLoaded;
 	
 		// Create off-screen canvas
 		panelCanvas = document.createElement("canvas");
@@ -295,6 +299,7 @@ function canvasApp() {
 		beamToX = beamSweepFromX;
 		beamToY = beamSweepFromY;
 		beamColor = bottonPress;
+		currentSpark = 0;
 	}
 
 	function drawBeam() {
@@ -304,12 +309,13 @@ function canvasApp() {
 
 		var l = Math.sqrt( (beamToX-beamFromX)*(beamToX-beamFromX) + (beamToY-beamFromY)*(beamToY-beamFromY) );
 		var r = Math.asin( (beamToY-beamFromY) / l );
-		
+
 		backContext.save();
 		backContext.setTransform(1, 0, 0, 1, 0, 0);
 		backContext.translate(beamFromX, beamFromY-20);
 		backContext.rotate(r);
 		backContext.drawImage(imgBeams, 0, 40*beamColor, l, 40, 0, 0, l, 40);
+		backContext.drawImage(imgSparks, 128 * currentSpark, 0, 128, 128, l - 64, -42, 128, 128);
 		backContext.restore();
 	}
 
@@ -326,7 +332,10 @@ function canvasApp() {
 
 		var t = beamT / maxBeamT;
 		beamToX = beamSweepFromX + (beamSweepToX - beamSweepFromX) * t;
-		beamToY = beamSweepFromY + (beamSweepToY - beamSweepFromY) * t; 
+		beamToY = beamSweepFromY + (beamSweepToY - beamSweepFromY) * t;
+
+		currentSpark += Math.floor(Math.random() * 7);
+		currentSpark %= 7;
 	}
 
 	const FPS = 30;
