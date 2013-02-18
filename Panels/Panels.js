@@ -37,7 +37,7 @@ function canvasApp() {
 	var state = stateInitial;
 
 	// Loader variables
-	var itemsToLoad = 5;
+	var itemsToLoad = 6;
 	var loadCount = 0;
 
 	// Image resources
@@ -46,6 +46,7 @@ function canvasApp() {
 	var imgBottons = new Image();
 	var imgBeams = new Image();
 	var imgSparks = new Image();
+	var imgArm1 = new Image();
 
 	// Panel variables
 	const maxPanelT = 4;
@@ -160,6 +161,8 @@ function canvasApp() {
 		imgBeams.onload = eventItemLoaded;
 		imgSparks.src = "Sparks.png";
 		imgSparks.onload = eventItemLoaded;
+		imgArm1.src = "Arm1.png";
+		imgArm1.onload = eventItemLoaded;
 	
 		// Create off-screen canvas
 		panelCanvas = document.createElement("canvas");
@@ -210,6 +213,9 @@ function canvasApp() {
 
 		// Draw panel
 		drawPanel();
+
+		// Draw Arm1
+		drawArm1();
 
 		// Draw beam
 		drawBeam();
@@ -286,6 +292,18 @@ function canvasApp() {
 			}
 			break;
 		}
+	}
+
+	function drawArm1() {
+		// Reference
+		//backContext.drawImage(imgArm1, 0, 480-231);
+
+		// Bottom
+		backContext.drawImage(imgArm1, 165, 231-160, 35, 15, 115, 398, 35, 15);
+		backContext.drawImage(imgArm1, 0, 231-110, 171, 110, 0, 480-110, 171, 110);
+		
+		// Lower Arm
+		backContext.drawImage(imgArm1, 0, 231-165, 150, 54, 250, 250, 150, 54);
 	}
 
 	function resetBeam() {
