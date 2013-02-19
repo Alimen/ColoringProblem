@@ -298,12 +298,20 @@ function canvasApp() {
 		// Reference
 		//backContext.drawImage(imgArm1, 0, 480-231);
 
-		// Bottom
+		// Bottom rare
 		backContext.drawImage(imgArm1, 165, 231-160, 35, 15, 115, 398, 35, 15);
-		backContext.drawImage(imgArm1, 0, 231-110, 171, 110, 0, 480-110, 171, 110);
-		
+
 		// Lower Arm
-		backContext.drawImage(imgArm1, 0, 231-165, 150, 54, 250, 250, 150, 54);
+		var r1 = 100 * Math.PI / 180;
+		backContext.save();
+		backContext.setTransform(1, 0, 0, 1, 0, 0);
+		backContext.translate(120, 180);
+		backContext.rotate(r1);
+		backContext.drawImage(imgArm1, 0, 231-165, 150, 54, 0, 0, 150, 54);
+		backContext.restore();
+		
+		// Bottom front
+		backContext.drawImage(imgArm1, 0, 231-110, 171, 110, 0, 480-110, 171, 110);
 	}
 
 	function resetBeam() {
