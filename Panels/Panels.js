@@ -328,6 +328,22 @@ function canvasApp() {
 		
 		// Bottom front
 		backContext.drawImage(imgArm1, 0, 231-110, 171, 110, 0, 480-110, 171, 110);
+
+		// Caculate tip angle
+		var tipX = (mouseX-lowerArmX)*0.3 + lowerArmX;
+		var tipY = (mouseY-lowerArmY)*0.3 + lowerArmY;
+		var r3 = Math.asin((mouseY-lowerArmY) / l);
+		if(mouseX < lowerArmX) {
+			r3 = (-1)*(r3+Math.PI);
+		}
+
+		// Tip
+		backContext.save();
+		backContext.setTransform(1, 0, 0, 1, 0, 0);
+		backContext.translate(tipX, tipY);
+		backContext.rotate(r3);
+		backContext.drawImage(imgArm1, 159, 0, 51, 55, 0, -52, 51, 55);
+		backContext.restore();
 	}
 
 	function resetBeam() {
