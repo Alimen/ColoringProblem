@@ -68,8 +68,8 @@ function canvasApp() {
 	var currentSpark;
 
 	// General variables
-	var mouseX = 0;
-	var mouseY = 0;
+	var mouseX = screenWidth/2;
+	var mouseY = screenHeight/2;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -301,14 +301,30 @@ function canvasApp() {
 		// Bottom rare
 		backContext.drawImage(imgArm1, 165, 231-160, 35, 15, 115, 398, 35, 15);
 
-		// Lower Arm
-		var r1 = 100 * Math.PI / 180;
+		// Caculate lower arm angle
+		var lowerArmX = 125;
+		var lowerArmY = 392;
+		var l = (mouseX-lowerArmX)*(mouseX-lowerArmX) + (mouseY-lowerArmY)*(mouseY-lowerArmY);
+		var l = Math.sqrt(l);
+		var r1 = Math.asin((mouseY-lowerArmY) / l) - Math.PI + 0.12;
+		if(mouseX < lowerArmX) {
+			r1 = (-1)*(r1+Math.PI-0.24);
+		}
+
+		// Lower arm
 		backContext.save();
 		backContext.setTransform(1, 0, 0, 1, 0, 0);
-		backContext.translate(120, 180);
+		backContext.translate(lowerArmX, lowerArmY);
 		backContext.rotate(r1);
-		backContext.drawImage(imgArm1, 0, 231-165, 150, 54, 0, 0, 150, 54);
+		backContext.drawImage(imgArm1, 0, 231-165, 150, 54, -132, -26, 150, 54);
 		backContext.restore();
+
+		// Caculate upper arm angle
+		var upperArmX = lowerArmX + Math.cos(r1 + Math.PI) * 130 - 40;
+		var upperArmY = lowerArmY + Math.sin(r1 + Math.PI) * 130 - 35;
+
+		// Upper Arm
+		backContext.drawImage(imgArm1, 0, 0, 158, 65, upperArmX, upperArmY, 158, 65);
 		
 		// Bottom front
 		backContext.drawImage(imgArm1, 0, 231-110, 171, 110, 0, 480-110, 171, 110);
