@@ -295,7 +295,33 @@ function canvasApp() {
 	}
 
 	function drawArm1() {
-		// Caculate lower arm angle
+		var lowerArmX = 125;
+		var lowerArmY = 392;
+		var laserX = lowerArmX + (mouseX - lowerArmX)*0.3;
+		var laserY = lowerArmY + (mouseY - lowerArmY)*0.3;
+		var l = Math.sqrt((mouseX-lowerArmX)*(mouseX-lowerArmX) + (mouseY-lowerArmY)*(mouseY-lowerArmY));
+		var r3 =  Math.asin((mouseY-lowerArmY) / l);
+		if(mouseX < lowerArmX) {
+			r3 = (-1)*r3 + Math.PI;
+		}
+		var tipX = laserX - Math.cos(-1.02-r3)*57;
+		var tipY = laserY + Math.sin(-1.02-r3)*57;
+
+		var a = 125, b = Math.sqrt((tipX-lowerArmX)*(tipX-lowerArmX)+(tipY-lowerArmY)*(tipY-lowerArmY)), c = 121;
+		var rC = Math.acos((a*a + b*b - c*c) / (2*a*b));
+		var r1 = r3 - rC;
+		
+		var upperArmX = lowerArmX + Math.cos(r1) * 125;
+		var upperArmY = lowerArmY + Math.sin(r1) * 125;
+
+		l = Math.sqrt((tipX-upperArmX)*(tipX-upperArmX)+(tipY-upperArmY)*(tipY-upperArmY));
+		var r2 = Math.asin((tipY-upperArmY) / l);
+		if(tipX < upperArmX) {
+			r2 = (-1)*r2 + Math.PI;
+		}
+
+
+/*		// Caculate lower arm angle
 		var lowerArmX = 125;
 		var lowerArmY = 392;
 		var maxLength = Math.sqrt(screenWidth*screenWidth+screenHeight*screenHeight);
@@ -322,7 +348,7 @@ function canvasApp() {
 		}
 		offset = Math.asin(52/l);
 		r3 = r3 - offset;
-
+*/
 		// Bottom rare
 		backContext.drawImage(imgArm1, 165, 231-160, 35, 15, 115, 398, 35, 15);
 
@@ -330,7 +356,7 @@ function canvasApp() {
 		backContext.save();
 		backContext.setTransform(1, 0, 0, 1, 0, 0);
 		backContext.translate(lowerArmX, lowerArmY);
-		backContext.rotate(r1);
+		backContext.rotate(r1 + Math.PI + 0.12);
 		backContext.drawImage(imgArm1, 0, 231-165, 150, 54, -132, -26, 150, 54);
 		backContext.restore();
 
@@ -346,7 +372,7 @@ function canvasApp() {
 		backContext.save();
 		backContext.setTransform(1, 0, 0, 1, 0, 0);
 		backContext.translate(upperArmX, upperArmY);
-		backContext.rotate(r2);
+		backContext.rotate(r2 - 0.22);
 		backContext.drawImage(imgArm1, 0, 0, 158, 65, -25, -25, 158, 65);
 		backContext.restore();
 		
@@ -361,6 +387,7 @@ function canvasApp() {
 		backContext.moveTo(lowerArmX, lowerArmY);
 		backContext.lineTo(upperArmX, upperArmY);
 		backContext.lineTo(tipX, tipY);
+		backContext.lineTo(lowerArmX, lowerArmY);
 		backContext.stroke();
 		backContext.closePath();
 	}
