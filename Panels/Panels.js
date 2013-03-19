@@ -295,31 +295,27 @@ function canvasApp() {
 	}
 
 	function drawArm1() {
+		// Cacluate laser head position
 		var lowerArmX = 125;
 		var lowerArmY = 392;
 		var laserX = lowerArmX + (mouseX - lowerArmX)*0.3;
 		var laserY = lowerArmY + (mouseY - lowerArmY)*0.3;
 		var l = Math.sqrt((mouseX-lowerArmX)*(mouseX-lowerArmX) + (mouseY-lowerArmY)*(mouseY-lowerArmY));
-		var r3 =  Math.asin((mouseY-lowerArmY) / l);
-		if(mouseX < lowerArmX) {
-			r3 = (-1)*r3 + Math.PI;
-		}
+		var r3 = angle(lowerArmX, lowerArmY, mouseX, mouseY);
+		
+		// Caculate tip angle
 		var tipX = laserX - Math.cos(-1.02-r3)*57;
 		var tipY = laserY + Math.sin(-1.02-r3)*57;
+		var r0 = angle(lowerArmX, lowerArmY, tipX, tipY);
 
+		// Solve lower arm angle by cosine rules
 		var a = 125, b = Math.sqrt((tipX-lowerArmX)*(tipX-lowerArmX)+(tipY-lowerArmY)*(tipY-lowerArmY)), c = 121;
-		var rC = Math.acos((a*a + b*b - c*c) / (2*a*b));
-		var r1 = r3 - rC;
+		var r1 = r0 - Math.acos((a*a + b*b - c*c) / (2*a*b));
 		
-		var upperArmX = lowerArmX + Math.cos(r1) * 125;
-		var upperArmY = lowerArmY + Math.sin(r1) * 125;
-
-		l = Math.sqrt((tipX-upperArmX)*(tipX-upperArmX)+(tipY-upperArmY)*(tipY-upperArmY));
-		var r2 = Math.asin((tipY-upperArmY) / l);
-		if(tipX < upperArmX) {
-			r2 = (-1)*r2 + Math.PI;
-		}
-
+		// Caculate upper arm angle
+		var upperArmX = lowerArmX + Math.cos(r1) * a;
+		var upperArmY = lowerArmY + Math.sin(r1) * a;
+		var r2 = angle(upperArmX, upperArmY, tipX, tipY);
 
 /*		// Caculate lower arm angle
 		var lowerArmX = 125;
@@ -349,10 +345,10 @@ function canvasApp() {
 		offset = Math.asin(52/l);
 		r3 = r3 - offset;
 */
-		// Bottom rare
+		// Draw bottom rare
 		backContext.drawImage(imgArm1, 165, 231-160, 35, 15, 115, 398, 35, 15);
 
-		// Lower arm
+		// Draw lower arm
 		backContext.save();
 		backContext.setTransform(1, 0, 0, 1, 0, 0);
 		backContext.translate(lowerArmX, lowerArmY);
@@ -360,7 +356,7 @@ function canvasApp() {
 		backContext.drawImage(imgArm1, 0, 231-165, 150, 54, -132, -26, 150, 54);
 		backContext.restore();
 
-		// Tip
+		// Draw tip
 		backContext.save();
 		backContext.setTransform(1, 0, 0, 1, 0, 0);
 		backContext.translate(tipX, tipY);
@@ -368,7 +364,7 @@ function canvasApp() {
 		backContext.drawImage(imgArm1, 159, 0, 51, 55, -20, 0, 51, 55);
 		backContext.restore();
 
-		// Upper Arm
+		// Draw upper Arm
 		backContext.save();
 		backContext.setTransform(1, 0, 0, 1, 0, 0);
 		backContext.translate(upperArmX, upperArmY);
@@ -376,10 +372,10 @@ function canvasApp() {
 		backContext.drawImage(imgArm1, 0, 0, 158, 65, -25, -25, 158, 65);
 		backContext.restore();
 		
-		// Bottom front
+		// Draw bottom front
 		backContext.drawImage(imgArm1, 0, 231-110, 171, 110, 0, 480-110, 171, 110);
 
-		// Guiding lines
+/*		// Guiding lines
 		backContext.strokeStyle = "blue";
 		backContext.lineWidth = 3;
 		backContext.lineCap = "square";
@@ -390,6 +386,15 @@ function canvasApp() {
 		backContext.lineTo(lowerArmX, lowerArmY);
 		backContext.stroke();
 		backContext.closePath();
+*/	}
+
+	function angle(ax, ay, bx, by) {
+		var l = Math.sqrt((bx-ax)*(bx-ax)+(by-ay)*(by-ay));
+		var r = Math.asin((by-ay) / l);
+		if(bx < ax) {
+			r = (-1)*r + Math.PI;
+		}
+		return r;
 	}
 
 	function resetBeam() {
