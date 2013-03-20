@@ -47,6 +47,7 @@ function canvasApp() {
 	var imgBeams = new Image();
 	var imgSparks = new Image();
 	var imgArm1 = new Image();
+	var imgArm2 = new Image();
 
 	// Panel variables
 	const maxPanelT = 4;
@@ -163,6 +164,8 @@ function canvasApp() {
 		imgSparks.onload = eventItemLoaded;
 		imgArm1.src = "Arm1.png";
 		imgArm1.onload = eventItemLoaded;
+		imgArm2.src = "Arm2.png";
+		imgArm2.onload = eventItemLoaded;
 	
 		// Create off-screen canvas
 		panelCanvas = document.createElement("canvas");
@@ -214,8 +217,9 @@ function canvasApp() {
 		// Draw panel
 		drawPanel();
 
-		// Draw Arm1
+		// Draw robotic arms
 		drawArm1();
+		drawArm2();
 
 		// Draw beam
 		drawBeam();
@@ -295,13 +299,15 @@ function canvasApp() {
 	}
 
 	function drawArm1() {
+		var arm1shiftX = -50;
+
 		// Cacluate laser head position
-		var lowerArmX = 125;
+		var lowerArmX = 125 + arm1shiftX;
 		var lowerArmY = 392;
-		var laserX = lowerArmX + (mouseX - lowerArmX)*0.3;
-		var laserY = lowerArmY + (mouseY - lowerArmY)*0.3;
 		var l = Math.sqrt((mouseX-lowerArmX)*(mouseX-lowerArmX) + (mouseY-lowerArmY)*(mouseY-lowerArmY));
-		var r3 = angle(lowerArmX, lowerArmY, mouseX, mouseY);
+		var laserX = lowerArmX + (mouseX - lowerArmX)*0.3;
+		var laserY = lowerArmY + (mouseY - lowerArmY)*0.3 - (screenHeight - l)*0.2;
+		var r3 = angle(laserX, laserY, mouseX, mouseY);
 		
 		// Caculate tip angle
 		var tipX = laserX - Math.cos(-1.02-r3)*57;
@@ -318,15 +324,12 @@ function canvasApp() {
 		var r2 = angle(upperArmX, upperArmY, tipX, tipY);
 
 /*		// Caculate lower arm angle
-		var lowerArmX = 125;
+		var lowerArmX = 125 + arm1shiftX;
 		var lowerArmY = 392;
 		var maxLength = Math.sqrt(screenWidth*screenWidth+screenHeight*screenHeight);
 		var l = Math.sqrt((mouseX-lowerArmX)*(mouseX-lowerArmX) + (mouseY-lowerArmY)*(mouseY-lowerArmY));
 		var offset = (1 - l / maxLength) * (-0.5) * Math.PI;
-		var r0 = Math.asin((mouseY-lowerArmY) / l);
-		if(mouseX < lowerArmX) {
-			r0 = (-1)*r0 + Math.PI;
-		}
+		var r0 = angle(lowerArmX, lowerArmY, mouseX, mouseY);
 		var r1 = r0 + Math.PI + offset;
 
 		// Caculate upper arm angle
@@ -346,14 +349,14 @@ function canvasApp() {
 		r3 = r3 - offset;
 */
 		// Draw bottom rare
-		backContext.drawImage(imgArm1, 165, 231-160, 35, 15, 115, 398, 35, 15);
+		backContext.drawImage(imgArm1, 165, 71, 35, 15, 115+arm1shiftX, 398, 35, 15);
 
 		// Draw lower arm
 		backContext.save();
 		backContext.setTransform(1, 0, 0, 1, 0, 0);
 		backContext.translate(lowerArmX, lowerArmY);
 		backContext.rotate(r1 + Math.PI + 0.12);
-		backContext.drawImage(imgArm1, 0, 231-165, 150, 54, -132, -26, 150, 54);
+		backContext.drawImage(imgArm1, 0, 66, 150, 54, -132, -26, 150, 54);
 		backContext.restore();
 
 		// Draw tip
@@ -364,7 +367,7 @@ function canvasApp() {
 		backContext.drawImage(imgArm1, 159, 0, 51, 55, -20, 0, 51, 55);
 		backContext.restore();
 
-		// Draw upper Arm
+		// Draw upper arm
 		backContext.save();
 		backContext.setTransform(1, 0, 0, 1, 0, 0);
 		backContext.translate(upperArmX, upperArmY);
@@ -373,9 +376,57 @@ function canvasApp() {
 		backContext.restore();
 		
 		// Draw bottom front
-		backContext.drawImage(imgArm1, 0, 231-110, 171, 110, 0, 480-110, 171, 110);
+		backContext.drawImage(imgArm1, 0, 121, 171, 110, 0+arm1shiftX, 370, 171, 110);
+	}
 
-/*		// Guiding lines
+	function drawArm2() {
+		// Caculate lower arm angle
+		var lowerArmX = 696;
+		var lowerArmY = 383;
+		var maxLength = Math.sqrt(screenWidth*screenWidth+screenHeight*screenHeight);
+		var l = Math.sqrt((mouseX-lowerArmX)*(mouseX-lowerArmX) + (mouseY-lowerArmY)*(mouseY-lowerArmY));
+		var offset = (1 - l / maxLength) * 0.5 * Math.PI;
+		var r0 = angle(lowerArmX, lowerArmY, mouseX, mouseY);
+		var r1 = r0 + offset;
+
+		// Caculate upper arm angle
+		var upperArmX = lowerArmX + Math.cos(r1 + 0.36)*117;
+		var upperArmY = lowerArmY + Math.sin(r1 + 0.36)*117;
+		var r2 = r0 - offset + Math.PI + (1 - l / maxLength + 0.5);
+
+		// Caculate tip angle
+		var tipX = upperArmX + Math.cos(r2 + Math.PI)*146;
+		var tipY = upperArmY + Math.sin(r2 + Math.PI)*146;
+		var r3 = angle(tipX, tipY, mouseX, mouseY) + Math.PI;
+
+		// Draw bottom
+		backContext.drawImage(imgArm2, 0, 130, 158, 125, screenWidth-158, screenHeight-125, 158, 125);
+
+		// Draw tip
+		backContext.save();
+		backContext.setTransform(1, 0, 0, 1, 0, 0);
+		backContext.translate(tipX, tipY);
+		backContext.rotate(r3);
+		backContext.drawImage(imgArm2, 152, 95, 40, 40, -30, -20, 40, 40);
+		backContext.restore();
+
+		// Draw upper arm
+		backContext.save();
+		backContext.setTransform(1, 0, 0, 1, 0, 0);
+		backContext.translate(upperArmX, upperArmY);
+		backContext.rotate(r2);
+		backContext.drawImage(imgArm2, 0, 0, 196, 50, -160, -20, 196, 50);
+		backContext.restore();
+
+		// Draw lower arm
+		backContext.save();
+		backContext.setTransform(1, 0, 0, 1, 0, 0);
+		backContext.translate(lowerArmX, lowerArmY);
+		backContext.rotate(r1);
+		backContext.drawImage(imgArm2, 0, 50, 150, 83, -23, -22, 150, 83);
+		backContext.restore();
+
+		// Guiding lines
 		backContext.strokeStyle = "blue";
 		backContext.lineWidth = 3;
 		backContext.lineCap = "square";
@@ -383,10 +434,11 @@ function canvasApp() {
 		backContext.moveTo(lowerArmX, lowerArmY);
 		backContext.lineTo(upperArmX, upperArmY);
 		backContext.lineTo(tipX, tipY);
-		backContext.lineTo(lowerArmX, lowerArmY);
+		//backContext.lineTo(lowerArmX, lowerArmY);
 		backContext.stroke();
 		backContext.closePath();
-*/	}
+	
+	}
 
 	function angle(ax, ay, bx, by) {
 		var l = Math.sqrt((bx-ax)*(bx-ax)+(by-ay)*(by-ay));
