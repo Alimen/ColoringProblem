@@ -102,6 +102,11 @@ function canvasApp() {
 			mouseY = e.layerY - theCanvas.offsetTop;
 		}
 
+		if(beamT < 0) {
+			arm1.setTarget(mouseX, mouseY);
+			arm2.setTarget(mouseX, mouseY);
+		}
+
 		if(panelState == 2) {
 			if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+10 && mouseY < panelY+10+bottonH) {
 				bottonPress = 0;
@@ -211,11 +216,13 @@ function canvasApp() {
 			arm1 : imgArm1
 		}, 
 		backContext);
+		arm1.reset();
 
 		arm2.init(env, {
 			arm2 : imgArm2
 		}, 
 		backContext);
+		arm2.reset();
 
 		panelState = 0;
 		bottonShowed = [0, 1, 2];
@@ -236,13 +243,12 @@ function canvasApp() {
 		drawPanel();
 
 		// Push robotic arms
-		if(beamT < 0) {
-			arm1.push(mouseX, mouseY);
-			arm2.push(mouseX, mouseY);
-		} else {
-			arm1.push(beamToX, beamToY);
-			arm2.push(beamToX, beamToY);
+		if(beamT >= 0) {
+			arm1.setTarget(beamToX, beamToY);
+			arm2.setTarget(beamToX, beamToY);
 		}
+		arm1.push();
+		arm2.push();
 
 		// Draw robotic arms
 		arm1.draw();
@@ -353,14 +359,23 @@ function canvasApp() {
 	function drawBeam() {
 		if(beamT < 0) {
 			return;
+		} else if (beamT == 0) {
+			if(turn == 0 && arm1.isMoving() == 1) {
+				return;
+			} else if(turn == 1 && arm2.isMoving() == 1) {
+				return;
+			}
 		}
 
+		var xy;
 		if(turn == 0) {
-			beamFromX = arm1LaserX;
-			beamFromY = arm1LaserY;
+			xy = arm1.getLaserHead();
+			beamFromX = xy[0];
+			beamFromY = xy[1];
 		} else {
-			beamFromX = arm2LaserX;
-			beamFromY = arm2LaserY;
+			xy = arm2.getLaserHead();
+			beamFromX = xy[0];
+			beamFromY = xy[1];
 		}
 
 		var l = Math.sqrt( (beamToX-beamFromX)*(beamToX-beamFromX) + (beamToY-beamFromY)*(beamToY-beamFromY) );
@@ -378,6 +393,12 @@ function canvasApp() {
 	function pushBeam() {
 		if(beamT < 0) {
 			return;
+		} else if (beamT == 0) {
+			if(turn == 0 && arm1.isMoving() == 1) {
+				return;
+			} else if(turn == 1 && arm2.isMoving() == 1) {
+				return;
+			}
 		}
 
 		beamT++;

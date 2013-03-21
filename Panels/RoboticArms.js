@@ -12,6 +12,12 @@ var arm1 = (function() {
 	var laserX, laserY;
 	var r1, r2, r3;
 
+	// Target variables
+	const maxSpeed = 15;
+	var targetX, targetY;
+	var curX, curY;
+	var moving;
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Arm1 movements
@@ -25,10 +31,34 @@ var arm1 = (function() {
 	}
 
 	function reset() {
-		push(env.screenWidth/2, env.screenHeight/2);
+		curX = env.screenWidth/2;
+		curY = env.screenHeight/2;
+		targetX = curX;
+		targetY = curY;
+		moving = 0;
+		solveAngles(curX, curY);
 	}
 
-	function push(x, y) {
+	function push() {
+		if(curX == targetX && curY == targetY) {
+			moving = 0;
+			return;
+		}
+
+		var l = Math.sqrt((targetX-curX)*(targetX-curX) + (targetY-curY)*(targetY-curY));
+		if(l <= maxSpeed) {
+			curX = targetX;
+			curY = targetY;
+		} else {
+			var r = angle(curX, curY, targetX, targetY);
+			curX = curX + Math.cos(r)*maxSpeed;
+			curY = curY + Math.sin(r)*maxSpeed;
+		}
+		moving = 1;
+		solveAngles(curX, curY);
+	}
+
+	function solveAngles(x, y) {
 		// Cacluate laser head position
 		lowerArmX = 125 + shiftX;
 		lowerArmY = 392;
@@ -99,11 +129,27 @@ var arm1 = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+	function setTarget(x, y) {
+		targetX = x;
+		targetY = y;
+	}
+
+	function getLaserHead() {
+		return [laserX, laserY];
+	}
+
+	function isMoving() {
+		return moving;
+	}
+
 	return {
 		init : init,
 		reset : reset,
 		push : push,
-		draw : draw
+		draw : draw,
+		setTarget : setTarget,
+		getLaserHead : getLaserHead,
+		isMoving : isMoving
 	};
 })();
 
@@ -116,16 +162,22 @@ var arm2 = (function() {
 	var env;
 	
 	// Robotic arm movement variables
-	var shiftX = 30;
+	var shiftX = 5;
 	var lowerArmX, lowerArmY;
 	var upperArmX, upperArmY;
 	var tipX, tipY;
 	var laserX, laserY;
 	var r1, r2, r3;
+
+	// Target variables
+	const maxSpeed = 15;
+	var targetX, targetY;
+	var curX, curY;
+	var moving;
 	
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Arm1 movements
+// Arm2 movements
 //
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -136,10 +188,34 @@ var arm2 = (function() {
 	}
 
 	function reset() {
-		push(env.screenWidth/2, env.screenHeight/2);
+		curX = env.screenWidth/2;
+		curY = env.screenHeight/2;
+		targetX = curX;
+		targetY = curY;
+		moving = 0;
+		solveAngles(curX, curY);
 	}
 
-	function push(x, y) {
+	function push() {
+		if(curX == targetX && curY == targetY) {
+			moving = 0;
+			return;
+		}
+
+		var l = Math.sqrt((targetX-curX)*(targetX-curX) + (targetY-curY)*(targetY-curY));
+		if(l <= maxSpeed) {
+			curX = targetX;
+			curY = targetY;
+		} else {
+			var r = angle(curX, curY, targetX, targetY);
+			curX = curX + Math.cos(r)*maxSpeed;
+			curY = curY + Math.sin(r)*maxSpeed;
+		}
+		moving = 1;
+		solveAngles(curX, curY);
+	}
+
+	function solveAngles(x, y) {
 		// Caculate lower arm angle
 		lowerArmX = 696 + shiftX;
 		lowerArmY = 383;
@@ -208,10 +284,26 @@ var arm2 = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+	function setTarget(x, y) {
+		targetX = x;
+		targetY = y;
+	}
+
+	function getLaserHead() {
+		return [laserX, laserY];
+	}
+
+	function isMoving() {
+		return moving;
+	}
+
 	return {
 		init : init,
 		reset : reset,
 		push : push,
-		draw : draw
+		draw : draw,
+		setTarget : setTarget,
+		getLaserHead : getLaserHead,
+		isMoving : isMoving
 	};
 })();
