@@ -69,13 +69,16 @@ function canvasApp() {
 	var currentSpark;
 
 	// Robotic arm variables
-	var arm1LaserX, arm1LaserY;
-	var arm2LaserX, arm2LaserY;
 	var turn = 1;
 
 	// General variables
 	var mouseX = screenWidth/2;
 	var mouseY = screenHeight/2;
+	var env = {
+		screenWidth : screenWidth,
+		screenHeight : screenHeight
+	};
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -204,6 +207,16 @@ function canvasApp() {
 	}
 
 	function reset() {
+		arm1.init(env, {
+			arm1 : imgArm1
+		}, 
+		backContext);
+
+		arm2.init(env, {
+			arm2 : imgArm2
+		}, 
+		backContext);
+
 		panelState = 0;
 		bottonShowed = [0, 1, 2];
 		bottonPress = -1;
@@ -222,14 +235,18 @@ function canvasApp() {
 		// Draw panel
 		drawPanel();
 
-		// Draw robotic arms
+		// Push robotic arms
 		if(beamT < 0) {
-			drawArm1(mouseX, mouseY);
-			drawArm2(mouseX, mouseY);
+			arm1.push(mouseX, mouseY);
+			arm2.push(mouseX, mouseY);
 		} else {
-			drawArm1(beamToX, beamToY);
-			drawArm2(beamToX, beamToY);
+			arm1.push(beamToX, beamToY);
+			arm2.push(beamToX, beamToY);
 		}
+
+		// Draw robotic arms
+		arm1.draw();
+		arm2.draw();
 
 		// Draw beam
 		drawBeam();
@@ -306,116 +323,6 @@ function canvasApp() {
 			}
 			break;
 		}
-	}
-
-	function drawArm1(x, y) {
-		var arm1shiftX = -30;
-
-		// Cacluate laser head position
-		var lowerArmX = 125 + arm1shiftX;
-		var lowerArmY = 392;
-		var l = Math.sqrt((x-lowerArmX)*(x-lowerArmX) + (y-lowerArmY)*(y-lowerArmY));
-		arm1LaserX = lowerArmX + (x - lowerArmX)*0.3;
-		arm1LaserY = lowerArmY + (y - lowerArmY)*0.3 - (screenHeight - l)*0.2;
-		var r3 = angle(arm1LaserX, arm1LaserY, x, y);
-		
-		// Caculate tip angle
-		var tipX = arm1LaserX - Math.cos(-1.02-r3)*57;
-		var tipY = arm1LaserY + Math.sin(-1.02-r3)*57;
-		var r0 = angle(lowerArmX, lowerArmY, tipX, tipY);
-
-		// Solve lower arm angle by cosine rules
-		var a = 125, b = Math.sqrt((tipX-lowerArmX)*(tipX-lowerArmX)+(tipY-lowerArmY)*(tipY-lowerArmY)), c = 121;
-		var r1 = r0 - Math.acos((a*a + b*b - c*c) / (2*a*b));
-		
-		// Caculate upper arm angle
-		var upperArmX = lowerArmX + Math.cos(r1) * a;
-		var upperArmY = lowerArmY + Math.sin(r1) * a;
-		var r2 = angle(upperArmX, upperArmY, tipX, tipY);
-
-		// Draw bottom rare
-		backContext.drawImage(imgArm1, 165, 71, 35, 15, 115+arm1shiftX, 398, 35, 15);
-
-		// Draw lower arm
-		backContext.save();
-		backContext.setTransform(1, 0, 0, 1, 0, 0);
-		backContext.translate(lowerArmX, lowerArmY);
-		backContext.rotate(r1 + Math.PI + 0.12);
-		backContext.drawImage(imgArm1, 0, 66, 150, 54, -132, -26, 150, 54);
-		backContext.restore();
-
-		// Draw tip
-		backContext.save();
-		backContext.setTransform(1, 0, 0, 1, 0, 0);
-		backContext.translate(tipX, tipY);
-		backContext.rotate(r3);
-		backContext.drawImage(imgArm1, 159, 0, 51, 55, -20, 0, 51, 55);
-		backContext.restore();
-
-		// Draw upper arm
-		backContext.save();
-		backContext.setTransform(1, 0, 0, 1, 0, 0);
-		backContext.translate(upperArmX, upperArmY);
-		backContext.rotate(r2 - 0.22);
-		backContext.drawImage(imgArm1, 0, 0, 158, 65, -25, -25, 158, 65);
-		backContext.restore();
-		
-		// Draw bottom front
-		backContext.drawImage(imgArm1, 0, 121, 171, 110, 0+arm1shiftX, 370, 171, 110);
-	}
-
-	function drawArm2(x, y) {
-		var arm2shiftX = 30;
-
-		// Caculate lower arm angle
-		var lowerArmX = 696 + arm2shiftX;
-		var lowerArmY = 383;
-		var maxLength = Math.sqrt(screenWidth*screenWidth+screenHeight*screenHeight);
-		var l = Math.sqrt((x-lowerArmX)*(x-lowerArmX) + (y-lowerArmY)*(y-lowerArmY));
-		var offset = (1 - l / maxLength) * 0.5 * Math.PI;
-		var r0 = angle(lowerArmX, lowerArmY, x, y);
-		var r1 = r0 + offset;
-
-		// Caculate upper arm angle
-		var upperArmX = lowerArmX + Math.cos(r1 + 0.36)*117;
-		var upperArmY = lowerArmY + Math.sin(r1 + 0.36)*117;
-		var r2 = r0 - offset + Math.PI + (1 - l / maxLength);
-
-		// Caculate tip angle
-		var tipX = upperArmX + Math.cos(r2 + 3.13)*146;
-		var tipY = upperArmY + Math.sin(r2 + 3.13)*146;
-		var r3 = angle(tipX, tipY, x, y) + Math.PI;
-		
-		// Cacluate laser head position
-		arm2LaserX = tipX + Math.cos(r3+3.15)*23;
-		arm2LaserY = tipY + Math.sin(r3+3.15)*23;
-
-		// Draw bottom
-		backContext.drawImage(imgArm2, 0, 130, 158, 125, screenWidth-158+arm2shiftX, screenHeight-125, 158, 125);
-
-		// Draw tip
-		backContext.save();
-		backContext.setTransform(1, 0, 0, 1, 0, 0);
-		backContext.translate(tipX, tipY);
-		backContext.rotate(r3);
-		backContext.drawImage(imgArm2, 152, 95, 40, 40, -25, -17, 40, 40);
-		backContext.restore();
-
-		// Draw upper arm
-		backContext.save();
-		backContext.setTransform(1, 0, 0, 1, 0, 0);
-		backContext.translate(upperArmX, upperArmY);
-		backContext.rotate(r2);
-		backContext.drawImage(imgArm2, 0, 0, 196, 50, -160, -20, 196, 50);
-		backContext.restore();
-
-		// Draw lower arm
-		backContext.save();
-		backContext.setTransform(1, 0, 0, 1, 0, 0);
-		backContext.translate(lowerArmX, lowerArmY);
-		backContext.rotate(r1);
-		backContext.drawImage(imgArm2, 0, 50, 150, 83, -23, -22, 150, 83);
-		backContext.restore();
 	}
 
 	function angle(ax, ay, bx, by) {
