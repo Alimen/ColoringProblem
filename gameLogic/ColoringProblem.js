@@ -71,6 +71,8 @@ var coloringProblem = (function() {
 		case mainStates.loadComplete:
 			loadComplete();
 			break;
+		case mainStates.showLogo:
+			break;
 		case mainStates.resetTitle:
 			title.reset();
 			state = mainStates.title;
