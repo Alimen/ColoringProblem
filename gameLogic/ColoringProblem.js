@@ -22,6 +22,7 @@ var coloringProblem = (function() {
 	// Image resources
 	var imgTiles = new Image();
 	var imgTileBorder = new Image();
+	var imgHTML5 = new Image();
 	var imgBackground = new Image();
 	var imgShadow = new Image();
 	var imgGlow = new Image();
@@ -64,7 +65,7 @@ var coloringProblem = (function() {
 			initLoader();
 			break;
 		case mainStates.loading:
-			loader.draw(loadCount / itemsToLoad);
+			loader.draw(Math.ceil(loadCount * 100 / itemsToLoad));
 			flip();
 			break;
 		case mainStates.loadComplete:
@@ -87,8 +88,6 @@ var coloringProblem = (function() {
 		case mainStates.game:
 			break;
 		}
-
-		return;
 	}
 
 	function eventKeyUp(e) {
@@ -175,8 +174,6 @@ var coloringProblem = (function() {
 		context.font = "14px monospace";
 		context.textAlign = "center";
 		context.fillText(percentage + "%", screenWidth / 2, screenHeight / 2);
-
-		return;
 	}
 	
 	function loadjs(filename, preload) {
@@ -191,7 +188,6 @@ var coloringProblem = (function() {
 		}
 
 		document.getElementsByTagName("head")[0].appendChild(fileref);
-		return;
 	}
 
 	function eventItemPreLoaded(e) {
@@ -199,7 +195,6 @@ var coloringProblem = (function() {
 		if(preloadCount == itemsToPreload) {
 			state = mainStates.initLoader;
 		}
-		return;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -209,7 +204,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 7;
+	var itemsToLoad = 8;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -218,6 +213,8 @@ var coloringProblem = (function() {
 		loadjs("AI.js", 0);
 
 		// Setup image loader events
+		imgHTML5.src = "https://sites.google.com/site/alimenstorage/html5-rocks/HTML5_Logo.png";
+		imgHTML5.onload = eventItemLoaded;
 		imgBackground.src = "WhiteRoom.jpg";
 		imgBackground.onload = eventItemLoaded;
 		imgShadow.src = "Shadow.png";
@@ -245,7 +242,6 @@ var coloringProblem = (function() {
 		if(loadCount == itemsToLoad) {
 			state = mainStates.loadComplete;
 		}
-		return;
 	}
 
 	function loadComplete() {
