@@ -44,10 +44,9 @@ var title = (function() {
 
 	function eventKeyUp(e) {
 		if(e.keyCode == 49) { // '1' 
-			console.debug("'1' pressed (dummy)");
+			nextState = env.mainStates.resetGame1;
 		} else if(e.keyCode == 50) { // '2'
-			console.debug("'2' pressed");
-			nextState = env.mainStates.resetGame;
+			nextState = env.mainStates.resetGame2;
 		}
 	}
 

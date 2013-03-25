@@ -28,6 +28,10 @@ var coloringProblem = (function() {
 	var imgGlow = new Image();
 	var imgPanel = new Image();
 	var imgBottons = new Image();
+	var imgBeams = new Image();
+	var imgSparks = new Image();
+	var imgArm1 = new Image();
+	var imgArm2 = new Image();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -46,8 +50,9 @@ var coloringProblem = (function() {
 		showLogo	: 5,
 		resetTitle	: 6,
 		title		: 7,
-		resetGame	: 8,
-		game		: 9
+		resetGame1	: 8,
+		resetGame2	: 9,
+		game		: 10
 	};
 	var state = mainStates.initial;
 
@@ -81,13 +86,21 @@ var coloringProblem = (function() {
 			res = title.draw();
 			flip();
 			if(res != mainStates.unknown) {
-				console.debug("State change to " + res);
+				console.log(res);
 				state = res;
 			}
 			break;
-		case mainStates.resetGame:
+		case mainStates.resetGame1:
+			gameLogic.reset(1);
+			state = mainStates.game;
+			break;
+		case mainStates.resetGame2:
+			gameLogic.reset(2);
+			state = mainStates.game;
 			break;
 		case mainStates.game:
+			gameLogic.draw();
+			flip();
 			break;
 		}
 	}
@@ -212,6 +225,8 @@ var coloringProblem = (function() {
 	function initLoader() {
 		// Setup javascript loader events
 		loadjs("Title.js", 0);
+		loadjs("GameLogic.js", 0);
+		loadjs("UI.js", 0);
 		loadjs("AI.js", 0);
 
 		// Setup image loader events
@@ -227,6 +242,14 @@ var coloringProblem = (function() {
 		imgPanel.onload = eventItemLoaded;
 		imgBottons.src = "Bottons.png";
 		imgBottons.onload = eventItemLoaded;
+		imgBeams.src = "Beam.png";
+		imgBeams.onload = eventItemLoaded;
+		imgSparks.src = "Sparks.png";
+		imgSparks.onload = eventItemLoaded;
+		imgArm1.src = "Arm1.png";
+		imgArm1.onload = eventItemLoaded;
+		imgArm2.src = "Arm2.png";
+		imgArm2.onload = eventItemLoaded;
 
 		// Pass resources to loader
 		loader.init(env, {
@@ -248,13 +271,24 @@ var coloringProblem = (function() {
 
 	function loadComplete() {
 		title.init(env, {
+			background : imgBackground
+		},
+		backContext);
+
+		gameLogic.init(env, {}, backContext);
+
+		ui.init(env,  {
 			tiles : imgTiles,
 			tileBorder : imgTileBorder,
 			background : imgBackground,
 			shadow : imgShadow,
 			glow : imgGlow,
 			panel : imgPanel,
-			bottons : imgBottons
+			bottons : imgBottons,
+			beams : imgBeams,
+			sparks : imgSparks,
+			arm1 : imgArm1,
+			arm2 : imgArm2
 		},
 		backContext);
 

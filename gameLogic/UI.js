@@ -9,7 +9,7 @@ var ui = (function() {
 		slideOut	: 2,
 		paint		: 3
 	}
-	var state = animationState.idle;
+	var state = animatoinState.idle;
 
 	function init(_env, _img, _backContext) {
 		env = _env;
@@ -30,6 +30,8 @@ var ui = (function() {
 	}
 
 	function draw() {
+		// Clear background
+		backContext.drawImage(img.background, 0, 0);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -42,7 +44,7 @@ var ui = (function() {
 	}
 
 	function isIdle() {
-		if(state != animationState.idle) {
+		if(state != animatoinState.idle) {
 			return 0;
 		} else {
 			return 1;

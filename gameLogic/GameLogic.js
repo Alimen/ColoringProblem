@@ -11,12 +11,11 @@ var gameLogic = (function() {
 		nextState = env.mainStates.unknown;
 	}
 
-	function reset() {
+	function reset(player) {
 	}
 
 	function draw() {
-		// Clear background
-		backContext.drawImage(img.background, 0, 0);
+		ui.draw();
 
 		var res;
 		if(nextState != env.mainStates.unknown) {
