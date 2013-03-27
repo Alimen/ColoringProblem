@@ -1,17 +1,34 @@
 var title = (function() {
+	// Environmental variables
 	var backContext;
 	var img;
 	var env;
+
+	// Return variables
 	var nextState;
+	var playerCount;
+	var startLevel;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Public functions
+//
+///////////////////////////////////////////////////////////////////////////////
 
 	function init(_env, _img, _backContext) {
 		env = _env;
 		img = _img;
 		backContext = _backContext;
-		nextState = env.mainStates.unknown;
 	}
 
 	function reset() {
+		nextState = env.mainStates.unknown;
+		playerCount = 0;
+		startLevel = 0;
+	}
+
+	function push() {
+		return [nextState, playerCount, startLevel];
 	}
 
 	function draw() {
@@ -25,15 +42,6 @@ var title = (function() {
 		backContext.textAlign = "center";
 		backContext.fillText("Press '1' for single player game", env.screenWidth / 2, env.screenHeight / 2 - 10);
 		backContext.fillText("Press '2' for two player game", env.screenWidth / 2, env.screenHeight / 2 + 10);
-
-		var res;
-		if(nextState != env.mainStates.unknown) {
-			res = nextState;
-			nextState = env.mainStates.unknown;
-			return res;
-		} else {
-			return env.mainStates.unknown;
-		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,9 +52,13 @@ var title = (function() {
 
 	function eventKeyUp(e) {
 		if(e.keyCode == 49) { // '1' 
-			nextState = env.mainStates.resetGame1;
+			nextState = env.mainStates.game;
+			playerCount = 1;
+			startLevel = 1;
 		} else if(e.keyCode == 50) { // '2'
-			nextState = env.mainStates.resetGame2;
+			nextState = env.mainStates.game;
+			playerCount = 2;
+			startLevel = 0;
 		}
 	}
 
@@ -65,6 +77,7 @@ var title = (function() {
 	return {
 		init : init,
 		reset : reset,
+		push : push,
 		draw : draw,
 		eventKeyUp : eventKeyUp,
 		eventMouseMove : eventMouseMove,

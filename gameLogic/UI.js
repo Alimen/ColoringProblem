@@ -1,8 +1,10 @@
 var ui = (function() {
+	// Environmental variables
 	var backContext;
 	var img;
 	var env;
 
+	// Animation states
 	const animatoinState = {
 		idle		: 0,
 		slideIn		: 1,
@@ -11,6 +13,12 @@ var ui = (function() {
 	}
 	var state = animatoinState.idle;
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// Public functions
+//
+///////////////////////////////////////////////////////////////////////////////
+
 	function init(_env, _img, _backContext) {
 		env = _env;
 		img = _img;
@@ -18,9 +26,12 @@ var ui = (function() {
 	}
 
 	function resetSlideIn(bringInArms, isWarp) {
+		prepareSubGraph();
+		selected = -1;
 	}
 
 	function resetSlideOut(bringOutArms, isWarp) {
+		selected = -1;
 	}
 
 	function resetPaint() {
@@ -33,6 +44,18 @@ var ui = (function() {
 		// Clear background
 		backContext.drawImage(img.background, 0, 0);
 	}
+	
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Board releted subroutines
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	var selected;
+
+	function prepareSubGraph() {
+	}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -40,7 +63,8 @@ var ui = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-	function setSelect(_select) {
+	function setSelect(_selected) {
+		selected = _selected;
 	}
 
 	function isIdle() {

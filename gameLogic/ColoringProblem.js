@@ -50,9 +50,7 @@ var coloringProblem = (function() {
 		showLogo	: 5,
 		resetTitle	: 6,
 		title		: 7,
-		resetGame1	: 8,
-		resetGame2	: 9,
-		game		: 10
+		game		: 8
 	};
 	var state = mainStates.initial;
 
@@ -83,20 +81,14 @@ var coloringProblem = (function() {
 			state = mainStates.title;
 			break;
 		case mainStates.title:
-			res = title.draw();
+			res = title.push();
+			title.draw();
 			flip();
-			if(res != mainStates.unknown) {
+			if(res[0] != mainStates.unknown) {
 				console.log(res);
-				state = res;
+				state = res[0];
+				gameLogic.reset(res[1], res[2]);
 			}
-			break;
-		case mainStates.resetGame1:
-			gameLogic.reset(1);
-			state = mainStates.game;
-			break;
-		case mainStates.resetGame2:
-			gameLogic.reset(2);
-			state = mainStates.game;
 			break;
 		case mainStates.game:
 			gameLogic.draw();
