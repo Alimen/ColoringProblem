@@ -5,13 +5,13 @@ var ui = (function() {
 	var env;
 
 	// Animation states
-	const animationState = {
+	const animationStates = {
 		idle		: 0,
 		slideIn		: 1,
 		slideOut	: 2,
 		paint		: 3
 	}
-	var state = animationState.idle;
+	var state = animationStates.idle;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -38,13 +38,23 @@ var ui = (function() {
 		prepareSubGraph();
 
 		selected = -1;
-		state = animationState.slideIn;
+		state = animationStates.slideIn;
 		slideState = 1;
 	}
 
 	function resetSlideOut(bringOutArms, isWarp) {
+		var i, x = Math.ceil(env.screenWidth * 1.2 / slideSpeed) * slideSpeed;
+		for(i = 0; i < maxGraph; i++) {
+			if(Math.random() > 0.5) {
+				graphTargetX[i] = graphX[i] - x;
+			} else {
+				graphTargetX[i] = graphX[i] + x;
+			}
+		}
+
 		selected = -1;
-		state = animationState.slideOut;
+		state = animationStates.slideOut;
+		slideState = 4;
 	}
 
 	function resetPaint() {
@@ -139,7 +149,6 @@ var ui = (function() {
 			graphRedraw.push(-1);
 			graphTileFrames[i] = new Array();
 
-			console.log("prepare subgraph #", i);
 			drawSubGraph(i, 0);
 		}
 	}
@@ -311,7 +320,7 @@ var ui = (function() {
 				}
 			}
 			if(check == 0) {
-				state = animationState.idle;
+				state = animationStates.idle;
 				slideState = 3;
 			}
 			break;
@@ -345,7 +354,8 @@ var ui = (function() {
 				}
 			}
 			if(check == 0) {
-				resetSlideIn();
+				state = animationStates.idle;
+				slideState = 0;
 			}
 			break;
 		}
@@ -362,7 +372,7 @@ var ui = (function() {
 	}
 
 	function isIdle() {
-		if(state != animationState.idle) {
+		if(state != animationStates.idle) {
 			return 0;
 		} else {
 			return 1;

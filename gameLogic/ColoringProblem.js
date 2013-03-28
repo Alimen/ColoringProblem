@@ -102,6 +102,9 @@ var coloringProblem = (function() {
 		case mainStates.title:
 			title.eventKeyUp(e);
 			break;
+		case mainStates.game:
+			gameLogic.eventKeyUp(e);
+			break;
 		}
 	}
 
@@ -110,6 +113,9 @@ var coloringProblem = (function() {
 		case mainStates.title:
 			title.eventMouseMove(e);
 			break;
+		case mainStates.game:
+			gameLogic.eventMouseMove(e);
+			break;
 		}
 	}
 
@@ -117,6 +123,9 @@ var coloringProblem = (function() {
 		switch(state) {
 		case mainStates.title:
 			title.eventMouseClick(e);
+			break;
+		case mainStates.game:
+			gameLogic.eventMouseClick(e);
 			break;
 		}
 	}

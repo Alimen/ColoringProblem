@@ -4,6 +4,16 @@ var gameLogic = (function() {
 	var img;
 	var env;
 
+	// Game states
+	const gameStates = {
+		unknown		: -1,
+		selecting	: 0,
+		colorSelect	: 1,
+		animating	: 2
+	};
+	var state;
+	var nextGameState;
+
 	// Return vairables
 	var nextState;
 
@@ -32,10 +42,17 @@ var gameLogic = (function() {
 		
 		ai.setupBoard();
 		ui.resetSlideIn(0, 0);
+
+		state = gameStates.animating;
+		nextGameState = gameStates.selecting;
 	}
 
 	function push() {
 		ui.push();
+		if(ui.isIdle() == 1 && state == gameStates.animating) {
+			state = nextGameState;
+		}
+
 		return nextState;
 	}
 
@@ -50,6 +67,19 @@ var gameLogic = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	function eventKeyUp(e) {
+		if(e.keyCode == 65) { // 'A'
+			if(state == gameStates.selecting) {
+				console.log("out");
+				ui.resetSlideOut(0, 0);
+				state = gameStates.animating;
+				nexGameState = gameStates.unknown;
+			} else if(state == gameStates.unknown) {
+				console.log("in");
+				ui.resetSlideIn(0, 0);
+				state = gameStates.animating;
+				nextGameState = gameStates.seleting;
+			}
+		}
 	}
 
 	function eventMouseMove(e) {
