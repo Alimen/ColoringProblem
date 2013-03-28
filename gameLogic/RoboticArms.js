@@ -5,7 +5,6 @@ var arm1 = (function() {
 	var env;
 
 	// Robotic arm movement variables
-	var shiftX = -30;
 	var lowerArmX, lowerArmY;
 	var upperArmX, upperArmY;
 	var tipX, tipY;
@@ -17,6 +16,12 @@ var arm1 = (function() {
 	var targetX, targetY;
 	var curX, curY;
 	var moving;
+
+	// Sliding movement variables
+	var shiftX;
+	var slideSpeed, slideAccel;
+	var slideCurrentPos, slideTargetPos;
+	var slideT, maxSlideT;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -31,34 +36,83 @@ var arm1 = (function() {
 	}
 
 	function reset() {
-		curX = env.screenWidth/2;
+		shiftX = -220;
+		curX = env.screenWidth/2 + shiftX;
 		curY = env.screenHeight/2;
 		targetX = curX;
 		targetY = curY;
 		moving = 0;
+		slideT = -1;
+		slideCurrentPos = 0;
+		slideTargetPos = 0;
 		solveAngles(curX, curY);
 	}
 
 	function resetSliding(targetPos) {
-	}
-
-	function push() {
-		if(curX == targetX && curY == targetY) {
-			moving = 0;
+		if(targetPos > 2 || targetPos < 0 || targetPos == slideCurrentPos) {
 			return;
 		}
 
-		var l = Math.sqrt((targetX-curX)*(targetX-curX) + (targetY-curY)*(targetY-curY));
-		if(l <= maxSpeed) {
-			curX = targetX;
-			curY = targetY;
+		slideTargetPos = targetPos;
+		var diff = slideTargetPos - slideCurrentPos;
+		if(diff > 0) {
+			slideAccel = 0.2;
 		} else {
-			var r = angle(curX, curY, targetX, targetY);
-			curX = curX + Math.cos(r)*maxSpeed;
-			curY = curY + Math.sin(r)*maxSpeed;
+			slideAccel = -0.2;
+			diff = (-1)*diff;
 		}
-		moving = 1;
-		solveAngles(curX, curY);
+
+		if(diff == 2) {
+			slideT = 70;
+		} else {
+			switch(slideCurrentPos) {
+			case 0:
+				slideT = 50;
+			case 1:
+				if(slideAccel > 0) {
+					slideT = 50;
+				} else {
+					slideT = 30;
+				}
+				break;
+			case 2:
+				slideT = 30;
+				break;
+			}
+		}
+
+		slideSpeed = 0;
+		maxSlideT = slideT;
+	}
+
+	function push() {
+		if(slideT >= 0) {
+			slideT--;
+			if(slideT > maxSlideT - 20) {
+				slideSpeed = slideSpeed + slideAccel;
+			} else if(slideT < 20) {
+				slideSpeed = slideSpeed - slideAccel;
+			}
+			shiftX += slideSpeed;
+			targetX = env.screenWidth/2 + shiftX;
+			targetY = env.screenHeight/2;
+		}
+			
+		if(curX == targetX && curY == targetY) {
+			moving = 0;
+		} else {
+			var l = Math.sqrt((targetX-curX)*(targetX-curX) + (targetY-curY)*(targetY-curY));
+			if(l <= maxSpeed) {
+				curX = targetX;
+				curY = targetY;
+			} else {
+				var r = angle(curX, curY, targetX, targetY);
+				curX = curX + Math.cos(r)*maxSpeed;
+				curY = curY + Math.sin(r)*maxSpeed;
+			}
+			moving = 1;
+			solveAngles(curX, curY);
+		}
 	}
 
 	function solveAngles(x, y) {

@@ -81,6 +81,7 @@ var ui = (function() {
 		maxGraph = ai.getGraphSize();
 
 		arm1.reset();
+		arm1.resetSliding(1);
 		arm2.reset();
 		prepareSubGraph();
 
