@@ -30,68 +30,22 @@ var ui = (function() {
 		}
 	}
 
-	function resetSlideIn(bringInArms, isWarp) {
-		maxCol = ai.getMaxCol();
-		maxRow = ai.getMaxRow();
-		maxGraph = ai.getGraphSize();
-
-		prepareSubGraph();
-
-		selected = -1;
-		state = animationStates.slideIn;
-		slideState = 1;
-	}
-
-	function resetSlideOut(bringOutArms, isWarp) {
-		var i, x = Math.ceil(env.screenWidth * 1.2 / slideSpeed) * slideSpeed;
-		for(i = 0; i < maxGraph; i++) {
-			if(Math.random() > 0.5) {
-				graphTargetX[i] = graphX[i] - x;
-			} else {
-				graphTargetX[i] = graphX[i] + x;
-			}
-		}
-
-		selected = -1;
-		state = animationStates.slideOut;
-		slideState = 4;
-	}
-
-	function resetPaint() {
-	}
-
 	function push() {
 		pushSlide();
+		arm1.push();
+		arm2.push();
 	}
 
 	function draw() {
 		// Clear background
 		backContext.drawImage(img.background, 0, 0);
 
-		// Draw graphs to backCanvas
-		var board = ai.getBoard();
-		var i, dx, dy, dw, dh;
-		for(i = 0; i < maxGraph; i++) {
-			if(graphZ[i] > 0) {
-				dx = (graphX[i] - env.screenWidth/2) * (1 - graphZ[i]) + env.screenWidth/2;
-				dy = (graphY[i] - env.screenHeight/2) * (1 - graphZ[i]) + env.screenHeight/2;
-				dw = graphCanvas[i].width * graphZ[i];
-				dh = graphCanvas[i].height * graphZ[i];
-				backContext.drawImage(graphCanvas[i], dx, dy, graphCanvas[i].width - dw, graphCanvas[i].height - dh);
-				backContext.drawImage(img.shadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
-			} else {
-				if(selected != i) {
-					backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);				
-				}
-				if(graphRedraw[i] != -1) {
-					drawSubGraph(i, 0);	
-				}
-				backContext.drawImage(img.shadow, graphX[i], 430,  graphCanvas[i].width, 50);
-			}
-		}
-		if(selected != -1 && (slideState == 0 || slideState == 3)) {
-			backContext.drawImage(graphCanvas[selected], graphX[selected], graphY[selected]);
-		}
+		// Draw all subgraphs to backCanvas
+		drawBoard();
+
+		// Draw robotic arms
+		arm1.draw();
+		arm2.draw();
 	}
 	
 
@@ -120,6 +74,38 @@ var ui = (function() {
 	var graphZ = new Array();
 	var graphRedraw = new Array();
 	var graphTileFrames = new Array();
+
+	function resetSlideIn(bringInArms, isWarp) {
+		maxCol = ai.getMaxCol();
+		maxRow = ai.getMaxRow();
+		maxGraph = ai.getGraphSize();
+
+		arm1.reset();
+		arm2.reset();
+		prepareSubGraph();
+
+		selected = -1;
+		state = animationStates.slideIn;
+		slideState = 1;
+	}
+
+	function resetSlideOut(bringOutArms, isWarp) {
+		var i, x = Math.ceil(env.screenWidth * 1.2 / slideSpeed) * slideSpeed;
+		for(i = 0; i < maxGraph; i++) {
+			if(Math.random() > 0.5) {
+				graphTargetX[i] = graphX[i] - x;
+			} else {
+				graphTargetX[i] = graphX[i] + x;
+			}
+		}
+
+		selected = -1;
+		state = animationStates.slideOut;
+		slideState = 4;
+	}
+
+	function resetPaint() {
+	}
 
 	function prepareSubGraph() {
 		var i, j, curRow, rect;
@@ -150,6 +136,105 @@ var ui = (function() {
 			graphTileFrames[i] = new Array();
 
 			drawSubGraph(i, 0);
+		}
+	}
+	
+	function pushSlide() {
+		var i, check;
+		switch(slideState) {
+		case 0:
+			break;
+
+		case 1:
+			check = maxGraph;
+			for(i = 0; i < maxGraph; i++) {
+				if(graphX[i] < graphTargetX[i]) {
+					graphX[i] += slideSpeed;
+				} else if(graphX[i] > graphTargetX[i]) {
+					graphX[i] -= slideSpeed;
+				} else {
+					check--;
+				}
+			}
+			if(check == 0) {
+				slideState = 2;
+			}
+			break;
+
+		case 2:
+			check = maxGraph;
+			for(i = 0; i < maxGraph; i++) {
+				if(graphZ[i] > 0) {
+					graphZ[i] -= 0.01;
+				} else {
+					check--;
+				}
+			}
+			if(check == 0) {
+				state = animationStates.idle;
+				slideState = 3;
+			}
+			break;
+
+		case 3:
+			break;
+
+		case 4:
+			check = maxGraph;
+			for(i = 0; i < maxGraph; i++) {
+				if(graphZ[i] < (maxGraph-i-1) * 0.02) {
+					graphZ[i] += 0.01;
+				} else {
+					check--;
+				}
+			}
+			if(check == 0) {
+				slideState = 5;
+			}
+			break;
+
+		case 5:
+			check = maxGraph;
+			for(i = 0; i < maxGraph; i++) {
+				if(graphX[i] < graphTargetX[i]) {
+					graphX[i] += slideSpeed;
+				} else if(graphX[i] > graphTargetX[i]) {
+					graphX[i] -= slideSpeed;
+				} else {
+					check--;
+				}
+			}
+			if(check == 0) {
+				state = animationStates.idle;
+				slideState = 0;
+			}
+			break;
+		}
+	}
+
+	function drawBoard() {
+		var board = ai.getBoard();
+		var i, dx, dy, dw, dh;
+		for(i = 0; i < maxGraph; i++) {
+			if(graphZ[i] > 0) {
+				dx = (graphX[i] - env.screenWidth/2) * (1 - graphZ[i]) + env.screenWidth/2;
+				dy = (graphY[i] - env.screenHeight/2) * (1 - graphZ[i]) + env.screenHeight/2;
+				dw = graphCanvas[i].width * graphZ[i];
+				dh = graphCanvas[i].height * graphZ[i];
+				backContext.drawImage(graphCanvas[i], dx, dy, graphCanvas[i].width - dw, graphCanvas[i].height - dh);
+				backContext.drawImage(img.shadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
+			} else {
+				if(selected != i) {
+					backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);				
+				}
+				if(graphRedraw[i] != -1) {
+					drawSubGraph(i, 0);	
+				}
+				backContext.drawImage(img.shadow, graphX[i], 430,  graphCanvas[i].width, 50);
+			}
+		}
+		if(selected != -1 && (slideState == 0 || slideState == 3)) {
+			backContext.drawImage(graphCanvas[selected], graphX[selected], graphY[selected]);
 		}
 	}
 
@@ -286,79 +371,6 @@ var ui = (function() {
 		}
 
 		return output;
-	}
-	
-	function pushSlide() {
-		var i, check;
-		switch(slideState) {
-		case 0:
-			break;
-
-		case 1:
-			check = maxGraph;
-			for(i = 0; i < maxGraph; i++) {
-				if(graphX[i] < graphTargetX[i]) {
-					graphX[i] += slideSpeed;
-				} else if(graphX[i] > graphTargetX[i]) {
-					graphX[i] -= slideSpeed;
-				} else {
-					check--;
-				}
-			}
-			if(check == 0) {
-				slideState = 2;
-			}
-			break;
-
-		case 2:
-			check = maxGraph;
-			for(i = 0; i < maxGraph; i++) {
-				if(graphZ[i] > 0) {
-					graphZ[i] -= 0.01;
-				} else {
-					check--;
-				}
-			}
-			if(check == 0) {
-				state = animationStates.idle;
-				slideState = 3;
-			}
-			break;
-
-		case 3:
-			break;
-
-		case 4:
-			check = maxGraph;
-			for(i = 0; i < maxGraph; i++) {
-				if(graphZ[i] < (maxGraph-i-1) * 0.02) {
-					graphZ[i] += 0.01;
-				} else {
-					check--;
-				}
-			}
-			if(check == 0) {
-				slideState = 5;
-			}
-			break;
-
-		case 5:
-			check = maxGraph;
-			for(i = 0; i < maxGraph; i++) {
-				if(graphX[i] < graphTargetX[i]) {
-					graphX[i] += slideSpeed;
-				} else if(graphX[i] > graphTargetX[i]) {
-					graphX[i] -= slideSpeed;
-				} else {
-					check--;
-				}
-			}
-			if(check == 0) {
-				state = animationStates.idle;
-				slideState = 0;
-			}
-			break;
-		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////

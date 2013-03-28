@@ -220,7 +220,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 8;
+	var itemsToLoad = 15;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -228,6 +228,7 @@ var coloringProblem = (function() {
 		loadjs("Title.js", 0);
 		loadjs("GameLogic.js", 0);
 		loadjs("UI.js", 0);
+		loadjs("RoboticArms.js", 0);
 		loadjs("AI.js", 0);
 
 		// Setup image loader events
@@ -288,7 +289,15 @@ var coloringProblem = (function() {
 			bottons : imgBottons,
 			beams : imgBeams,
 			sparks : imgSparks,
-			arm1 : imgArm1,
+		},
+		backContext);
+
+		arm1.init(env, {
+			arm1 : imgArm1
+		},
+		backContext);
+
+		arm2.init(env, {
 			arm2 : imgArm2
 		},
 		backContext);

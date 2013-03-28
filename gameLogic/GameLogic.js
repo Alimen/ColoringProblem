@@ -34,8 +34,6 @@ var gameLogic = (function() {
 	}
 
 	function reset(_playerCount, _startLevel) {
-		console.log(_playerCount, _startLevel);
-
 		nextState = env.mainStates.unknown;
 		playerCount = _playerCount;
 		level = _startLevel;
@@ -69,15 +67,13 @@ var gameLogic = (function() {
 	function eventKeyUp(e) {
 		if(e.keyCode == 65) { // 'A'
 			if(state == gameStates.selecting) {
-				console.log("out");
 				ui.resetSlideOut(0, 0);
 				state = gameStates.animating;
-				nexGameState = gameStates.unknown;
+				nextGameState = gameStates.unknown;
 			} else if(state == gameStates.unknown) {
-				console.log("in");
 				ui.resetSlideIn(0, 0);
 				state = gameStates.animating;
-				nextGameState = gameStates.seleting;
+				nextGameState = gameStates.selecting;
 			}
 		}
 	}
