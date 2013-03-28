@@ -24,10 +24,14 @@ var gameLogic = (function() {
 	}
 
 	function reset(_playerCount, _startLevel) {
+		console.log(_playerCount, _startLevel);
+
 		nextState = env.mainStates.unknown;
 		playerCount = _playerCount;
 		level = _startLevel;
+		
 		ai.setupBoard();
+		ui.resetSlideIn(0, 0);
 	}
 
 	function push() {

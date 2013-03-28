@@ -361,12 +361,8 @@ var ai = (function() {
 	function getMaxCol() { return maxCol; }
 	function getBoard() { return board;	}
 	function getGraphSize() { return graph.length; }
-	function getColor(groupID) { return getColor(groupID); }
-	function setColor(groupID, color) { return setColor(groupID, color); }
-	function isColorOK(groupID, color) { return isColorOK(groupID, color); }
 	function getSubGraph(groupID) {	return subgraphs[groupID]; }
 	function getBorder(groupID) { return borders[groupID]; }
-	function getBlackout() { return blackout();	}
 	function getUncoloredCount() { return uncolored.length; }
 
 	return {
@@ -381,7 +377,8 @@ var ai = (function() {
 		setColor : setColor,
 		isColorOK : isColorOK,
 		getSubGraph : getSubGraph,
-		getBlackout : getBlackout,
+		getBorder : getBorder,
+		getBlackout : blackout,
 		getUncoloredCount : getUncoloredCount
 	};
 })();

@@ -85,12 +85,12 @@ var coloringProblem = (function() {
 			title.draw();
 			flip();
 			if(res[0] != mainStates.unknown) {
-				console.log(res);
 				state = res[0];
 				gameLogic.reset(res[1], res[2]);
 			}
 			break;
 		case mainStates.game:
+			gameLogic.push();
 			gameLogic.draw();
 			flip();
 			break;
