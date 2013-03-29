@@ -75,14 +75,13 @@ var ui = (function() {
 	var graphRedraw = new Array();
 	var graphTileFrames = new Array();
 
-	function resetSlideIn(bringInArms, isWarp) {
+	function resetSlideIn(moveArm1to, moveArm2to, isWarp) {
 		maxCol = ai.getMaxCol();
 		maxRow = ai.getMaxRow();
 		maxGraph = ai.getGraphSize();
 
-		arm1.reset();
-		arm1.resetSliding(1);
-		arm2.reset();
+		arm1.resetSliding(moveArm1to);
+		arm2.resetSliding(moveArm2to);
 		prepareSubGraph();
 
 		selected = -1;
@@ -90,7 +89,7 @@ var ui = (function() {
 		slideState = 1;
 	}
 
-	function resetSlideOut(bringOutArms, isWarp) {
+	function resetSlideOut(moveArm1to, moveArm2to, isWarp) {
 		var i, x = Math.ceil(env.screenWidth * 1.2 / slideSpeed) * slideSpeed;
 		for(i = 0; i < maxGraph; i++) {
 			if(Math.random() > 0.5) {
@@ -99,6 +98,9 @@ var ui = (function() {
 				graphTargetX[i] = graphX[i] + x;
 			}
 		}
+
+		arm1.resetSliding(moveArm1to);
+		arm2.resetSliding(moveArm2to);
 
 		selected = -1;
 		state = animationStates.slideOut;
