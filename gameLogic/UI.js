@@ -9,7 +9,8 @@ var ui = (function() {
 		idle		: 0,
 		slideIn		: 1,
 		slideOut	: 2,
-		paint		: 3
+		paint		: 3,
+		warp		: 4
 	}
 	var state = animationStates.idle;
 
@@ -34,6 +35,7 @@ var ui = (function() {
 		pushSlide();
 		arm1.push();
 		arm2.push();
+		warp.pushFade();
 	}
 
 	function draw() {
@@ -46,6 +48,9 @@ var ui = (function() {
 		// Draw robotic arms
 		arm1.draw();
 		arm2.draw();
+
+		// Draw fade in/out effect
+		warp.drawFade();
 	}
 	
 
@@ -83,6 +88,10 @@ var ui = (function() {
 		arm1.resetSliding(moveArm1to);
 		arm2.resetSliding(moveArm2to);
 		prepareSubGraph();
+	
+		if(isWarp == 1) {
+			warp.resetFade(0);
+		}
 
 		selected = -1;
 		state = animationStates.slideIn;
@@ -101,6 +110,10 @@ var ui = (function() {
 
 		arm1.resetSliding(moveArm1to);
 		arm2.resetSliding(moveArm2to);
+
+		if(isWarp == 1) {
+			warp.resetFade(1);
+		}
 
 		selected = -1;
 		state = animationStates.slideOut;

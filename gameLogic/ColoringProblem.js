@@ -32,6 +32,8 @@ var coloringProblem = (function() {
 	var imgSparks = new Image();
 	var imgArm1 = new Image();
 	var imgArm2 = new Image();
+	var imgDot = new Image();
+	var imgWarpLine = new Image();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -220,7 +222,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 15;
+	var itemsToLoad = 18;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -229,6 +231,7 @@ var coloringProblem = (function() {
 		loadjs("GameLogic.js", 0);
 		loadjs("UI.js", 0);
 		loadjs("RoboticArms.js", 0);
+		loadjs("Warp.js");
 		loadjs("AI.js", 0);
 
 		// Setup image loader events
@@ -252,6 +255,10 @@ var coloringProblem = (function() {
 		imgArm1.onload = eventItemLoaded;
 		imgArm2.src = "Arm2.png";
 		imgArm2.onload = eventItemLoaded;
+		imgDot.src = "Dot.png";
+		imgDot.onload = eventItemLoaded;
+		imgWarpLine.src = "Warpline.png";
+		imgWarpLine.onload = eventItemLoaded;
 
 		// Pass resources to loader
 		loader.init(env, {
@@ -272,12 +279,14 @@ var coloringProblem = (function() {
 	}
 
 	function loadComplete() {
+		// Initialize sub modules
 		title.init(env, {
 			background : imgBackground
 		},
 		backContext);
 
-		gameLogic.init(env, {}, backContext);
+		gameLogic.init(env, {
+		}, backContext);
 
 		ui.init(env,  {
 			tiles : imgTiles,
@@ -299,6 +308,12 @@ var coloringProblem = (function() {
 
 		arm2.init(env, {
 			arm2 : imgArm2
+		},
+		backContext);
+
+		warp.init(env, {
+			dot : imgDot,
+			warpLine : imgWarpLine
 		},
 		backContext);
 
