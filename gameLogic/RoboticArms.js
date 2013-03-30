@@ -65,20 +65,21 @@ var arm1 = (function() {
 		}
 
 		if(diff == 2) {
-			slideT = 70;
+			slideT = 69;
 		} else {
 			switch(slideCurrentPos) {
 			case 0:
-				slideT = 40;
+				slideT = 39;
+				break;
 			case 1:
 				if(slideAccel < 0) {
-					slideT = 40;
+					slideT = 39;
 				} else {
-					slideT = 50;
+					slideT = 49;
 				}
 				break;
 			case 2:
-				slideT = 50;
+				slideT = 49;
 				break;
 			}
 		}
@@ -89,7 +90,6 @@ var arm1 = (function() {
 
 	function push() {
 		if(slideT >= 0) {
-			slideT--;
 			if(slideT > maxSlideT - 20) {
 				slideSpeed = slideSpeed + slideAccel;
 			} else if(slideT < 20) {
@@ -98,6 +98,7 @@ var arm1 = (function() {
 			shiftX += slideSpeed;
 			targetX = env.screenWidth/2 + shiftX;
 			targetY = env.screenHeight/2;
+			slideT--;
 
 			if(slideT < 0) {
 				slideCurrentPos = slideTargetPos;
@@ -295,20 +296,21 @@ var arm2 = (function() {
 		}
 
 		if(diff == 2) {
-			slideT = 80;
+			slideT = 79;
 		} else {
 			switch(slideCurrentPos) {
 			case 0:
-				slideT = 60;
+				slideT = 59;
+				break;
 			case 1:
 				if(slideAccel > 0) {
-					slideT = 60;
+					slideT = 59;
 				} else {
-					slideT = 40;
+					slideT = 39;
 				}
 				break;
 			case 2:
-				slideT = 40;
+				slideT = 39;
 				break;
 			}
 		}
@@ -319,7 +321,6 @@ var arm2 = (function() {
 
 	function push() {
 		if(slideT >= 0) {
-			slideT--;
 			if(slideT > maxSlideT - 20) {
 				slideSpeed = slideSpeed + slideAccel;
 			} else if(slideT < 20) {
@@ -328,6 +329,7 @@ var arm2 = (function() {
 			shiftX += slideSpeed;
 			targetX = env.screenWidth/2 + shiftX;
 			targetY = env.screenHeight/2;
+			slideT--;
 
 			if(slideT < 0) {
 				slideCurrentPos = slideTargetPos;
