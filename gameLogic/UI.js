@@ -13,6 +13,7 @@ var ui = (function() {
 		warp		: 4
 	}
 	var state = animationStates.idle;
+	var nextState = animationStates.idle;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -32,10 +33,10 @@ var ui = (function() {
 	}
 
 	function push() {
+		warp.pushFade();
 		pushSlide();
 		arm1.push();
 		arm2.push();
-		warp.pushFade();
 	}
 
 	function draw() {
@@ -95,6 +96,7 @@ var ui = (function() {
 
 		selected = -1;
 		state = animationStates.slideIn;
+		nextState = animationStates.idle;
 		slideState = 1;
 	}
 
@@ -108,13 +110,16 @@ var ui = (function() {
 			}
 		}
 
-		arm1.resetSliding(moveArm1to);
-		arm2.resetSliding(moveArm2to);
-
 		if(isWarp == 1) {
+			arm1.resetSliding(0);
+			arm2.resetSliding(0);
 			warp.resetFade(1);
+			nextState = animationStates.warp;
+		} else {
+			arm1.resetSliding(moveArm1to);
+			arm2.resetSliding(moveArm2to);
+			nextState = animationStates.idle;
 		}
-
 		selected = -1;
 		state = animationStates.slideOut;
 		slideState = 4;
@@ -156,6 +161,11 @@ var ui = (function() {
 	}
 	
 	function pushSlide() {
+		if(warp.isWarping() == 1) {
+			warp.pushWarp();
+			return;
+		}
+
 		var i, check;
 		switch(slideState) {
 		case 0:
@@ -220,8 +230,17 @@ var ui = (function() {
 					check--;
 				}
 			}
-			if(check == 0) {
+			if(nextState == animationStates.warp && warp.isFading() == 0) {
+				arm1.reset();
+				arm2.reset();
+				warp.resetWarp();
+				state = animationStates.warp;
+				nextState = animationStates.idle;
+				slideState = 0;
+				console.log("Switch to warping animation");
+			} else if(check == 0) {
 				state = animationStates.idle;
+				nextState = animationStates.idle;
 				slideState = 0;
 			}
 			break;
@@ -229,6 +248,11 @@ var ui = (function() {
 	}
 
 	function drawBoard() {
+		if(warp.isWarping() == 1) {
+			warp.drawWarp();
+			return;
+		}
+
 		var board = ai.getBoard();
 		var i, dx, dy, dw, dh;
 		for(i = 0; i < maxGraph; i++) {

@@ -34,6 +34,7 @@ var coloringProblem = (function() {
 	var imgArm2 = new Image();
 	var imgDot = new Image();
 	var imgWarpLine = new Image();
+	var imgHalo = new Image();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -259,6 +260,8 @@ var coloringProblem = (function() {
 		imgDot.onload = eventItemLoaded;
 		imgWarpLine.src = "Warpline.png";
 		imgWarpLine.onload = eventItemLoaded;
+		imgHalo.src = "Halos.jpg";
+		imgHalo.onload = eventItemLoaded;
 
 		// Pass resources to loader
 		loader.init(env, {
@@ -313,7 +316,8 @@ var coloringProblem = (function() {
 
 		warp.init(env, {
 			dot : imgDot,
-			warpLine : imgWarpLine
+			warpLine : imgWarpLine,
+			halo : imgHalo
 		},
 		backContext);
 

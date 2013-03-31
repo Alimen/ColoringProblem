@@ -67,11 +67,11 @@ var gameLogic = (function() {
 	function eventKeyUp(e) {
 		if(e.keyCode == 65) { // 'A'
 			if(state == gameStates.selecting) {
-				ui.resetSlideOut(0, 0, 0);
+				ui.resetSlideOut(0, 0, 1);
 				state = gameStates.animating;
 				nextGameState = gameStates.unknown;
 			} else if(state == gameStates.unknown) {
-				ui.resetSlideIn(2, 1, 0);
+				ui.resetSlideIn(2, 1, 1);
 				state = gameStates.animating;
 				nextGameState = gameStates.selecting;
 			}
