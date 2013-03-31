@@ -26,15 +26,31 @@ var ui = (function() {
 		img = _img;
 		backContext = _backContext;
 
-		// Create off-screen canvas
+		// Create off-screen canvas for subgraphs
 		for(var i = 0; i < maxCanvas; i++) {
 			graphCanvas[i] = document.createElement("canvas");
 		}
+	
+		// Create off-screen canvas for panel
+		panelCanvas = document.createElement("canvas");
+		panelCanvas.width = panelW;
+		panelCanvas.height = panelH;
+		panelContext = panelCanvas.getContext("2d");
+
+		// Turn on shadow at default
+		shadow = 1;
 	}
 
 	function push() {
 		warp.pushFade();
-		pushSlide();
+		if(warp.isWarping() == 1) {
+			warp.pushWarp();
+			if(warp.isWarping() == 0) {
+				state = animationStates.idle;
+			}
+		} else {
+			pushSlide();
+		}
 		arm1.push();
 		arm2.push();
 	}
@@ -43,8 +59,12 @@ var ui = (function() {
 		// Clear background
 		backContext.drawImage(img.background, 0, 0);
 
-		// Draw all subgraphs to backCanvas
-		drawBoard();
+		// If not warping, draw all subgraphs to backCanvas
+		if(warp.isWarping() == 1) {
+			warp.drawWarp();
+		} else {
+			drawBoard();
+		}
 
 		// Draw robotic arms
 		arm1.draw();
@@ -53,7 +73,6 @@ var ui = (function() {
 		// Draw fade in/out effect
 		warp.drawFade();
 	}
-	
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -65,6 +84,7 @@ var ui = (function() {
 	const tileW = 40, tileH = 46;
 	var maxCol, maxRow, maxGraph;
 	var selected;
+	var shadow;
 
 	// Slide-in animation variables
 	const maxCanvas = 20;
@@ -161,11 +181,6 @@ var ui = (function() {
 	}
 	
 	function pushSlide() {
-		if(warp.isWarping() == 1) {
-			warp.pushWarp();
-			return;
-		}
-
 		var i, check;
 		switch(slideState) {
 		case 0:
@@ -248,11 +263,6 @@ var ui = (function() {
 	}
 
 	function drawBoard() {
-		if(warp.isWarping() == 1) {
-			warp.drawWarp();
-			return;
-		}
-
 		var board = ai.getBoard();
 		var i, dx, dy, dw, dh;
 		for(i = 0; i < maxGraph; i++) {
@@ -262,7 +272,10 @@ var ui = (function() {
 				dw = graphCanvas[i].width * graphZ[i];
 				dh = graphCanvas[i].height * graphZ[i];
 				backContext.drawImage(graphCanvas[i], dx, dy, graphCanvas[i].width - dw, graphCanvas[i].height - dh);
-				backContext.drawImage(img.shadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
+
+				if(shadow == 1) {
+					backContext.drawImage(img.shadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
+				}
 			} else {
 				if(selected != i) {
 					backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);				
@@ -270,7 +283,9 @@ var ui = (function() {
 				if(graphRedraw[i] != -1) {
 					drawSubGraph(i, 0);	
 				}
-				backContext.drawImage(img.shadow, graphX[i], 430,  graphCanvas[i].width, 50);
+				if(shadow == 1) {
+					backContext.drawImage(img.shadow, graphX[i], 430,  graphCanvas[i].width, 50);
+				}
 			}
 		}
 		if(selected != -1 && (slideState == 0 || slideState == 3)) {
@@ -415,13 +430,186 @@ var ui = (function() {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Setup public access
+// Panel releted subroutines
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-	function setSelect(_selected) {
-		selected = _selected;
+	// Panel variables
+	const maxPanelT = 4;
+	const panelW = 100, panelH = 90;
+	var panelState;
+	var panelT;
+	var panelX, panelY;
+	var panelCanvas, panelContext;
+	const bottonW = 80, bottonH = 20;
+	var bottonShowed;
+	var bottonPress;
+
+	// Beams variables
+	const maxBeamT = 100;
+	var beamT;
+	var beamFromX, beamFromY, beamToX, beamToY;
+	var beamSweepFromX, beamSweepFromY, beamSweepToX, beamSweepToY;
+	var beamColor;
+	var currentSpark;
+
+	function resetPanel() {
+		panelState = 0;
+		bottonShowed = [0, 1, 2];
+		bottonPress = -1;
+		beamT = -1;
 	}
+
+	function drawPanel() {
+		if(panelState == 0) {
+			return;
+		}
+
+		var w, h;
+		panelContext.drawImage(img.panel, 0, 0);
+		if(bottonPress == 0) {
+			panelContext.drawImage(img.bottons, bottonW, bottonH * bottonShowed[0], bottonW, bottonH, 10, 10, bottonW, bottonH);
+		} else {
+			panelContext.drawImage(img.bottons, 0, bottonH * bottonShowed[0], bottonW, bottonH, 10, 10, bottonW, bottonH);
+		}
+		if(bottonPress == 1) {
+			panelContext.drawImage(img.bottons, bottonW, bottonH * bottonShowed[1], bottonW, bottonH, 10, 35, bottonW, bottonH);
+		} else {
+			panelContext.drawImage(img.bottons, 0, bottonH * bottonShowed[1], bottonW, bottonH, 10, 35, bottonW, bottonH);
+		}
+		if(bottonPress == 2) {
+			panelContext.drawImage(img.bottons, bottonW, bottonH * bottonShowed[2], bottonW, bottonH, 10, 60, bottonW, bottonH);
+		} else {
+			panelContext.drawImage(img.bottons, 0, bottonH * bottonShowed[2], bottonW, bottonH, 10, 60, bottonW, bottonH);
+		}
+		
+		if(panelState == 2) {
+			backContext.drawImage(panelCanvas, panelX, panelY);
+		} else if(panelState == 1 || panelState == 3) {
+			w = (panelW - 20) / maxPanelT * panelT;
+			h = (panelH - 20) / maxPanelT * panelT;
+		
+			backContext.drawImage(panelCanvas, 0, panelH-10, 10+w, 10, panelX, panelY+panelH-10, 10+w, 10);
+			backContext.drawImage(panelCanvas, panelW-10, panelH-10, 10, 10, panelX+10+w, panelY+panelH-10, 10, 10);
+			backContext.drawImage(panelCanvas, 0, 0, 10+w, 10+h, panelX, panelY+panelH-20-h, 10+w, 10+h);
+			backContext.drawImage(panelCanvas, panelW-10, 0, 10, 10+h, panelX+10+w, panelY+panelH-20-h, 10, 10+h);
+		}
+	}
+	
+	function pushPanel() {
+		if(panelT < 0) {
+			return;
+		}
+
+		switch(panelState) {
+		case 0:
+			break;
+		case 1:
+			panelT++;
+			if(panelT == maxPanelT) {
+				panelState++;
+			}
+			break;
+		case 2:
+			break;
+		case 3:
+			panelT--;
+			if(panelT < 0) {
+					panelState = 0;
+			}
+			break;
+		}
+	}
+
+	function angle(ax, ay, bx, by) {
+		var l = Math.sqrt((bx-ax)*(bx-ax)+(by-ay)*(by-ay));
+		var r = Math.asin((by-ay) / l);
+		if(bx < ax) {
+			r = (-1)*r + Math.PI;
+		}
+		return r;
+	}
+
+	function resetBeam() {
+		beamT = 0;
+		beamFromX = 50;
+		beamFromY = 430;
+		beamSweepFromX = panelX;
+		beamSweepFromY = panelY + panelH;
+		beamSweepToX = beamSweepFromX + 100;
+		beamSweepToY = beamSweepFromY + 200;
+		beamToX = beamSweepFromX;
+		beamToY = beamSweepFromY;
+		beamColor = bottonPress;
+		currentSpark = 0;
+
+		turn = (turn+1)%2;
+	}
+
+	function drawBeam() {
+		if(beamT < 0) {
+			return;
+		} else if (beamT == 0) {
+			if(turn == 0 && arm1.isMoving() == 1) {
+				return;
+			} else if(turn == 1 && arm2.isMoving() == 1) {
+				return;
+			}
+		}
+
+		var xy;
+		if(turn == 0) {
+			xy = arm1.getLaserHead();
+			beamFromX = xy[0];
+			beamFromY = xy[1];
+		} else {
+			xy = arm2.getLaserHead();
+			beamFromX = xy[0];
+			beamFromY = xy[1];
+		}
+
+		var l = Math.sqrt( (beamToX-beamFromX)*(beamToX-beamFromX) + (beamToY-beamFromY)*(beamToY-beamFromY) );
+		var r = angle(beamFromX, beamFromY, beamToX, beamToY);
+
+		backContext.save();
+		backContext.setTransform(1, 0, 0, 1, 0, 0);
+		backContext.translate(beamFromX, beamFromY);
+		backContext.rotate(r);
+		backContext.drawImage(img.beams, 0, 40*beamColor, l, 40, 0, -20, l, 40);
+		backContext.drawImage(img.sparks, 128 * currentSpark, 0, 128, 128, l - 64, -64, 128, 128);
+		backContext.restore();
+	}
+
+	function pushBeam() {
+		if(beamT < 0) {
+			return;
+		} else if (beamT == 0) {
+			if(turn == 0 && arm1.isMoving() == 1) {
+				return;
+			} else if(turn == 1 && arm2.isMoving() == 1) {
+				return;
+			}
+		}
+
+		beamT++;
+		if(beamT >= maxBeamT) {
+			beamT = -1;
+			return;
+		}
+
+		var t = beamT / maxBeamT;
+		beamToX = beamSweepFromX + (beamSweepToX - beamSweepFromX) * t;
+		beamToY = beamSweepFromY + (beamSweepToY - beamSweepFromY) * t;
+
+		currentSpark += Math.floor(Math.random() * 7);
+		currentSpark %= 7;
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Setup public access
+//
+///////////////////////////////////////////////////////////////////////////////
 
 	function isIdle() {
 		if(state != animationStates.idle) {
@@ -431,14 +619,21 @@ var ui = (function() {
 		}
 	}
 
+	function setSelect(_selected) { selected = _selected; }
+	function setShadow(_shadow) { shadow = _shadow; }
+
 	return {
 		init : init,
+		
 		resetSlideIn : resetSlideIn,
 		resetSlideOut : resetSlideOut,
 		resetPaint : resetPaint,
+		
 		push : push,
 		draw : draw,
+
+		isIdle : isIdle,
 		setSelect : setSelect,
-		isIdle : isIdle
+		setShadow : setShadow
 	};
 })();

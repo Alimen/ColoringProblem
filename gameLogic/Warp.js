@@ -240,9 +240,6 @@ var warp = (function() {
 
 		// Flip & do camera shake
 		backContext.drawImage(shakeCanvas, (-25 + shakeOffsetX), (-25 + shakeOffsetY));
-
-		// Apply fading effect on backCanvas
-		drawFade();
 	}
 
 	function resetLines() {
