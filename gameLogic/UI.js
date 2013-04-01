@@ -428,6 +428,61 @@ var ui = (function() {
 		return output;
 	}
 
+	function selection(x, y) {
+		var blockX = -1, blockY = -1;
+		var i;
+
+		for(i = 0; i < maxCol; i += 0.5) {
+			if( (x >= startX+glowRadius+tileW*i) && (x < startX+glowRadius+tileW*(i+0.5)) ) {
+				blockX = i;
+				break;
+			}
+		}
+		for(i = 0; i < maxRow; i++) {
+			if( (y >= startY+glowRadius+tileH*i*0.75) && (y < startY+glowRadius+tileH*(i+1)*0.75) ) {
+				blockY = i;
+				break;
+			}
+		}
+		if(blockX == -1 || blockY == -1 || blockY == 0) {
+			return -1;
+		}
+
+		var odd = (blockX > Math.floor(blockX))? 1: 0;
+		var cx1, cx2, cy1, cy2;
+		cy1 = startY + glowRadius + blockY * tileH * 0.75 + tileH/2;
+		cy2 = startY + glowRadius + (blockY-1) * tileH * 0.75 + tileH/2;
+		if( ((blockY%2==0)&&(odd==0)) || ((blockY%2==1)&&(odd==1)) ) {
+			cx2 = startX + glowRadius + blockX * tileW;
+			cx1 = cx2 + tileW/2;
+		} else {
+			cx1 = startX + glowRadius + blockX * tileW;
+			cx2 = cx1 + tileW/2;
+		}
+
+		var d1, d2, xy;
+		d1 = (x-cx1)*(x-cx1) + (y-cy1)*(y-cy1);
+		d2 = (x-cx2)*(x-cx2) + (y-cy2)*(y-cy2);
+		if(d1 < d2) {
+			xy = blockY * maxCol;
+			if(blockY%2 == 1) {
+				xy += Math.floor(blockX - 0.5);
+			} else {
+				xy += Math.floor(blockX);
+			}
+		} else {
+			xy = (blockY-1) * maxCol;
+			if(blockY%2 == 1) {
+				xy += Math.floor(blockX);
+			} else {
+				xy += Math.floor(blockX - 0.5);
+			}
+		}
+
+		var output = AI.findGroup(xy);
+		return output;
+	}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Panel releted subroutines

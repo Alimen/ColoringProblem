@@ -7,9 +7,10 @@ var gameLogic = (function() {
 	// Game states
 	const gameStates = {
 		unknown		: -1,
-		selecting	: 0,
-		colorSelect	: 1,
-		animating	: 2
+		animating	: 0,
+		selecting	: 1,
+		colorSelect	: 2,
+		resulting	: 3
 	};
 	var state;
 	var nextGameState;
@@ -19,6 +20,7 @@ var gameLogic = (function() {
 
 	// Game variables
 	var playerCount;
+	var currentPlayer;
 	var level;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,6 +43,7 @@ var gameLogic = (function() {
 		ai.setupBoard();
 		ui.resetSlideIn(2, 1, 0);
 
+		currentPlayer = 0;
 		state = gameStates.animating;
 		nextGameState = gameStates.selecting;
 	}
@@ -51,7 +54,7 @@ var gameLogic = (function() {
 			state = nextGameState;
 		}
 
-		return nextState;
+		return env.mainStates.unknown;
 	}
 
 	function draw() {
