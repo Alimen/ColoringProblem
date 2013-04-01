@@ -106,6 +106,9 @@ var coloringProblem = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+	// Mouse position variables
+	var mouseX, mouseY;
+
 	function eventKeyUp(e) {
 		switch(state) {
 		case mainStates.title:
@@ -117,13 +120,21 @@ var coloringProblem = (function() {
 		}
 	}
 
-	function eventMouseMove(e) {
+	function eventMouseMove(e) {			
+		if(e.offsetX || e.offsetX == 0) {
+			mouseX = e.offsetX;
+			mouseY = e.offsetY;
+		} else if(e.layerX || e.layerX == 0) {
+			mouseX = e.layerX - theCanvas.offsetLeft;
+			mouseY = e.layerY - theCanvas.offsetTop;
+		}
+
 		switch(state) {
 		case mainStates.title:
-			title.eventMouseMove(e);
+			title.eventMouseMove(mouseX, mouseY);
 			break;
 		case mainStates.game:
-			gameLogic.eventMouseMove(e);
+			gameLogic.eventMouseMove(mouseX, mouseY);
 			break;
 		}
 	}

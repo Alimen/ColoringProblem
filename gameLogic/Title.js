@@ -3,6 +3,7 @@ var title = (function() {
 	var backContext;
 	var img;
 	var env;
+	var mouseX, mouseY;
 
 	// Return variables
 	var nextState;
@@ -19,6 +20,8 @@ var title = (function() {
 		env = _env;
 		img = _img;
 		backContext = _backContext;
+		mouseX = env.screenWidth/2;
+		mouseY = env.screenHeight/2;
 	}
 
 	function reset() {
@@ -62,7 +65,9 @@ var title = (function() {
 		}
 	}
 
-	function eventMouseMove(e) {
+	function eventMouseMove(x, y) {
+		mouseX = x;
+		mouseY = y;
 	}
 	
 	function eventMouseClick(e) {

@@ -3,6 +3,7 @@ var gameLogic = (function() {
 	var backContext;
 	var img;
 	var env;
+	var mouseX, mouseY;
 
 	// Game states
 	const gameStates = {
@@ -33,6 +34,8 @@ var gameLogic = (function() {
 		env = _env;
 		img = _img;
 		backContext = _backContext;
+		mouseX = env.screenWidth/2;
+		mouseY = env.screenHeight/2;
 	}
 
 	function reset(_playerCount, _startLevel) {
@@ -59,6 +62,13 @@ var gameLogic = (function() {
 
 	function draw() {
 		ui.draw();
+
+		// Debug message
+		backContext.textBaseline = "top";	
+		backContext.fillStyle = "#000000";
+		backContext.font = "14px monospace";
+		backContext.textAlign = "right";
+		backContext.fillText("mouse = (" + mouseX + ", " + mouseY + ")", env.screenWidth , 15);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -81,7 +91,9 @@ var gameLogic = (function() {
 		}
 	}
 
-	function eventMouseMove(e) {
+	function eventMouseMove(x, y) {
+		mouseX = x;
+		mouseY = y;
 	}
 	
 	function eventMouseClick(e) {
