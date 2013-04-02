@@ -22,7 +22,12 @@ var gameLogic = (function() {
 	// Game variables
 	var playerCount;
 	var currentPlayer;
+	var player1isHuman;
+	var player2isHuman;
 	var level;
+
+	// Selecting state variables
+	var selected;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -46,9 +51,23 @@ var gameLogic = (function() {
 		ai.setupBoard();
 		ui.resetSlideIn(2, 1, 0);
 
+		if(playerCount == 2) {
+			player1isHuman = 1;
+			player2isHuman = 1;
+		} else {
+			if(level%2 == 1) {
+				player1isHuman = 1;
+				player2isHuman = 0;
+			} else {
+				player1isHuman = 0;
+				player2isHuman = 1;
+			}
+		}
+
 		currentPlayer = 0;
 		state = gameStates.animating;
 		nextGameState = gameStates.selecting;
+		selected = -1;
 	}
 
 	function push() {
@@ -62,13 +81,6 @@ var gameLogic = (function() {
 
 	function draw() {
 		ui.draw();
-
-		// Debug message
-		backContext.textBaseline = "top";	
-		backContext.fillStyle = "#000000";
-		backContext.font = "14px monospace";
-		backContext.textAlign = "right";
-		backContext.fillText("mouse = (" + mouseX + ", " + mouseY + ")", env.screenWidth , 15);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,9 +106,36 @@ var gameLogic = (function() {
 	function eventMouseMove(x, y) {
 		mouseX = x;
 		mouseY = y;
+
+		switch(state) {
+		case gameStates.selecting:
+			if(currentPlayer == 0 && player1isHuman == 1) {
+				arm1.setTarget(x, y);
+			} else if(currentPlayer == 1 && player2isHuman == 1) {
+				arm2.setTarget(x, y);
+			}
+			
+			selected = ui.selection(x, y);
+			ui.setSelect(selected);
+			break;
+
+		case gameStates.colorSelecting:
+			break;
+		}
 	}
 	
 	function eventMouseClick(e) {
+		switch(state) {
+		case gameStates.selecting:
+			if(selected >= 0) {
+				ui.popPanel(mouseX, mouseY, selected);
+				state = gameStates.colorSelecting;
+			}
+			break;
+
+		case gameStates.colorSelecting:
+			break;
+		}
 	}
 
 //////////////////////////////////////////////////////////////////////////////

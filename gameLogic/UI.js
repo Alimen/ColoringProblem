@@ -39,6 +39,11 @@ var ui = (function() {
 
 		// Turn on shadow at default
 		shadow = 1;
+
+		// Initialize panel variables
+		panelState = 0;
+		panelT = -1;
+		bottonShowed = [0, 1, 2];
 	}
 
 	function push() {
@@ -53,6 +58,7 @@ var ui = (function() {
 		}
 		arm1.push();
 		arm2.push();
+		pushPanel();
 	}
 
 	function draw() {
@@ -72,6 +78,9 @@ var ui = (function() {
 
 		// Draw fade in/out effect
 		warp.drawFade();
+
+		// Draw panel
+		drawPanel();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,7 +92,7 @@ var ui = (function() {
 	// Game board variables
 	const tileW = 40, tileH = 46;
 	var maxCol, maxRow, maxGraph;
-	var selected;
+	var selected = -1;
 	var shadow;
 
 	// Slide-in animation variables
@@ -114,7 +123,7 @@ var ui = (function() {
 			warp.resetFade(0);
 		}
 
-		selected = -1;
+		setSelect(-1);
 		state = animationStates.slideIn;
 		nextState = animationStates.idle;
 		slideState = 1;
@@ -140,7 +149,7 @@ var ui = (function() {
 			arm2.resetSliding(moveArm2to);
 			nextState = animationStates.idle;
 		}
-		selected = -1;
+		setSelect(-1);
 		state = animationStates.slideOut;
 		slideState = 4;
 	}
@@ -479,7 +488,7 @@ var ui = (function() {
 			}
 		}
 
-		var output = AI.findGroup(xy);
+		var output = ai.findGroup(xy);
 		return output;
 	}
 
@@ -508,11 +517,67 @@ var ui = (function() {
 	var beamColor;
 	var currentSpark;
 
-	function resetPanel() {
-		panelState = 0;
-		bottonShowed = [0, 1, 2];
+	function popPanel(x, y, sel) {
+		if(ai.isColorOK(sel, 1) == 1) {
+			bottonShowed[0] = 0;
+		} else {
+			bottonShowed[0] = 3;
+		}
+		if(ai.isColorOK(sel, 2) == 1) {
+			bottonShowed[1] = 1;
+		} else {
+			bottonShowed[1] = 4;
+		}
+		if(ai.isColorOK(sel, 3) == 1) {
+			bottonShowed[2] = 2;
+		} else {
+			bottonShowed[2] = 5;
+		}
 		bottonPress = -1;
-		beamT = -1;
+
+		panelX = x;
+		panelY = y - panelH;
+		panelT = 0;
+		panelState = 1;
+	}
+
+	function closePanel() {
+		panelState = 3;
+		panelT = maxPanelT;
+	}
+	
+	function pushPanel() {
+		if(panelT < 0) {
+			return;
+		}
+
+		switch(panelState) {
+		case 0:
+			break;
+		case 1:
+			panelT++;
+			if(panelT == maxPanelT) {
+				panelState++;
+			}
+			break;
+		case 2:
+			break;
+		case 3:
+			panelT--;
+			if(panelT < 0) {
+				panelState = 0;
+			}
+			break;
+		}
+	}
+
+	function angle(ax, ay, bx, by) {
+		var l = Math.sqrt((bx-ax)*(bx-ax)+(by-ay)*(by-ay));
+		var r = Math.asin((by-ay) / l);
+		if(bx < ax) {
+			r = (-1)*r + Math.PI;
+		}
+		return r;
 	}
 
 	function drawPanel() {
@@ -549,40 +614,6 @@ var ui = (function() {
 			backContext.drawImage(panelCanvas, 0, 0, 10+w, 10+h, panelX, panelY+panelH-20-h, 10+w, 10+h);
 			backContext.drawImage(panelCanvas, panelW-10, 0, 10, 10+h, panelX+10+w, panelY+panelH-20-h, 10, 10+h);
 		}
-	}
-	
-	function pushPanel() {
-		if(panelT < 0) {
-			return;
-		}
-
-		switch(panelState) {
-		case 0:
-			break;
-		case 1:
-			panelT++;
-			if(panelT == maxPanelT) {
-				panelState++;
-			}
-			break;
-		case 2:
-			break;
-		case 3:
-			panelT--;
-			if(panelT < 0) {
-					panelState = 0;
-			}
-			break;
-		}
-	}
-
-	function angle(ax, ay, bx, by) {
-		var l = Math.sqrt((bx-ax)*(bx-ax)+(by-ay)*(by-ay));
-		var r = Math.asin((by-ay) / l);
-		if(bx < ax) {
-			r = (-1)*r + Math.PI;
-		}
-		return r;
 	}
 
 	function resetBeam() {
@@ -666,6 +697,24 @@ var ui = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+	function setSelect(_selected) {
+		if(_selected == selected) {
+			return;
+		}
+
+		if(_selected < 0 && selected >= 0) {
+			drawSubGraph(selected, 0);
+		} else if(_selected >= 0 && selected < 0) {
+			drawSubGraph(_selected, 1);
+		} else {
+			drawSubGraph(selected, 0);
+			drawSubGraph(_selected, 1);
+		}
+		selected = _selected;
+	}
+
+	function setBottonPress(_bottonPress) { bottonPress = _bottonPress; }
+
 	function isIdle() {
 		if(state != animationStates.idle) {
 			return 0;
@@ -674,7 +723,6 @@ var ui = (function() {
 		}
 	}
 
-	function setSelect(_selected) { selected = _selected; }
 	function setShadow(_shadow) { shadow = _shadow; }
 
 	return {
@@ -687,8 +735,14 @@ var ui = (function() {
 		push : push,
 		draw : draw,
 
-		isIdle : isIdle,
+		selection : selection,
 		setSelect : setSelect,
+
+		popPanel : popPanel,
+		setBottonPress : setBottonPress,
+		closePanel : closePanel,
+
+		isIdle : isIdle,
 		setShadow : setShadow
 	};
 })();
