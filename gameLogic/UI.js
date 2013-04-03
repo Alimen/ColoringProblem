@@ -56,9 +56,24 @@ var ui = (function() {
 		} else {
 			pushSlide();
 		}
+
 		arm1.push();
 		arm2.push();
 		pushPanel();
+
+		var i, res = 1;
+		if(state == animationStates.paint) {
+			for(i = 0; i < graphRedraw.length; i++) {
+				if(graphRedraw[i] != -1) {
+					res = 0;
+					break;
+				}
+			}
+			if(res == 1) {
+				state = animationStates.idle;
+				console.log("idle!");
+			}
+		}
 	}
 
 	function draw() {
@@ -154,7 +169,41 @@ var ui = (function() {
 		slideState = 4;
 	}
 
-	function resetPaint() {
+	function resetPaint(groupID, color) {
+		if(groupID == -1) {
+			return;
+		}
+
+		ai.setColor(groupID, color);
+		resetPaintTile(groupID);
+		
+		var i, black = ai.getBlackout();
+		for(i = 0; i < black.length; i++) {
+			ai.setColor(black[i], 0);
+			resetPaintTile(black[i]);
+		}
+
+		setSelect(-1);
+		state = animationStates.paint;
+	}
+
+	function resetPaintTile(groupID) {
+		graphRedraw[groupID] = 0;
+
+		var sub = ai.getSubGraph(groupID);
+		var rect = ai.getBorder(groupID);
+		var w = Math.floor(rect[1])-Math.floor(rect[3])+1, h = rect[2]-rect[0]+1;
+		var min = w * h * (-1);
+		var i;
+
+		graphTileFrames[groupID].length = 0;
+		for(i = 0; i < w*h; i++) {
+			if(sub[i] == ' ') {
+				graphTileFrames[groupID].push(min);
+			} else {
+				graphTileFrames[groupID].push((-1)*i);
+			}
+		}
 	}
 
 	function prepareSubGraph() {
@@ -261,7 +310,6 @@ var ui = (function() {
 				state = animationStates.warp;
 				nextState = animationStates.idle;
 				slideState = 0;
-				console.log("Switch to warping animation");
 			} else if(check == 0) {
 				state = animationStates.idle;
 				nextState = animationStates.idle;
@@ -290,7 +338,7 @@ var ui = (function() {
 					backContext.drawImage(graphCanvas[i], graphX[i], graphY[i]);				
 				}
 				if(graphRedraw[i] != -1) {
-					drawSubGraph(i, 0);	
+					drawSubGraph(i, 0);
 				}
 				if(shadow == 1) {
 					backContext.drawImage(img.shadow, graphX[i], 430,  graphCanvas[i].width, 50);
@@ -394,9 +442,9 @@ var ui = (function() {
 			for(i = 0; i < w*h; i++) {
 				if(graphTileFrames[target][i] != min) {
 					graphTileFrames[target][i]++;
-				}
-				if(graphTileFrames[target][i] <= 10) {
-					stop = 0;
+					if(graphTileFrames[target][i] <= 10) {
+						stop = 0;
+					}
 				}
 			}
 			graphRedraw[target] = stop;
@@ -545,6 +593,24 @@ var ui = (function() {
 		panelState = 3;
 		panelT = maxPanelT;
 	}
+
+	function panelSelect(x, y) {
+		if(panelState != 2) {
+			return -2;
+		}
+
+		if(x > panelX && x < panelX+panelW && y > panelY && y <= panelY+32 && bottonShowed[0] != 3) {
+			bottonPress = 0;
+		} else if(x > panelX && x < panelX+panelW && y > panelY+32 && y <= panelY+58 && bottonShowed[1] != 4) {
+			bottonPress = 1;
+		} else if(x > panelX && x < panelX+panelW && y > panelY+58 && y < panelY+panelH && bottonShowed[2] != 5) {
+			bottonPress = 2;
+		} else {
+			bottonPress = -1;
+		}
+
+		return bottonPress;
+	}
 	
 	function pushPanel() {
 		if(panelT < 0) {
@@ -569,15 +635,6 @@ var ui = (function() {
 			}
 			break;
 		}
-	}
-
-	function angle(ax, ay, bx, by) {
-		var l = Math.sqrt((bx-ax)*(bx-ax)+(by-ay)*(by-ay));
-		var r = Math.asin((by-ay) / l);
-		if(bx < ax) {
-			r = (-1)*r + Math.PI;
-		}
-		return r;
 	}
 
 	function drawPanel() {
@@ -691,6 +748,15 @@ var ui = (function() {
 		currentSpark %= 7;
 	}
 
+	function angle(ax, ay, bx, by) {
+		var l = Math.sqrt((bx-ax)*(bx-ax)+(by-ay)*(by-ay));
+		var r = Math.asin((by-ay) / l);
+		if(bx < ax) {
+			r = (-1)*r + Math.PI;
+		}
+		return r;
+	}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Setup public access
@@ -739,6 +805,7 @@ var ui = (function() {
 		setSelect : setSelect,
 
 		popPanel : popPanel,
+		panelSelect : panelSelect,
 		setBottonPress : setBottonPress,
 		closePanel : closePanel,
 
