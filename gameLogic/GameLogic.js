@@ -81,6 +81,13 @@ var gameLogic = (function() {
 
 	function draw() {
 		ui.draw();
+		
+		// Debug message
+		backContext.textBaseline = "top";	
+		backContext.fillStyle = "#000000";
+		backContext.font = "14px monospace";
+		backContext.textAlign = "right";
+		backContext.fillText("mouse = (" + mouseX + ", " + mouseY + ")", env.screenWidth , 0);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -240,7 +240,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 19;
+	var itemsToLoad = 20;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -248,6 +248,7 @@ var coloringProblem = (function() {
 		loadjs("Title.js", 0);
 		loadjs("GameLogic.js", 0);
 		loadjs("UI.js", 0);
+		loadjs("Panel.js", 0);
 		loadjs("RoboticArms.js", 0);
 		loadjs("Warp.js");
 		loadjs("AI.js", 0);

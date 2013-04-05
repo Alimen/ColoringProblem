@@ -57,12 +57,12 @@ var ui = (function() {
 			pushSlide();
 		}
 
-		arm1.push();
-		arm2.push();
 		pushPanel();
 
 		var i, res = 1;
 		if(state == animationStates.paint) {
+			pushPaint();
+			pushBeam();
 			for(i = 0; i < graphRedraw.length; i++) {
 				if(graphRedraw[i] != -1) {
 					res = 0;
@@ -71,8 +71,10 @@ var ui = (function() {
 			}
 			if(res == 1) {
 				state = animationStates.idle;
-				console.log("idle!");
 			}
+		} else {
+			arm1.push();
+			arm2.push();
 		}
 	}
 
@@ -96,6 +98,9 @@ var ui = (function() {
 
 		// Draw panel
 		drawPanel();
+
+		// Draw laser beam
+		drawBeam();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -124,6 +129,7 @@ var ui = (function() {
 	var graphZ = new Array();
 	var graphRedraw = new Array();
 	var graphTileFrames = new Array();
+	const min = -99999;
 
 	function resetSlideIn(moveArm1to, moveArm2to, isWarp) {
 		maxCol = ai.getMaxCol();
@@ -175,7 +181,9 @@ var ui = (function() {
 		}
 
 		ai.setColor(groupID, color);
-		resetPaintTile(groupID);
+
+		var res = resetPaintTile(groupID);
+		resetBeam(groupID, res[1], res[2], res[3], res[4], 0, color, res[0]);
 		
 		var i, black = ai.getBlackout();
 		for(i = 0; i < black.length; i++) {
@@ -188,20 +196,72 @@ var ui = (function() {
 	}
 
 	function resetPaintTile(groupID) {
-		graphRedraw[groupID] = 0;
-
+		const delay = 4;
 		var sub = ai.getSubGraph(groupID);
 		var rect = ai.getBorder(groupID);
 		var w = Math.floor(rect[1])-Math.floor(rect[3])+1, h = rect[2]-rect[0]+1;
-		var min = w * h * (-1);
-		var i;
+		var t = rect[0], l = rect[3];
+		var odd = (l-Math.floor(l) > 0)? 1: 0;
+		var startX, startY, endX, endY, first, last;
+		var i, cnt;
 
 		graphTileFrames[groupID].length = 0;
+		cnt = 0;
+		first = -1;
 		for(i = 0; i < w*h; i++) {
 			if(sub[i] == ' ') {
 				graphTileFrames[groupID].push(min);
 			} else {
-				graphTileFrames[groupID].push((-1)*i);
+				graphTileFrames[groupID].push((-1)*delay*cnt);
+				cnt++;
+				last = i;
+				if(first < 0) {
+					first = i;
+				}
+			}
+		}
+
+		if(odd == 1) {
+			offset = (t%2==0)? (-1)*tileW/2: 0;
+		} else {
+			offset = (t%2==1)? tileW/2: 0;
+		}
+		startX = first * tileW + tileW/2 + offset + glowRadius;
+		startY = tileH/2+ glowRadius;
+
+		if(odd == 1) {
+			offset = ((t+h-1)%2==0)? (-1)*tileW/2: 0;
+		} else {
+			offset = ((t+h-1)%2==1)? tileW/2: 0;
+		}
+		endX = (last%w) * tileW + tileW/2 + offset + glowRadius;
+		endY = h * tileH*0.75 + glowRadius;
+
+		graphRedraw[groupID] = 0;
+		return [(delay*cnt+10), startX, startY, endX, endY];
+	}
+
+	function pushPaint() {
+		var stop;
+		var rect, w, h;
+		var i, j;
+
+		for(j = 0; j < graphRedraw.length; j++) {
+			if(graphRedraw[j] != -1) {
+				stop = -1;
+				rect = ai.getBorder(j);
+				w = Math.floor(rect[1])-Math.floor(rect[3])+1;
+				h = rect[2]-rect[0]+1;
+				
+				for(i = 0; i < w*h; i++) {
+					if(graphTileFrames[j][i] != min) {
+						graphTileFrames[j][i]++;
+						if(graphTileFrames[j][i] <= 10) {
+							stop = 0;
+						}
+					}
+				}
+				graphRedraw[j] = stop;
 			}
 		}
 	}
@@ -345,12 +405,16 @@ var ui = (function() {
 				}
 			}
 		}
-		if(selected != -1 && (slideState == 0 || slideState == 3)) {
+		if(selected >= 0 && (slideState == 0 || slideState == 3)) {
 			backContext.drawImage(graphCanvas[selected], graphX[selected], graphY[selected]);
 		}
 	}
 
 	function drawSubGraph(target, glowing) {
+		if(target < 0) {
+			return;
+		}
+
 		var rect = ai.getBorder(target);
 		var w = Math.floor(rect[1])-Math.floor(rect[3])+1, h = rect[2]-rect[0]+1;
 		var t = rect[0], l = rect[3];
@@ -376,7 +440,7 @@ var ui = (function() {
 					if(subGraph[curRow+j] != ' ') {
 						x = j * tileW + offset;
 						y = i * tileH * 0.75;
-						graphContext[target].drawImage(img.glow, x, y);
+						graphContext[target].drawImage(img.glow, 80*(glowing-1), 0, 80, 86, x, y, 80, 86);
 					}
 				}
 			}
@@ -418,7 +482,7 @@ var ui = (function() {
 					}
 					
 					// Draw target# for debug
-					//graphContext[target].fillText(target, x + 15, y + 15);
+					// graphContext[target].fillText(target, x + 15, y + 15);
 					
 					// Draw borders
 					neighbor = checkNeighbor(subGraph, curRow+j, w, h, t);	
@@ -433,21 +497,6 @@ var ui = (function() {
 					}
 				}
 			}
-		}
-
-		// Push paint animation
-		var stop = -1;
-		var min = w * h * (-1);
-		if(graphRedraw[target] != -1) {
-			for(i = 0; i < w*h; i++) {
-				if(graphTileFrames[target][i] != min) {
-					graphTileFrames[target][i]++;
-					if(graphTileFrames[target][i] <= 10) {
-						stop = 0;
-					}
-				}
-			}
-			graphRedraw[target] = stop;
 		}
 	}
 
@@ -537,7 +586,13 @@ var ui = (function() {
 		}
 
 		var output = ai.findGroup(xy);
-		return output;
+		if(output == -1) {
+			return -1;
+		} else if(ai.getColor(output) != -1) {
+			return output*(-1)-1;
+		} else {
+			return output;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -556,14 +611,6 @@ var ui = (function() {
 	const bottonW = 80, bottonH = 20;
 	var bottonShowed;
 	var bottonPress;
-
-	// Beams variables
-	const maxBeamT = 100;
-	var beamT;
-	var beamFromX, beamFromY, beamToX, beamToY;
-	var beamSweepFromX, beamSweepFromY, beamSweepToX, beamSweepToY;
-	var beamColor;
-	var currentSpark;
 
 	function popPanel(x, y, sel) {
 		if(ai.isColorOK(sel, 1) == 1) {
@@ -673,35 +720,81 @@ var ui = (function() {
 		}
 	}
 
-	function resetBeam() {
-		beamT = 0;
-		beamFromX = 50;
-		beamFromY = 430;
-		beamSweepFromX = panelX;
-		beamSweepFromY = panelY + panelH;
-		beamSweepToX = beamSweepFromX + 100;
-		beamSweepToY = beamSweepFromY + 200;
+///////////////////////////////////////////////////////////////////////////////
+//
+// Laser beam releted subroutines
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	// Beams variables
+	var beamT, maxBeamT;
+	var beamFromX, beamFromY, beamToX, beamToY;
+	var beamSweepFromX, beamSweepFromY, beamSweepToX, beamSweepToY;
+	var beamTarget, beamTurn, beamColor;
+	var currentSpark;
+
+	function resetBeam(target, startX, startY, endX, endY, turn, color, max) {
+		beamTarget = target*(-1)-1;
+		beamTurn = turn;
+		beamColor = color-1;
+
+		beamSweepFromX = graphX[target] + startX;
+		beamSweepFromY = graphY[target] + startY;
+		beamSweepToX = graphX[target] + endX;
+		beamSweepToY = graphY[target] + endY;
 		beamToX = beamSweepFromX;
 		beamToY = beamSweepFromY;
-		beamColor = bottonPress;
-		currentSpark = 0;
 
-		turn = (turn+1)%2;
+		currentSpark = 0;
+		beamT = 0;
+		maxBeamT = max;
+	}
+
+	function pushBeam() {
+		if(state != animationStates.paint) {
+			return;
+		} else if (beamT == 0) {
+			if(beamTurn == 0 && arm1.isMoving() == 1) {
+				return;
+			} else if(beamTurn == 1 && arm2.isMoving() == 1) {
+				return;
+			}
+		}
+		beamT++;
+
+		var t = beamT / maxBeamT;
+		beamToX = beamSweepFromX + (beamSweepToX - beamSweepFromX) * t;
+		beamToY = beamSweepFromY + (beamSweepToY - beamSweepFromY) * t;
+
+		if(beamTurn == 0) {
+			arm1.setTarget(beamToX, beamToY);
+			arm1.push();
+		} else {
+			arm2.setTarget(beamToX, beamToY);
+			arm2.push();
+		}
+
+		currentSpark += Math.floor(Math.random() * 7);
+		currentSpark %= 7;
 	}
 
 	function drawBeam() {
-		if(beamT < 0) {
+		if(state != animationStates.paint) {
 			return;
 		} else if (beamT == 0) {
-			if(turn == 0 && arm1.isMoving() == 1) {
+			if(beamTurn == 0 && arm1.isMoving() == 1) {
 				return;
-			} else if(turn == 1 && arm2.isMoving() == 1) {
+			} else if(beamTurn == 1 && arm2.isMoving() == 1) {
 				return;
 			}
 		}
 
+		if(selection(beamToX, beamToY) != beamTarget) {
+			return;
+		}
+
 		var xy;
-		if(turn == 0) {
+		if(beamTurn == 0) {
 			xy = arm1.getLaserHead();
 			beamFromX = xy[0];
 			beamFromY = xy[1];
@@ -721,31 +814,6 @@ var ui = (function() {
 		backContext.drawImage(img.beams, 0, 40*beamColor, l, 40, 0, -20, l, 40);
 		backContext.drawImage(img.sparks, 128 * currentSpark, 0, 128, 128, l - 64, -64, 128, 128);
 		backContext.restore();
-	}
-
-	function pushBeam() {
-		if(beamT < 0) {
-			return;
-		} else if (beamT == 0) {
-			if(turn == 0 && arm1.isMoving() == 1) {
-				return;
-			} else if(turn == 1 && arm2.isMoving() == 1) {
-				return;
-			}
-		}
-
-		beamT++;
-		if(beamT >= maxBeamT) {
-			beamT = -1;
-			return;
-		}
-
-		var t = beamT / maxBeamT;
-		beamToX = beamSweepFromX + (beamSweepToX - beamSweepFromX) * t;
-		beamToY = beamSweepFromY + (beamSweepToY - beamSweepFromY) * t;
-
-		currentSpark += Math.floor(Math.random() * 7);
-		currentSpark %= 7;
 	}
 
 	function angle(ax, ay, bx, by) {

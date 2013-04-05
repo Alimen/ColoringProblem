@@ -327,7 +327,7 @@ var ai = (function() {
 	function findGroup(xy) {
 		var i;
 		for(i = 0; i < groups.length; i++) {
-			if(groups[i].indexOf(xy) != -1 && getColor(i) == -1) {
+			if(groups[i].indexOf(xy) != -1) {
 				return i;
 			}
 		}
