@@ -30,20 +30,12 @@ var ui = (function() {
 		for(var i = 0; i < maxCanvas; i++) {
 			graphCanvas[i] = document.createElement("canvas");
 		}
-	
-		// Create off-screen canvas for panel
-		panelCanvas = document.createElement("canvas");
-		panelCanvas.width = panelW;
-		panelCanvas.height = panelH;
-		panelContext = panelCanvas.getContext("2d");
 
 		// Turn on shadow at default
 		shadow = 1;
 
-		// Initialize panel variables
-		panelState = 0;
-		panelT = -1;
-		bottonShowed = [0, 1, 2];
+		// Initialize paint animation variables
+		paintState = -1;
 	}
 
 	function push() {
@@ -57,7 +49,7 @@ var ui = (function() {
 			pushSlide();
 		}
 
-		pushPanel();
+		panel.push();
 
 		var i, res = 1;
 		if(state == animationStates.paint) {
@@ -71,6 +63,7 @@ var ui = (function() {
 			}
 			if(res == 1) {
 				state = animationStates.idle;
+				paintState = -1;
 			}
 		} else {
 			arm1.push();
@@ -97,7 +90,7 @@ var ui = (function() {
 		warp.drawFade();
 
 		// Draw panel
-		drawPanel();
+		panel.draw();
 
 		// Draw laser beam
 		drawBeam();
@@ -130,6 +123,9 @@ var ui = (function() {
 	var graphRedraw = new Array();
 	var graphTileFrames = new Array();
 	const min = -99999;
+
+	// Paint animation variables
+	var paintState;
 
 	function resetSlideIn(moveArm1to, moveArm2to, isWarp) {
 		maxCol = ai.getMaxCol();
@@ -193,6 +189,7 @@ var ui = (function() {
 
 		setSelect(-1);
 		state = animationStates.paint;
+		paintState = 0;
 	}
 
 	function resetPaintTile(groupID) {
@@ -242,6 +239,10 @@ var ui = (function() {
 	}
 
 	function pushPaint() {
+		if(paintState != 1) {
+			return;
+		}
+
 		var stop;
 		var rect, w, h;
 		var i, j;
@@ -597,131 +598,6 @@ var ui = (function() {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// Panel releted subroutines
-//
-///////////////////////////////////////////////////////////////////////////////
-
-	// Panel variables
-	const maxPanelT = 4;
-	const panelW = 100, panelH = 90;
-	var panelState;
-	var panelT;
-	var panelX, panelY;
-	var panelCanvas, panelContext;
-	const bottonW = 80, bottonH = 20;
-	var bottonShowed;
-	var bottonPress;
-
-	function popPanel(x, y, sel) {
-		if(ai.isColorOK(sel, 1) == 1) {
-			bottonShowed[0] = 0;
-		} else {
-			bottonShowed[0] = 3;
-		}
-		if(ai.isColorOK(sel, 2) == 1) {
-			bottonShowed[1] = 1;
-		} else {
-			bottonShowed[1] = 4;
-		}
-		if(ai.isColorOK(sel, 3) == 1) {
-			bottonShowed[2] = 2;
-		} else {
-			bottonShowed[2] = 5;
-		}
-		bottonPress = -1;
-
-		panelX = x;
-		panelY = y - panelH;
-		panelT = 0;
-		panelState = 1;
-	}
-
-	function closePanel() {
-		panelState = 3;
-		panelT = maxPanelT;
-	}
-
-	function panelSelect(x, y) {
-		if(panelState != 2) {
-			return -2;
-		}
-
-		if(x > panelX && x < panelX+panelW && y > panelY && y <= panelY+32 && bottonShowed[0] != 3) {
-			bottonPress = 0;
-		} else if(x > panelX && x < panelX+panelW && y > panelY+32 && y <= panelY+58 && bottonShowed[1] != 4) {
-			bottonPress = 1;
-		} else if(x > panelX && x < panelX+panelW && y > panelY+58 && y < panelY+panelH && bottonShowed[2] != 5) {
-			bottonPress = 2;
-		} else {
-			bottonPress = -1;
-		}
-
-		return bottonPress;
-	}
-	
-	function pushPanel() {
-		if(panelT < 0) {
-			return;
-		}
-
-		switch(panelState) {
-		case 0:
-			break;
-		case 1:
-			panelT++;
-			if(panelT == maxPanelT) {
-				panelState++;
-			}
-			break;
-		case 2:
-			break;
-		case 3:
-			panelT--;
-			if(panelT < 0) {
-				panelState = 0;
-			}
-			break;
-		}
-	}
-
-	function drawPanel() {
-		if(panelState == 0) {
-			return;
-		}
-
-		var w, h;
-		panelContext.drawImage(img.panel, 0, 0);
-		if(bottonPress == 0) {
-			panelContext.drawImage(img.bottons, bottonW, bottonH * bottonShowed[0], bottonW, bottonH, 10, 10, bottonW, bottonH);
-		} else {
-			panelContext.drawImage(img.bottons, 0, bottonH * bottonShowed[0], bottonW, bottonH, 10, 10, bottonW, bottonH);
-		}
-		if(bottonPress == 1) {
-			panelContext.drawImage(img.bottons, bottonW, bottonH * bottonShowed[1], bottonW, bottonH, 10, 35, bottonW, bottonH);
-		} else {
-			panelContext.drawImage(img.bottons, 0, bottonH * bottonShowed[1], bottonW, bottonH, 10, 35, bottonW, bottonH);
-		}
-		if(bottonPress == 2) {
-			panelContext.drawImage(img.bottons, bottonW, bottonH * bottonShowed[2], bottonW, bottonH, 10, 60, bottonW, bottonH);
-		} else {
-			panelContext.drawImage(img.bottons, 0, bottonH * bottonShowed[2], bottonW, bottonH, 10, 60, bottonW, bottonH);
-		}
-		
-		if(panelState == 2) {
-			backContext.drawImage(panelCanvas, panelX, panelY);
-		} else if(panelState == 1 || panelState == 3) {
-			w = (panelW - 20) / maxPanelT * panelT;
-			h = (panelH - 20) / maxPanelT * panelT;
-		
-			backContext.drawImage(panelCanvas, 0, panelH-10, 10+w, 10, panelX, panelY+panelH-10, 10+w, 10);
-			backContext.drawImage(panelCanvas, panelW-10, panelH-10, 10, 10, panelX+10+w, panelY+panelH-10, 10, 10);
-			backContext.drawImage(panelCanvas, 0, 0, 10+w, 10+h, panelX, panelY+panelH-20-h, 10+w, 10+h);
-			backContext.drawImage(panelCanvas, panelW-10, 0, 10, 10+h, panelX+10+w, panelY+panelH-20-h, 10, 10+h);
-		}
-	}
-
-///////////////////////////////////////////////////////////////////////////////
-//
 // Laser beam releted subroutines
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -748,17 +624,28 @@ var ui = (function() {
 		currentSpark = 0;
 		beamT = 0;
 		maxBeamT = max;
+
+		if(turn == 0) {
+			arm1.setTarget(beamSweepFromX, beamSweepFromY);
+		} else {
+			arm2.setTarget(beamSweepFromX, beamSweepFromY);
+		}
 	}
 
 	function pushBeam() {
-		if(state != animationStates.paint) {
-			return;
-		} else if (beamT == 0) {
-			if(beamTurn == 0 && arm1.isMoving() == 1) {
-				return;
-			} else if(beamTurn == 1 && arm2.isMoving() == 1) {
-				return;
+		if(paintState != 1) {
+			if(beamTurn == 0) {
+				arm1.push();
+				if(arm1.isMoving() == 0) {
+					paintState = 1;
+				}
+			} else {
+				arm2.push();
+				if(arm2.isMoving() == 0) {
+					paintState = 1;
+				}
 			}
+			return;
 		}
 		beamT++;
 
@@ -779,14 +666,8 @@ var ui = (function() {
 	}
 
 	function drawBeam() {
-		if(state != animationStates.paint) {
+		if(paintState != 1) {
 			return;
-		} else if (beamT == 0) {
-			if(beamTurn == 0 && arm1.isMoving() == 1) {
-				return;
-			} else if(beamTurn == 1 && arm2.isMoving() == 1) {
-				return;
-			}
 		}
 
 		if(selection(beamToX, beamToY) != beamTarget) {
@@ -847,8 +728,6 @@ var ui = (function() {
 		selected = _selected;
 	}
 
-	function setBottonPress(_bottonPress) { bottonPress = _bottonPress; }
-
 	function isIdle() {
 		if(state != animationStates.idle) {
 			return 0;
@@ -871,11 +750,6 @@ var ui = (function() {
 
 		selection : selection,
 		setSelect : setSelect,
-
-		popPanel : popPanel,
-		panelSelect : panelSelect,
-		setBottonPress : setBottonPress,
-		closePanel : closePanel,
 
 		isIdle : isIdle,
 		setShadow : setShadow

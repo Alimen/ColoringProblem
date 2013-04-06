@@ -127,7 +127,7 @@ var gameLogic = (function() {
 			break;
 
 		case gameStates.colorSelecting:
-			ui.panelSelect(x, y);
+			panel.select(x, y);
 			break;
 		}
 	}
@@ -138,20 +138,20 @@ var gameLogic = (function() {
 		switch(state) {
 		case gameStates.selecting:
 			if(selected >= 0) {
-				ui.popPanel(mouseX, mouseY, selected);
+				panel.popup(mouseX, mouseY, selected);
 				state = gameStates.colorSelecting;
 			}
 			break;
 
 		case gameStates.colorSelecting:
-			res = ui.panelSelect(mouseX, mouseY);
+			res = panel.select(mouseX, mouseY);
 			if(res == -1) {
-				ui.closePanel();
+				panel.close();
 				state = gameStates.selecting;
 				selected = ui.selection(mouseX, mouseY);
 				ui.setSelect(selected);
 			} else if(res >= 0) {
-				ui.closePanel();
+				panel.close();
 				ui.resetPaint(selected, res+1);
 				state = gameStates.animating;
 				nexState = gameStates.selecting;

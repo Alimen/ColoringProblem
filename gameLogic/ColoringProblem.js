@@ -240,7 +240,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 20;
+	var itemsToLoad = 21;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -248,6 +248,7 @@ var coloringProblem = (function() {
 		loadjs("Title.js", 0);
 		loadjs("GameLogic.js", 0);
 		loadjs("UI.js", 0);
+		loadjs("Dialog.js", 0);
 		loadjs("Panel.js", 0);
 		loadjs("RoboticArms.js", 0);
 		loadjs("Warp.js");
@@ -303,8 +304,7 @@ var coloringProblem = (function() {
 		// Initialize sub modules
 		title.init(env, {
 			background : imgBackground
-		},
-		backContext);
+		}, backContext);
 
 		gameLogic.init(env, {
 		}, backContext);
@@ -315,29 +315,32 @@ var coloringProblem = (function() {
 			background : imgBackground,
 			shadow : imgShadow,
 			glow : imgGlow,
-			panel : imgPanel,
-			bottons : imgBottons,
 			beams : imgBeams,
 			sparks : imgSparks,
-		},
-		backContext);
+		}, backContext);
+
+		dialog.init(env, {
+			panel : imgPanel
+		}, backContext);
+
+		panel.init(env, {
+			panel : imgPanel,
+			bottons : imgBottons
+		}, backContext);
 
 		arm1.init(env, {
 			arm1 : imgArm1
-		},
-		backContext);
+		}, backContext);
 
 		arm2.init(env, {
 			arm2 : imgArm2
-		},
-		backContext);
+		}, backContext);
 
 		warp.init(env, {
 			dot : imgDot,
 			warpLine : imgWarpLine,
 			halo : imgHalo
-		},
-		backContext);
+		}, backContext);
 
 		state = mainStates.resetTitle;
 	}
