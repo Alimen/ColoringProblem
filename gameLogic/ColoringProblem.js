@@ -35,6 +35,7 @@ var coloringProblem = (function() {
 	var imgDot = new Image();
 	var imgWarpLine = new Image();
 	var imgHalo = new Image();
+	var imgMisc = new Image();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -240,7 +241,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 21;
+	var itemsToLoad = 22;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -281,6 +282,8 @@ var coloringProblem = (function() {
 		imgWarpLine.onload = eventItemLoaded;
 		imgHalo.src = "Halos.jpg";
 		imgHalo.onload = eventItemLoaded;
+		imgMisc.src = "Misc.png";
+		imgMisc.onload = eventItemLoaded;
 
 		// Pass resources to loader
 		loader.init(env, {
@@ -317,10 +320,12 @@ var coloringProblem = (function() {
 			glow : imgGlow,
 			beams : imgBeams,
 			sparks : imgSparks,
+			misc : imgMisc
 		}, backContext);
 
 		dialog.init(env, {
-			panel : imgPanel
+			panel : imgPanel,
+			misc : imgMisc
 		}, backContext);
 
 		panel.init(env, {

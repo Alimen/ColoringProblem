@@ -153,6 +153,8 @@ var gameLogic = (function() {
 			} else if(res >= 0) {
 				panel.close();
 				ui.resetPaint(selected, res+1);
+				selected = -1;
+				ui.setSelect(-1);
 				state = gameStates.animating;
 				nexState = gameStates.selecting;
 			}
