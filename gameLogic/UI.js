@@ -98,6 +98,9 @@ var ui = (function() {
 
 		// Draw laser beam
 		drawBeam();
+
+		// Draw dialogs
+		dialog.draw();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -803,7 +806,7 @@ var ui = (function() {
 	}
 
 	function setShadow(_shadow) { shadow = _shadow; }
-	function setSoundon(_soundon) { soundon = _soundon; console.log(soundon);}
+	function setSoundon(_soundon) { soundon = _soundon; }
 
 	return {
 		init : init,

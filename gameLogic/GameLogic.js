@@ -140,6 +140,9 @@ var gameLogic = (function() {
 				soundon = (soundon+1)%2;
 				ui.setSoundon(soundon);
 			}
+			if(ui.checkMousePassTitle(mouseX, mouseY, currentPlayer) >= 0) {
+				dialog.popup("Result");
+			}
 
 			if(selected >= 0) {
 				panel.popup(mouseX, mouseY, selected);
