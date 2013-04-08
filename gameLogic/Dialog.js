@@ -4,6 +4,11 @@ var dialog = (function() {
 	var img;
 	var env;
 
+	// Dialog variables
+	const maxDialogT = 4;
+	var dialogCanvas, dialogContext;
+	var dialogState;
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Public functions
@@ -13,7 +18,16 @@ var dialog = (function() {
 	function init(_env, _img, _backContext) {
 		env = _env;
 		img = _img;
-		backContext = _backContext
+		backContext = _backContext;
+
+		// Initialize dialog variables
+		dialogState = 0;
+	
+		// Create off-screen canvas for dialog
+		dialogCanvas = document.createElement("canvas");
+		dialogCanvas.width = env.screenWidth;
+		dialogCanvas.height = env.screenHeight;
+		dialogContext = dialogCanvas.getContext("2d");
 	}
 
 	function popup() {
@@ -29,6 +43,9 @@ var dialog = (function() {
 	}
 
 	function draw() {
+		if(dailogState < 0) {
+			return;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////

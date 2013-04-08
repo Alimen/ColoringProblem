@@ -20,6 +20,7 @@ var gameLogic = (function() {
 	var nextState;
 
 	// Game variables
+	var soundon;
 	var playerCount;
 	var currentPlayer;
 	var player1isHuman;
@@ -41,6 +42,8 @@ var gameLogic = (function() {
 		backContext = _backContext;
 		mouseX = env.screenWidth/2;
 		mouseY = env.screenHeight/2;
+		soundon = 1;
+		ui.setSoundon(soundon);
 	}
 
 	function reset(_playerCount, _startLevel) {
@@ -81,13 +84,6 @@ var gameLogic = (function() {
 
 	function draw() {
 		ui.draw();
-		
-		// Debug message
-		backContext.textBaseline = "top";	
-		backContext.fillStyle = "#000000";
-		backContext.font = "14px monospace";
-		backContext.textAlign = "right";
-		backContext.fillText("mouse = (" + mouseX + ", " + mouseY + ")", env.screenWidth , 0);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -116,6 +112,9 @@ var gameLogic = (function() {
 
 		switch(state) {
 		case gameStates.selecting:
+			ui.checkMousePassSound(x, y, currentPlayer);
+			ui.checkMousePassTitle(x, y, currentPlayer);
+
 			if(currentPlayer == 0 && player1isHuman == 1) {
 				arm1.setTarget(x, y);
 			} else if(currentPlayer == 1 && player2isHuman == 1) {
@@ -137,6 +136,11 @@ var gameLogic = (function() {
 
 		switch(state) {
 		case gameStates.selecting:
+			if(ui.checkMousePassSound(mouseX, mouseY, currentPlayer) >= 0) {
+				soundon = (soundon+1)%2;
+				ui.setSoundon(soundon);
+			}
+
 			if(selected >= 0) {
 				panel.popup(mouseX, mouseY, selected);
 				state = gameStates.colorSelecting;

@@ -36,6 +36,9 @@ var ui = (function() {
 
 		// Initialize paint animation variables
 		paintState = -1;
+
+		// Initialize menu icon variables
+		initMenuIcon();
 	}
 
 	function push() {
@@ -80,6 +83,7 @@ var ui = (function() {
 			warp.drawWarp();
 		} else {
 			drawBoard();
+			drawMenuIcon();
 		}
 
 		// Draw robotic arms
@@ -316,6 +320,9 @@ var ui = (function() {
 					check--;
 				}
 			}
+			if(menuIconX > menuInPos) {
+				menuIconX--;
+			}
 			if(check == 0) {
 				slideState = 2;
 			}
@@ -347,6 +354,9 @@ var ui = (function() {
 				} else {
 					check--;
 				}
+			}
+			if(menuIconX < menuOutPos) {
+				menuIconX++;
 			}
 			if(check == 0) {
 				slideState = 5;
@@ -708,6 +718,62 @@ var ui = (function() {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// Menu icon releted subroutines
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	// Menu icon variables
+	const menuInPos = 720, menuOutPos = 800;
+	var soundon;
+	var mousePassSound, mousePassTitle;
+	var menuIconX;
+
+	function initMenuIcon() {
+		mousePassSound = -1;
+		mousePassTitle = -1;
+		menuIconX = menuOutPos;
+	}
+
+	function drawMenuIcon() {
+		// Draw sound on/off icon
+		if(mousePassSound >= 0) {
+			backContext.drawImage(img.glow, mousePassSound*80, 0, 80, 86, menuIconX, 0, 40, 43);
+		}
+		backContext.drawImage(img.tiles, 0, 0, tileW, tileH, menuIconX+10, 10, tileW/2, tileH/2);
+		if(soundon == 1) {
+			backContext.drawImage(img.misc, 160, 0, 80, 64, menuIconX, 10, 40, 32);
+		} else {
+			backContext.drawImage(img.misc, 240, 0, 80, 64, menuIconX, 10, 40, 32);
+		}
+
+		// Draw title icon
+		if(mousePassTitle >= 0) {
+			backContext.drawImage(img.glow, mousePassTitle*80, 0, 80, 86, menuIconX+40, 0, 40, 43);
+		}
+		backContext.drawImage(img.tiles, 0, 0, tileW, tileH, menuIconX+50, 10, tileW/2, tileH/2);
+		backContext.drawImage(img.misc, 320, 0, 80, 64, menuIconX+40, 10, 40, 32);
+	}
+
+	function checkMousePassSound(x, y, turn) {
+		if(x > menuIconX && x <= menuIconX+40 && y > 0 && y <= 32) {
+			mousePassSound = turn;
+		} else {
+			mousePassSound = -1;
+		}
+		return mousePassSound;
+	}
+
+	function checkMousePassTitle(x, y, turn) {
+		if(x > menuIconX+40 && x <= menuIconX+80 && y > 0 && y <= 32) {
+			mousePassTitle = turn;
+		} else {
+			mousePassTitle = -1;
+		}
+		return mousePassTitle;
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // Setup public access
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -737,6 +803,7 @@ var ui = (function() {
 	}
 
 	function setShadow(_shadow) { shadow = _shadow; }
+	function setSoundon(_soundon) { soundon = _soundon; console.log(soundon);}
 
 	return {
 		init : init,
@@ -752,6 +819,10 @@ var ui = (function() {
 		setSelect : setSelect,
 
 		isIdle : isIdle,
-		setShadow : setShadow
+		setShadow : setShadow,
+
+		checkMousePassSound : checkMousePassSound,
+		checkMousePassTitle : checkMousePassTitle,
+		setSoundon : setSoundon
 	};
 })();
