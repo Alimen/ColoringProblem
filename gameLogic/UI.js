@@ -53,6 +53,7 @@ var ui = (function() {
 		}
 
 		panel.push();
+		dialog.push();
 
 		var i, res = 1;
 		if(state == animationStates.paint) {

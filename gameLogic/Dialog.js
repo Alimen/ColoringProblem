@@ -5,7 +5,7 @@ var dialog = (function() {
 	var env;
 
 	// Dialog variables
-	const maxDialogT = 6;
+	const maxDialogT = 10;
 	const panelW = 100, panelH = 90;
 	var dialogT;
 	var dialogCanvas, dialogContext;
@@ -24,12 +24,13 @@ var dialog = (function() {
 	};
 	const params = [
 		[dialogTypes.unknown,	"unknown",		400, 240, 20, 20],
-		[dialogTypes.p1Wins,	"p1Wins",		400, 240, 380, 170],
-		[dialogTypes.p2Wins,	"p2Wins",		400, 240, 380, 170],
-		[dialogTypes.aiWins,	"aiWins",		400, 240, 380, 170],
-		[dialogTypes.playerWins,"playerWins",	400, 240, 380, 170],
-		[dialogTypes.quit,		"quit",			400, 240, 320, 160]
+		[dialogTypes.p1Wins,	"p1Wins",		400, 240, 450, 200],
+		[dialogTypes.p2Wins,	"p2Wins",		400, 240, 450, 200],
+		[dialogTypes.aiWins,	"aiWins",		400, 240, 450, 200],
+		[dialogTypes.playerWins,"playerWins",	400, 240, 450, 200],
+		[dialogTypes.quit,		"quit",			400, 240, 340, 165]
 	];
+	var param;
 
 	// Icon dimension parameters
 	const icon = {
@@ -58,6 +59,7 @@ var dialog = (function() {
 
 		// Initialize dialog variables
 		dialogState = 0;
+		dialogT = -1;
 	
 		// Create off-screen canvas for dialog
 		dialogCanvas = document.createElement("canvas");
@@ -67,18 +69,45 @@ var dialog = (function() {
 	}
 
 	function popup(type) {
+		x = 400; y = 240; w = 20; h = 20;
 		prepareDialog(type);
-		dialogState = 2;
+		dialogState = 1;
+		dialogT = 0;
 	}
 
 	function close() {
-		dialogState = 0;
+		dialogState = 3;
 	}
 
 	function transform() {
 	}
 
 	function push() {
+		if(dialogT < 0) {
+			return;
+		}
+
+		switch(dialogState) {
+		case 0:
+			break;
+		case 1:
+			x += dx; y += dy; w += dw; h += dh;
+			dialogT++;
+			if(dialogT == maxDialogT) {
+				dialogState++;
+			}
+			break;
+		case 2:
+			break;
+		case 3:
+			x -= dx; y -= dy; w -= dw; h -= dh;
+			dialogT--;
+			if(dialogT == 0) {
+				dialogState = 0;
+				dialogT = -1;
+			}
+			break;
+		}
 	}
 
 	function draw() {
@@ -91,8 +120,25 @@ var dialog = (function() {
 		backContext.fillRect(0, 0, env.screenWidth, env.screenHeight);
 
 		// Draw dialog
-		backContext.drawImage(dialogCanvas, x-w/2, y-h/2);
-		drawIcons();
+		if(dialogState == 1 || dialogState == 3) {
+			// Draw conners
+			backContext.drawImage(dialogCanvas, 0, 0, 10, 10, x-w/2, y-h/2, 10, 10);
+			backContext.drawImage(dialogCanvas, param[4]-10, 0, 10, 10, x+w/2-10, y-h/2, 10, 10);
+			backContext.drawImage(dialogCanvas, param[4]-10, param[5]-10, 10, 10, x+w/2-10, y+h/2-10, 10, 10);
+			backContext.drawImage(dialogCanvas, 0, param[5]-10, 10, 10, x-w/2, y+h/2-10, 10, 10);
+
+			// Draw sides
+			backContext.drawImage(dialogCanvas, 0, 10, 10, param[5]-20, x-w/2, y-h/2+10, 10, h-20);
+			backContext.drawImage(dialogCanvas, 10, 0, param[4]-20, 10, x-w/2+10, y-h/2, w-20, 10);
+			backContext.drawImage(dialogCanvas, param[4]-10, 10, 10, param[5]-20, x+w/2-10, y-h/2+10, 10, h-20);
+			backContext.drawImage(dialogCanvas, 10, param[5]-10, param[4]-20, 10, x-w/2+10, y+h/2-10, w-20, 10);
+
+			// Fill center
+			backContext.drawImage(dialogCanvas, param[4]/2-(w-20)/2, param[5]/2-(h-20)/2, w-20, h-20, x-w/2+10, y-h/2+10, w-20, h-20);
+		} else {
+			backContext.drawImage(dialogCanvas, x-w/2, y-h/2);
+			drawIcons();
+		}
 	}
 
 	function drawIcons() {
@@ -157,14 +203,11 @@ var dialog = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	function prepareDialog(type) {
-		var param = getType(type);
+		param = getType(type);
 		iconSlot1 = icon.none;
 		iconSlot2 = icon.none;
 		iconPass1 = -1;
 		iconPass2 = -1;
-
-		// Copy dimension (debug)
-		x = param[2]; y = param[3]; w = param[4]; h = param[5];
 
 		// Draw conners
 		dialogContext.drawImage(img.panel, 0, 0, 10, 10, 0, 0, 10, 10);
@@ -184,19 +227,44 @@ var dialog = (function() {
 		// Draw content
 		switch(param[0]) {
 		case dialogTypes.p1Wins:
+			dialogContext.drawImage(img.dialog, 0, 0, 228, 28, param[4]/2-228/2, 20, 228, 28);
+			dialogContext.drawImage(img.dialog, 0, 25, 72, 50, param[4]/2-252/2, 50, 72, 50);
+			dialogContext.drawImage(img.dialog, 0, 75, 144, 50, param[4]/2-252/2+108, 50, 144, 50);
+			iconSlot1 = icon.title;
+			iconSlot2 = icon.next;
 			break;
 		case dialogTypes.p2Wins:
+			dialogContext.drawImage(img.dialog, 0, 0, 228, 28, param[4]/2-228/2, 20, 228, 28);
+			dialogContext.drawImage(img.dialog, 72, 25, 72, 50, param[4]/2-252/2, 50, 72, 50);
+			dialogContext.drawImage(img.dialog, 0, 75, 144, 50, param[4]/2-252/2+108, 50, 144, 50);
+			iconSlot1 = icon.title;
+			iconSlot2 = icon.next;
 			break;
 		case dialogTypes.aiWins:
+			dialogContext.drawImage(img.dialog, 0, 0, 228, 28, param[4]/2-228/2, 20, 228, 28);
+			dialogContext.drawImage(img.dialog, 360, 25, 72, 50, param[4]/2-252/2, 50, 72, 50);
+			dialogContext.drawImage(img.dialog, 0, 75, 144, 50, param[4]/2-252/2+108, 50, 144, 50);
+			iconSlot1 = icon.title;
+			iconSlot2 = icon.none;
 			break;
 		case dialogTypes.playerWins:
+			dialogContext.drawImage(img.dialog, 0, 0, 228, 28, param[4]/2-228/2, 20, 228, 28);
+			dialogContext.drawImage(img.dialog, 144, 25, 216, 50, param[4]/2-396/2, 50, 216, 50);
+			dialogContext.drawImage(img.dialog, 0, 75, 144, 50, param[4]/2-396/2+252, 50, 144, 50);
+			iconSlot1 = icon.title;
+			iconSlot2 = icon.next;
 			break;
 		case dialogTypes.quit:
-			dialogContext.drawImage(img.dialog, 0, 130, 300, 60, param[4]/2-150, 10, 300, 60);
+			dialogContext.drawImage(img.dialog, 0, 130, 300, 60, param[4]/2-150, 15, 300, 60);
 			iconSlot1 = icon.title;
 			iconSlot2 = icon.cancel;
 			break;
 		}
+
+		dx = (param[2]-x)/maxDialogT;
+		dy = (param[3]-y)/maxDialogT;
+		dw = (param[4]-w)/maxDialogT;
+		dh = (param[5]-h)/maxDialogT;
 	}
 
 	function getType(input) {
