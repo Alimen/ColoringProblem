@@ -11,13 +11,12 @@ var gameLogic = (function() {
 		animating	: 0,
 		selecting	: 1,
 		colorSelect	: 2,
-		resulting	: 3
+		resulting	: 3,
+		quit		: 4,
+		leaving		: 5
 	};
 	var state;
 	var nextGameState;
-
-	// Return vairables
-	var nextState;
 
 	// Game variables
 	var soundon;
@@ -47,7 +46,6 @@ var gameLogic = (function() {
 	}
 
 	function reset(_playerCount, _startLevel) {
-		nextState = env.mainStates.unknown;
 		playerCount = _playerCount;
 		level = _startLevel;
 		
@@ -79,7 +77,11 @@ var gameLogic = (function() {
 			state = nextGameState;
 		}
 
-		return env.mainStates.unknown;
+		if(state == gameStates.leaving) {
+			return env.mainStates.resetTitle;
+		} else {
+			return env.mainStates.unknown;
+		}
 	}
 
 	function draw() {
@@ -114,8 +116,6 @@ var gameLogic = (function() {
 		case gameStates.selecting:
 			ui.checkMousePassSound(x, y, currentPlayer);
 			ui.checkMousePassTitle(x, y, currentPlayer);
-			dialog.checkPassSlot1(x, y, currentPlayer);
-			dialog.checkPassSlot2(x, y, currentPlayer);
 
 			if(currentPlayer == 0 && player1isHuman == 1) {
 				arm1.setTarget(x, y);
@@ -129,6 +129,11 @@ var gameLogic = (function() {
 
 		case gameStates.colorSelecting:
 			panel.select(x, y);
+			break;
+
+		case gameStates.quit:
+			dialog.checkPassSlot1(x, y, currentPlayer);
+			dialog.checkPassSlot2(x, y, currentPlayer);
 			break;
 		}
 	}
@@ -144,6 +149,8 @@ var gameLogic = (function() {
 			}
 			if(ui.checkMousePassTitle(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.popup("quit");
+				state = gameStates.quit;
+				nextGameState = gameStates.selecting;
 			}
 
 			if(selected >= 0) {
@@ -166,6 +173,20 @@ var gameLogic = (function() {
 				ui.setSelect(-1);
 				state = gameStates.animating;
 				nexState = gameStates.selecting;
+			}
+			break;
+
+		case gameStates.quit:
+			if(dialog.checkPassSlot1(mouseX, mouseY, currentPlayer) >= 0) {
+				dialog.close();
+				ui.resetSlideOut(0, 0, 0);
+				ui.checkMousePassSound(mouseX, mouseY, currentPlayer);
+				ui.checkMousePassTitle(mouseX, mouseY, currentPlayer);
+				state = gameStates.animating;
+				nextGameState = gameStates.leaving;
+			} else if(dialog.checkPassSlot2(mouseX, mouseY, currentPlayer) >= 0) {
+				dialog.close();
+				state = gameStates.selecting;
 			}
 			break;
 		}

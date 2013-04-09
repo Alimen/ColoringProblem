@@ -358,9 +358,6 @@ var ui = (function() {
 					check--;
 				}
 			}
-			if(menuIconX < menuOutPos) {
-				menuIconX++;
-			}
 			if(check == 0) {
 				slideState = 5;
 			}
@@ -376,6 +373,9 @@ var ui = (function() {
 				} else {
 					check--;
 				}
+			}
+			if(menuIconX < menuOutPos) {
+				menuIconX++;
 			}
 			if(nextState == animationStates.warp && warp.isFading() == 0) {
 				arm1.reset();

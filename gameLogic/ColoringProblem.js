@@ -95,9 +95,12 @@ var coloringProblem = (function() {
 			}
 			break;
 		case mainStates.game:
-			gameLogic.push();
+			res = gameLogic.push();
 			gameLogic.draw();
 			flip();
+			if(res != mainStates.unknown) {
+				state = res;
+			}
 			break;
 		}
 	}
