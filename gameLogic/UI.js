@@ -741,8 +741,9 @@ var ui = (function() {
 		// Draw sound on/off icon
 		if(mousePassSound >= 0) {
 			backContext.drawImage(img.glow, mousePassSound*80, 0, 80, 86, menuIconX, 0, 40, 43);
+		} else {
+			backContext.drawImage(img.tiles, 0, 0, tileW, tileH, menuIconX+10, 10, tileW/2, tileH/2);
 		}
-		backContext.drawImage(img.tiles, 0, 0, tileW, tileH, menuIconX+10, 10, tileW/2, tileH/2);
 		if(soundon == 1) {
 			backContext.drawImage(img.misc, 160, 0, 80, 64, menuIconX, 10, 40, 32);
 		} else {
@@ -752,8 +753,9 @@ var ui = (function() {
 		// Draw title icon
 		if(mousePassTitle >= 0) {
 			backContext.drawImage(img.glow, mousePassTitle*80, 0, 80, 86, menuIconX+40, 0, 40, 43);
+		} else {
+			backContext.drawImage(img.tiles, 0, 0, tileW, tileH, menuIconX+50, 10, tileW/2, tileH/2);
 		}
-		backContext.drawImage(img.tiles, 0, 0, tileW, tileH, menuIconX+50, 10, tileW/2, tileH/2);
 		backContext.drawImage(img.misc, 320, 0, 80, 64, menuIconX+40, 10, 40, 32);
 	}
 

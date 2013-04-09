@@ -328,6 +328,7 @@ var coloringProblem = (function() {
 
 		dialog.init(env, {
 			panel : imgPanel,
+			glow : imgGlow,
 			misc : imgMisc,
 			dialog : imgDialog
 		}, backContext);

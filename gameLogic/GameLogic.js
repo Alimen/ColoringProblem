@@ -114,6 +114,8 @@ var gameLogic = (function() {
 		case gameStates.selecting:
 			ui.checkMousePassSound(x, y, currentPlayer);
 			ui.checkMousePassTitle(x, y, currentPlayer);
+			dialog.checkPassSlot1(x, y, currentPlayer);
+			dialog.checkPassSlot2(x, y, currentPlayer);
 
 			if(currentPlayer == 0 && player1isHuman == 1) {
 				arm1.setTarget(x, y);
@@ -141,7 +143,7 @@ var gameLogic = (function() {
 				ui.setSoundon(soundon);
 			}
 			if(ui.checkMousePassTitle(mouseX, mouseY, currentPlayer) >= 0) {
-				dialog.popup("Result");
+				dialog.popup("quit");
 			}
 
 			if(selected >= 0) {
