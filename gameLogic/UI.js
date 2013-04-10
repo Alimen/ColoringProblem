@@ -10,7 +10,8 @@ var ui = (function() {
 		slideIn		: 1,
 		slideOut	: 2,
 		paint		: 3,
-		warp		: 4
+		switching	: 4,
+		warp		: 5
 	}
 	var state = animationStates.idle;
 	var nextState = animationStates.idle;
@@ -72,6 +73,12 @@ var ui = (function() {
 		} else {
 			arm1.push();
 			arm2.push();
+		}
+
+		if(state == animationStates.switching) {
+			if(arm1.isSliding() == 0 && arm2.isSliding() == 0) {
+				state = animationStates.idle;
+			}
 		}
 	}
 
@@ -148,7 +155,7 @@ var ui = (function() {
 			warp.resetFade(0);
 		}
 
-		setSelect(-1);
+		setSelect(-1, 0);
 		state = animationStates.slideIn;
 		nextState = animationStates.idle;
 		slideState = 1;
@@ -174,12 +181,12 @@ var ui = (function() {
 			arm2.resetSliding(moveArm2to);
 			nextState = animationStates.idle;
 		}
-		setSelect(-1);
+		setSelect(-1, 0);
 		state = animationStates.slideOut;
 		slideState = 4;
 	}
 
-	function resetPaint(groupID, color) {
+	function resetPaint(groupID, color, turn) {
 		if(groupID == -1) {
 			return;
 		}
@@ -187,7 +194,7 @@ var ui = (function() {
 		ai.setColor(groupID, color);
 
 		var res = resetPaintTile(groupID);
-		resetBeam(groupID, res[1], res[2], res[3], res[4], 0, color, res[0]);
+		resetBeam(groupID, res[1], res[2], res[3], res[4], turn, color, res[0]);
 		
 		var i, black = ai.getBlackout();
 		for(i = 0; i < black.length; i++) {
@@ -195,7 +202,7 @@ var ui = (function() {
 			resetPaintTile(black[i]);
 		}
 
-		setSelect(-1);
+		setSelect(-1, 0);
 		state = animationStates.paint;
 		paintState = 0;
 	}
@@ -403,10 +410,10 @@ var ui = (function() {
 				dy = (graphY[i] - env.screenHeight/2) * (1 - graphZ[i]) + env.screenHeight/2;
 				dw = graphCanvas[i].width * graphZ[i];
 				dh = graphCanvas[i].height * graphZ[i];
-				backContext.drawImage(graphCanvas[i], dx, dy, graphCanvas[i].width - dw, graphCanvas[i].height - dh);
+				backContext.drawImage(graphCanvas[i], dx, dy, graphCanvas[i].width-dw, graphCanvas[i].height-dh);
 
 				if(shadow == 1) {
-					backContext.drawImage(img.shadow, dx, 300 + 130 * (1 - graphZ[i]),  graphCanvas[i].width - dw, 50 * (1 - graphZ[i]));
+					backContext.drawImage(img.shadow, dx, 300+130*(1-graphZ[i]), graphCanvas[i].width-dw, 50*(1-graphZ[i]));
 				}
 			} else {
 				if(selected != i) {
@@ -780,11 +787,28 @@ var ui = (function() {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// Player switching releted subroutines
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function resetSwitching(turn) {
+		if(turn%2 == 0) {
+			arm1.resetSliding(2);
+			arm2.resetSliding(1);
+		} else {
+			arm1.resetSliding(1);
+			arm2.resetSliding(2);
+		}
+		state = animationStates.switching;
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // Setup public access
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-	function setSelect(_selected) {
+	function setSelect(_selected, turn) {
 		if(_selected == selected) {
 			return;
 		}
@@ -792,10 +816,10 @@ var ui = (function() {
 		if(_selected < 0 && selected >= 0) {
 			drawSubGraph(selected, 0);
 		} else if(_selected >= 0 && selected < 0) {
-			drawSubGraph(_selected, 1);
+			drawSubGraph(_selected, turn+1);
 		} else {
 			drawSubGraph(selected, 0);
-			drawSubGraph(_selected, 1);
+			drawSubGraph(_selected, turn+1);
 		}
 		selected = _selected;
 	}
@@ -823,6 +847,8 @@ var ui = (function() {
 
 		selection : selection,
 		setSelect : setSelect,
+
+		resetSwitching: resetSwitching,
 
 		isIdle : isIdle,
 		setShadow : setShadow,

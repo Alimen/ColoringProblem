@@ -11,9 +11,10 @@ var gameLogic = (function() {
 		animating	: 0,
 		selecting	: 1,
 		colorSelect	: 2,
-		resulting	: 3,
-		quit		: 4,
-		leaving		: 5
+		switching	: 3,
+		resulting	: 4,
+		quit		: 5,
+		leaving		: 6
 	};
 	var state;
 	var nextGameState;
@@ -50,7 +51,13 @@ var gameLogic = (function() {
 		level = _startLevel;
 		
 		ai.setupBoard();
-		ui.resetSlideIn(2, 1, 0);
+		if(level%2 == 1) {
+			ui.resetSlideIn(2, 1, 0);
+			currentPlayer = 0;
+		} else {
+			ui.resetSlideIn(1, 2, 0);
+			currentPlayer = 1;
+		}
 
 		if(playerCount == 2) {
 			player1isHuman = 1;
@@ -65,7 +72,6 @@ var gameLogic = (function() {
 			}
 		}
 
-		currentPlayer = 0;
 		state = gameStates.animating;
 		nextGameState = gameStates.selecting;
 		selected = -1;
@@ -74,7 +80,7 @@ var gameLogic = (function() {
 	function push() {
 		ui.push();
 		if(ui.isIdle() == 1 && state == gameStates.animating) {
-			state = nextGameState;
+			changeState(nextGameState);
 		}
 
 		if(state == gameStates.leaving) {
@@ -86,6 +92,28 @@ var gameLogic = (function() {
 
 	function draw() {
 		ui.draw();
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Private functions
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function changeState(next) {
+		state = next;
+		switch(state) {
+		case gameStates.selecting:
+			eventMouseMove(mouseX, mouseY);
+			break;
+
+		case gameStates.switching:
+			currentPlayer = (currentPlayer+1)%2;
+			ui.resetSwitching(currentPlayer);
+			state = gameStates.animating;
+			nextGameState = gameStates.selecting;
+			break;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -124,7 +152,7 @@ var gameLogic = (function() {
 			}
 			
 			selected = ui.selection(x, y);
-			ui.setSelect(selected);
+			ui.setSelect(selected, currentPlayer);
 			break;
 
 		case gameStates.colorSelecting:
@@ -152,7 +180,6 @@ var gameLogic = (function() {
 				state = gameStates.quit;
 				nextGameState = gameStates.selecting;
 			}
-
 			if(selected >= 0) {
 				panel.popup(mouseX, mouseY, selected);
 				state = gameStates.colorSelecting;
@@ -165,14 +192,14 @@ var gameLogic = (function() {
 				panel.close();
 				state = gameStates.selecting;
 				selected = ui.selection(mouseX, mouseY);
-				ui.setSelect(selected);
+				ui.setSelect(selected, currentPlayer);
 			} else if(res >= 0) {
 				panel.close();
-				ui.resetPaint(selected, res+1);
+				ui.resetPaint(selected, res+1, currentPlayer);
 				selected = -1;
-				ui.setSelect(-1);
+				ui.setSelect(-1, 0);
 				state = gameStates.animating;
-				nexState = gameStates.selecting;
+				nextGameState = gameStates.switching;
 			}
 			break;
 

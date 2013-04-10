@@ -61,7 +61,7 @@ var title = (function() {
 		} else if(e.keyCode == 50) { // '2'
 			nextState = env.mainStates.game;
 			playerCount = 2;
-			startLevel = 0;
+			startLevel = 2;
 		}
 	}
 
