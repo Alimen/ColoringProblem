@@ -134,7 +134,9 @@ var dialog = (function() {
 			backContext.drawImage(dialogCanvas, 10, param[5]-10, param[4]-20, 10, x-w/2+10, y+h/2-10, w-20, 10);
 
 			// Fill center
-			backContext.drawImage(dialogCanvas, param[4]/2-(w-20)/2, param[5]/2-(h-20)/2, w-20, h-20, x-w/2+10, y-h/2+10, w-20, h-20);
+			if(h-20 > 0 && w-20 > 0) {
+				backContext.drawImage(dialogCanvas, param[4]/2-(w-20)/2, param[5]/2-(h-20)/2, w-20, h-20, x-w/2+10, y-h/2+10, w-20, h-20);
+			}
 		} else {
 			backContext.drawImage(dialogCanvas, x-w/2, y-h/2);
 			drawIcons();
@@ -208,6 +210,9 @@ var dialog = (function() {
 		iconSlot2 = icon.none;
 		iconPass1 = -1;
 		iconPass2 = -1;
+
+		// Clean up subgraph rectangle
+		dialogContext.clearRect(0, 0, dialogCanvas.width, dialogCanvas.height);
 
 		// Draw conners
 		dialogContext.drawImage(img.panel, 0, 0, 10, 10, 0, 0, 10, 10);

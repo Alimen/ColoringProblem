@@ -8,13 +8,14 @@ var gameLogic = (function() {
 	// Game states
 	const gameStates = {
 		unknown		: -1,
-		animating	: 0,
-		selecting	: 1,
-		colorSelect	: 2,
-		switching	: 3,
-		resulting	: 4,
-		quit		: 5,
-		leaving		: 6
+		reset		: 0,
+		animating	: 1,
+		selecting	: 2,
+		colorSelect	: 3,
+		switching	: 4,
+		resulting	: 5,
+		quit		: 6,
+		leaving		: 7
 	};
 	var state;
 	var nextGameState;
@@ -26,6 +27,7 @@ var gameLogic = (function() {
 	var player1isHuman;
 	var player2isHuman;
 	var level;
+	var warp;
 
 	// Selecting state variables
 	var selected;
@@ -43,6 +45,7 @@ var gameLogic = (function() {
 		mouseX = env.screenWidth/2;
 		mouseY = env.screenHeight/2;
 		soundon = 1;
+		warp = 0;
 		ui.setSoundon(soundon);
 	}
 
@@ -52,12 +55,13 @@ var gameLogic = (function() {
 		
 		ai.setupBoard();
 		if(level%2 == 1) {
-			ui.resetSlideIn(2, 1, 0);
+			ui.resetSlideIn(2, 1, warp);
 			currentPlayer = 0;
 		} else {
-			ui.resetSlideIn(1, 2, 0);
+			ui.resetSlideIn(1, 2, warp);
 			currentPlayer = 1;
 		}
+		warp = 0;
 
 		if(playerCount == 2) {
 			player1isHuman = 1;
@@ -103,6 +107,10 @@ var gameLogic = (function() {
 	function changeState(next) {
 		state = next;
 		switch(state) {
+		case gameStates.reset:
+			reset(playerCount, level+1);
+			break;
+
 		case gameStates.selecting:
 			eventMouseMove(mouseX, mouseY);
 			break;
@@ -112,6 +120,22 @@ var gameLogic = (function() {
 			ui.resetSwitching(currentPlayer);
 			state = gameStates.animating;
 			nextGameState = gameStates.selecting;
+			break;
+
+		case gameStates.resulting:
+			if(playerCount == 2) {
+				if(currentPlayer == 0) {
+					dialog.popup("p1Wins");
+				} else {
+					dialog.popup("p2Wins");
+				}
+			} else {
+				if(currentPlayer == 0) {
+					dialog.popup("playerWins");
+				} else {
+					dialog.popup("aiWins");
+				}
+			}
 			break;
 		}
 	}
@@ -159,6 +183,11 @@ var gameLogic = (function() {
 			panel.select(x, y);
 			break;
 
+		case gameStates.resulting:
+			dialog.checkPassSlot1(x, y, currentPlayer);
+			dialog.checkPassSlot2(x, y, currentPlayer);
+			break;
+
 		case gameStates.quit:
 			dialog.checkPassSlot1(x, y, currentPlayer);
 			dialog.checkPassSlot2(x, y, currentPlayer);
@@ -199,7 +228,37 @@ var gameLogic = (function() {
 				selected = -1;
 				ui.setSelect(-1, 0);
 				state = gameStates.animating;
-				nextGameState = gameStates.switching;
+				console.log(ai.getUncoloredCount());
+				if(ai.getUncoloredCount() == 0) {
+					nextGameState = gameStates.resulting;
+				} else {
+					nextGameState = gameStates.switching;
+				}
+			}
+			break;
+
+		case gameStates.resulting:
+			if(dialog.checkPassSlot1(mouseX, mouseY, currentPlayer) >= 0) {
+				dialog.close();
+				ui.resetSlideOut(0, 0, 0);
+				state = gameStates.animating;
+				nextGameState = gameStates.leaving;
+			} else if(dialog.checkPassSlot2(mouseX, mouseY, currentPlayer) >= 0) {
+				dialog.close();
+				var nextLevel = level+1;
+				if(nextLevel%4 == 1) {
+					warp = 1;
+					ui.resetSlideOut(0, 0, 1);
+				} else {
+					warp = 0;
+					if(nextLevel%2 == 1) {
+						ui.resetSlideOut(2, 1, 0);
+					} else {
+						ui.resetSlideOut(1, 2, 0);
+					}
+				}
+				state = gameStates.animating;
+				nextGameState = gameStates.reset;
 			}
 			break;
 

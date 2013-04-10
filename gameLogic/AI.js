@@ -17,7 +17,7 @@ var ai = (function() {
 
 	function setupBoard() {
 		const removed = 3;
-		const seed = 20;
+		const seed = 5;
 		var emptyCells = new Array();
 		var setupSeq = new Array(maxCol * maxRow);
 		var i, j, tmp;
@@ -81,6 +81,7 @@ var ai = (function() {
 		}
 
 		// Step 7. Fill the uncolored array
+		uncolored.length = 0;
 		for(i = 0; i < seed; i++) {
 			uncolored.push(i);
 		}
