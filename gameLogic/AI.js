@@ -17,7 +17,7 @@ var ai = (function() {
 
 	function setupBoard() {
 		const removed = 3;
-		const seed = 5;
+		const seed = 20;
 		var emptyCells = new Array();
 		var setupSeq = new Array(maxCol * maxRow);
 		var i, j, tmp;

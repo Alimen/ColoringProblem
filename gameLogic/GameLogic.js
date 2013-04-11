@@ -119,18 +119,22 @@ var gameLogic = (function() {
 			currentPlayer = (currentPlayer+1)%2;
 			ui.resetSwitching(currentPlayer);
 			state = gameStates.animating;
-			nextGameState = gameStates.selecting;
+			if(ai.getUncoloredCount() == 0) {
+				nextGameState = gameStates.resulting;
+			} else {
+				nextGameState = gameStates.selecting;
+			}
 			break;
 
 		case gameStates.resulting:
 			if(playerCount == 2) {
-				if(currentPlayer == 0) {
+				if(currentPlayer == 1) {
 					dialog.popup("p1Wins");
 				} else {
 					dialog.popup("p2Wins");
 				}
 			} else {
-				if(currentPlayer == 0) {
+				if(currentPlayer == 1) {
 					dialog.popup("playerWins");
 				} else {
 					dialog.popup("aiWins");
@@ -184,8 +188,8 @@ var gameLogic = (function() {
 			break;
 
 		case gameStates.resulting:
-			dialog.checkPassSlot1(x, y, currentPlayer);
-			dialog.checkPassSlot2(x, y, currentPlayer);
+			dialog.checkPassSlot1(x, y, (currentPlayer+1)%2);
+			dialog.checkPassSlot2(x, y, (currentPlayer+1)%2);
 			break;
 
 		case gameStates.quit:
@@ -228,12 +232,7 @@ var gameLogic = (function() {
 				selected = -1;
 				ui.setSelect(-1, 0);
 				state = gameStates.animating;
-				console.log(ai.getUncoloredCount());
-				if(ai.getUncoloredCount() == 0) {
-					nextGameState = gameStates.resulting;
-				} else {
-					nextGameState = gameStates.switching;
-				}
+				nextGameState = gameStates.switching;
 			}
 			break;
 
