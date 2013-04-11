@@ -12,10 +12,11 @@ var gameLogic = (function() {
 		animating	: 1,
 		selecting	: 2,
 		colorSelect	: 3,
-		switching	: 4,
-		resulting	: 5,
-		quit		: 6,
-		leaving		: 7
+		aiSelect	: 4,
+		switching	: 5,
+		resulting	: 6,
+		quit		: 7,
+		leaving		: 8
 	};
 	var state;
 	var nextGameState;
@@ -24,8 +25,6 @@ var gameLogic = (function() {
 	var soundon;
 	var playerCount;
 	var currentPlayer;
-	var player1isHuman;
-	var player2isHuman;
 	var level;
 	var warp;
 
@@ -53,7 +52,7 @@ var gameLogic = (function() {
 		playerCount = _playerCount;
 		level = _startLevel;
 		
-		ai.setupBoard();
+		ai.setupBoard(6, 5, 3);
 		if(level%2 == 1) {
 			ui.resetSlideIn(2, 1, warp);
 			currentPlayer = 0;
@@ -63,21 +62,12 @@ var gameLogic = (function() {
 		}
 		warp = 0;
 
-		if(playerCount == 2) {
-			player1isHuman = 1;
-			player2isHuman = 1;
-		} else {
-			if(level%2 == 1) {
-				player1isHuman = 1;
-				player2isHuman = 0;
-			} else {
-				player1isHuman = 0;
-				player2isHuman = 1;
-			}
-		}
-
 		state = gameStates.animating;
-		nextGameState = gameStates.selecting;
+		if(playerCount == 1 && currentPlayer == 1) {
+			nextGameState = gameStates.aiSelect;
+		} else {
+			nextGameState = gameStates.selecting;
+		}
 		selected = -1;
 	}
 
@@ -115,6 +105,16 @@ var gameLogic = (function() {
 			eventMouseMove(mouseX, mouseY);
 			break;
 
+		case gameStates.aiSelect:
+			var tmp;
+			tmp = ai.aiPick();
+			ui.resetPaint(Math.floor(tmp/10), tmp%10, currentPlayer);
+			selected = -1;
+			ui.setSelect(-1, 0);
+			state = gameStates.animating;
+			nextGameState = gameStates.switching;
+			break;
+
 		case gameStates.switching:
 			currentPlayer = (currentPlayer+1)%2;
 			ui.resetSwitching(currentPlayer);
@@ -122,7 +122,11 @@ var gameLogic = (function() {
 			if(ai.getUncoloredCount() == 0) {
 				nextGameState = gameStates.resulting;
 			} else {
-				nextGameState = gameStates.selecting;
+				if(playerCount == 1 && currentPlayer == 1) {
+					nextGameState = gameStates.aiSelect;
+				} else {
+					nextGameState = gameStates.selecting;
+				}
 			}
 			break;
 
@@ -173,9 +177,9 @@ var gameLogic = (function() {
 			ui.checkMousePassSound(x, y, currentPlayer);
 			ui.checkMousePassTitle(x, y, currentPlayer);
 
-			if(currentPlayer == 0 && player1isHuman == 1) {
+			if(currentPlayer == 0) {
 				arm1.setTarget(x, y);
-			} else if(currentPlayer == 1 && player2isHuman == 1) {
+			} else {
 				arm2.setTarget(x, y);
 			}
 			

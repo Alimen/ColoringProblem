@@ -2,12 +2,49 @@ var ai = (function() {
 	// The board
 	const maxRow = 12;
 	const maxCol = 18;
+	const maxSeed = 25;
 	var board = new Array(maxCol * maxRow);
 	var groups = new Array();
 	var graph = new Array();
 	var subgraphs = new Array();
 	var borders = new Array();
 	var uncolored = new Array();
+	var paddingX, paddingY;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// AI related utilites
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function aiPick() {
+		var candidates = new Array();
+		var output;
+		var i, j;
+
+		// Setup candidates
+		for(i = 0; i < uncolored.length; i++) {
+			for(j = 1; j <= 3; j++) {
+				if(isColorOK(uncolored[i], j) == 1) {
+					candidates.push(uncolored[i]*10+j);
+				}
+			}
+		}
+
+		// Pick the best one
+		output = randomPick(candidates);
+
+		// Debug output
+		console.log(candidates, output);
+		return output;
+	}
+
+	function randomPick(candidates) {
+		return candidates[Math.floor(Math.random()*candidates.length)];
+	}
+
+	function evalute() {
+	}
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -15,9 +52,22 @@ var ai = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-	function setupBoard() {
-		const removed = 3;
-		const seed = 20;
+	function setupBoard(seed, _paddingX, _paddingY) {
+		// Step 0. Prepare variables
+		if(seed > maxSeed) {
+			seed = maxSeed;
+		}
+		if(_paddingX > maxCol/2-3) {
+			paddingX =  maxCol/2-3;
+		} else {
+			paddingX = _paddingX;
+		}
+		if(_paddingY > maxRow/2-3) {
+			paddingY =  maxRow/2-3;
+		} else {
+			paddingY = _paddingY;
+		}
+		const removed = 5;
 		var emptyCells = new Array();
 		var setupSeq = new Array(maxCol * maxRow);
 		var i, j, tmp;
@@ -169,13 +219,13 @@ var ai = (function() {
 	}
 
 	function isEdge(xy) {	
-		if(xy < maxCol || xy >= (maxRow-1)*maxCol) {
+		if(xy < maxCol*paddingY || xy >= (maxRow-paddingY)*maxCol) {
 			return 1;
 		}
-		if(xy%maxCol == 0 || xy%maxCol == maxCol-1) {
+		if(xy%maxCol < paddingX || xy%maxCol >= maxCol-paddingX) {
 			return 1;
 		}
-		if(Math.floor(xy/maxCol)%2 == 1 && xy%maxCol == maxCol-2) {
+		if(Math.floor(xy/maxCol)%2 == 1 && xy%maxCol == maxCol-paddingX-1) {
 			return 1;
 		}
 		return 0;
@@ -367,6 +417,8 @@ var ai = (function() {
 	function getUncoloredCount() { return uncolored.length; }
 
 	return {
+		aiPick : aiPick,
+
 		setupBoard : setupBoard,
 		findGroup : findGroup,
 

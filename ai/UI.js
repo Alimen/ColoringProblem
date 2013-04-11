@@ -124,7 +124,7 @@ var ui = (function() {
 	var shadow;
 
 	// Slide-in animation variables
-	const maxCanvas = 20;
+	const maxCanvas = 25;
 	const startX = 20, startY = 10;
 	const slideSpeed = 10;
 	const glowRadius = 20;
@@ -504,7 +504,7 @@ var ui = (function() {
 					}
 					
 					// Draw target# for debug
-					// graphContext[target].fillText(target, x + 15, y + 15);
+					graphContext[target].fillText(target, x + 15, y + 15);
 					
 					// Draw borders
 					neighbor = checkNeighbor(subGraph, curRow+j, w, h, t);	
