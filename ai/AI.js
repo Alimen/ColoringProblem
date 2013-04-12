@@ -19,6 +19,7 @@ var ai = (function() {
 
 	function aiPick() {
 		var candidates = new Array();
+		var res;
 		var output;
 		var i, j;
 
@@ -32,18 +33,71 @@ var ai = (function() {
 		}
 
 		// Pick the best one
+		console.log("candidates = ", candidates);
+		defensivePick(candidates, uncolored.length);
+		console.log("candidates after defensivePick() = ", candidates);
+		offsensivePick(candidates);
 		output = randomPick(candidates);
 
-		// Debug output
-		console.log(candidates, output);
 		return output;
+	}
+
+	function defensivePick(candidates, uncoloredCnt) {
+		var output = new Array();
+		var breakthrough = 0;
+		var i, score;
+		var scores = new Array();
+
+		for(i = 0; i < candidates.length; i++) {
+			score = evalute(candidates[i]);
+			scores.push(score);
+			if(score > 0 && uncoloredCnt%2 == score%2) {
+				output.push(candidates[i]);
+			}
+		}
+
+		if(output.length > 0) {
+			candidates.length = output.length;
+			for(i = 0; i < output.length; i++) {
+				candidates[i] = output[i];
+			}
+		}
+
+		console.log(scores, breakthrough, output);
+		return breakthrough;
+	}
+
+	function offensivePick(candidates) {
+		var bkpBoard = board;
+		var bkpUncolored = uncolored;
+		var i, j, min;
+		var groupID, color;
+		var breakthrough;
 	}
 
 	function randomPick(candidates) {
 		return candidates[Math.floor(Math.random()*candidates.length)];
 	}
 
-	function evalute() {
+	function evalute(groupColor) {
+		var groupID = Math.floor(groupColor/10);
+		var color = groupColor%10;
+		var blackoutCnt = 0, tmp;
+
+		if(getColor(groupID) != -1 || isColorOK(groupID, color) == 0) {
+			return 0;
+		}
+
+		tmp = board[groups[groupID][0]];
+		paint(groupID, color);
+		for(i = 0; i < graph[groupID].length; i++) {
+			if(getColor(graph[groupID][i]) == -1 && isBlack(graph[groupID][i]) == 1) {
+				blackoutCnt++;
+			}
+		}
+		paint(groupID, tmp);		
+
+		return blackoutCnt+1;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -74,6 +128,8 @@ var ai = (function() {
 
 		// Step 1. Empty the board
 		emptyBoard(emptyCells);
+		groups = new Array(seed);
+		graph = new Array(seed);
 		for(i = 0; i < seed; i++) {
 			groups[i] = new Array();
 			graph[i] = new Array();
@@ -334,11 +390,14 @@ var ai = (function() {
 	}
 
 	function setColor(groupID, color) {
-		var i;
-		for(i = 0; i < groups[groupID].length; i++) {
+		paint(groupID, color);
+		uncolored.splice(uncolored.indexOf(groupID), 1);
+	}
+
+	function paint(groupID, color) {
+		for(var i = 0; i < groups[groupID].length; i++) {
 			board[groups[groupID][i]] = color;
 		}
-		uncolored.splice(uncolored.indexOf(groupID), 1);
 	}
 
 	function isColorOK(groupID, color) {
