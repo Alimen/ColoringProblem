@@ -10,15 +10,15 @@ function canvasSupport() {
 function canvasApp() {
 	if(!canvasSupport) {
 		return;
-	} else {
-		var theCanvas = document.getElementById("canvas");
-		var context = theCanvas.getContext("2d");
-		var backCanvas  = document.createElement("canvas");
-		backCanvas.width = theCanvas.width;
-		backCanvas.height = theCanvas.height;
-		var backContext = backCanvas.getContext("2d");
 	}
 
+	var theCanvas = document.getElementById("canvas");
+	var context = theCanvas.getContext("2d");
+	var backCanvas  = document.createElement("canvas");
+	backCanvas.width = theCanvas.width;
+	backCanvas.height = theCanvas.height;
+	var backContext = backCanvas.getContext("2d");
+	
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Variable declearation
@@ -37,13 +37,17 @@ function canvasApp() {
 	var state = stateInitial;
 
 	// Loader variables
-	var itemsToLoad = 3;
+	var itemsToLoad = 6;
 	var loadCount = 0;
 
 	// Image resources
 	var imgBackground = new Image();
 	var imgPanel = new Image();
 	var imgBottons = new Image();
+	var imgBeams = new Image();
+	var imgSparks = new Image();
+	var imgArm1 = new Image();
+	var imgArm2 = new Image();
 
 	// Panel variables
 	const maxPanelT = 4;
@@ -56,9 +60,25 @@ function canvasApp() {
 	var bottonShowed;
 	var bottonPress;
 
+	// Beams variables
+	const maxBeamT = 100;
+	var beamT;
+	var beamFromX, beamFromY, beamToX, beamToY;
+	var beamSweepFromX, beamSweepFromY, beamSweepToX, beamSweepToY;
+	var beamColor;
+	var currentSpark;
+
+	// Robotic arm variables
+	var turn = 1;
+
 	// General variables
-	var mouseX = 0;
-	var mouseY = 0;
+	var mouseX = screenWidth/2;
+	var mouseY = screenHeight/2;
+	var env = {
+		screenWidth : screenWidth,
+		screenHeight : screenHeight
+	};
+
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -82,6 +102,11 @@ function canvasApp() {
 			mouseY = e.layerY - theCanvas.offsetTop;
 		}
 
+		if(beamT < 0) {
+			arm1.setTarget(mouseX, mouseY);
+			arm2.setTarget(mouseX, mouseY);
+		}
+
 		if(panelState == 2) {
 			if(mouseX > panelX+10 && mouseX < panelX+10+bottonW && mouseY > panelY+10 && mouseY < panelY+10+bottonH) {
 				bottonPress = 0;
@@ -103,6 +128,9 @@ function canvasApp() {
 			panelState = 1;
 		} else if(panelState == 2) {
 			panelState = 3;
+			if(bottonPress != -1) {
+				resetBeam();
+			}
 		}
 	}
 
@@ -143,6 +171,14 @@ function canvasApp() {
 		imgPanel.onload = eventItemLoaded;
 		imgBottons.src = "Bottons.png";
 		imgBottons.onload = eventItemLoaded;
+		imgBeams.src = "Beam.png";
+		imgBeams.onload = eventItemLoaded;
+		imgSparks.src = "Sparks.png";
+		imgSparks.onload = eventItemLoaded;
+		imgArm1.src = "Arm1.png";
+		imgArm1.onload = eventItemLoaded;
+		imgArm2.src = "Arm2.png";
+		imgArm2.onload = eventItemLoaded;
 	
 		// Create off-screen canvas
 		panelCanvas = document.createElement("canvas");
@@ -176,21 +212,50 @@ function canvasApp() {
 	}
 
 	function reset() {
+		arm1.init(env, {
+			arm1 : imgArm1
+		}, 
+		backContext);
+		arm1.reset();
+
+		arm2.init(env, {
+			arm2 : imgArm2
+		}, 
+		backContext);
+		arm2.reset();
+
 		panelState = 0;
-		bottonShowed = [4, 5, 6];
+		bottonShowed = [0, 1, 2];
 		bottonPress = -1;
+		beamT = -1;
 		state = stateTitle;
 	}
 
 	// Title screen
 	function drawTitle() {
 		pushPanel();
+		pushBeam();
 
 		// Clear background
 		backContext.drawImage(imgBackground, 0, 0);
 
 		// Draw panel
 		drawPanel();
+
+		// Push robotic arms
+		if(beamT >= 0) {
+			arm1.setTarget(beamToX, beamToY);
+			arm2.setTarget(beamToX, beamToY);
+		}
+		arm1.push();
+		arm2.push();
+
+		// Draw robotic arms
+		arm1.draw();
+		arm2.draw();
+
+		// Draw beam
+		drawBeam();
 
 		// Flip
 		context.drawImage(backCanvas, 0, 0);
@@ -202,7 +267,7 @@ function canvasApp() {
 		context.textAlign = "right";
 		context.fillText("so far so good!", screenWidth, 0);
 		context.fillText("mouse = (" + mouseX + ", " + mouseY + ")", screenWidth , 15);
-		context.fillText("panelState = " + panelState, screenWidth, 30);
+		context.fillText("beamT = " + beamT, screenWidth, 30);
 	}
 
 	function drawPanel() {
@@ -264,6 +329,90 @@ function canvasApp() {
 			}
 			break;
 		}
+	}
+
+	function angle(ax, ay, bx, by) {
+		var l = Math.sqrt((bx-ax)*(bx-ax)+(by-ay)*(by-ay));
+		var r = Math.asin((by-ay) / l);
+		if(bx < ax) {
+			r = (-1)*r + Math.PI;
+		}
+		return r;
+	}
+
+	function resetBeam() {
+		beamT = 0;
+		beamFromX = 50;
+		beamFromY = 430;
+		beamSweepFromX = panelX;
+		beamSweepFromY = panelY + panelH;
+		beamSweepToX = beamSweepFromX + 100;
+		beamSweepToY = beamSweepFromY + 200;
+		beamToX = beamSweepFromX;
+		beamToY = beamSweepFromY;
+		beamColor = bottonPress;
+		currentSpark = 0;
+
+		turn = (turn+1)%2;
+	}
+
+	function drawBeam() {
+		if(beamT < 0) {
+			return;
+		} else if (beamT == 0) {
+			if(turn == 0 && arm1.isMoving() == 1) {
+				return;
+			} else if(turn == 1 && arm2.isMoving() == 1) {
+				return;
+			}
+		}
+
+		var xy;
+		if(turn == 0) {
+			xy = arm1.getLaserHead();
+			beamFromX = xy[0];
+			beamFromY = xy[1];
+		} else {
+			xy = arm2.getLaserHead();
+			beamFromX = xy[0];
+			beamFromY = xy[1];
+		}
+
+		var l = Math.sqrt( (beamToX-beamFromX)*(beamToX-beamFromX) + (beamToY-beamFromY)*(beamToY-beamFromY) );
+		var r = angle(beamFromX, beamFromY, beamToX, beamToY);
+
+		backContext.save();
+		backContext.setTransform(1, 0, 0, 1, 0, 0);
+		backContext.translate(beamFromX, beamFromY);
+		backContext.rotate(r);
+		backContext.drawImage(imgBeams, 0, 40*beamColor, l, 40, 0, -20, l, 40);
+		backContext.drawImage(imgSparks, 128 * currentSpark, 0, 128, 128, l - 64, -64, 128, 128);
+		backContext.restore();
+	}
+
+	function pushBeam() {
+		if(beamT < 0) {
+			return;
+		} else if (beamT == 0) {
+			if(turn == 0 && arm1.isMoving() == 1) {
+				return;
+			} else if(turn == 1 && arm2.isMoving() == 1) {
+				return;
+			}
+		}
+
+		beamT++;
+		if(beamT >= maxBeamT) {
+			beamT = -1;
+			return;
+		}
+
+		var t = beamT / maxBeamT;
+		beamToX = beamSweepFromX + (beamSweepToX - beamSweepFromX) * t;
+		beamToY = beamSweepFromY + (beamSweepToY - beamSweepFromY) * t;
+
+		currentSpark += Math.floor(Math.random() * 7);
+		currentSpark %= 7;
 	}
 
 	const FPS = 30;
