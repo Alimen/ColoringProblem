@@ -36,13 +36,14 @@ var ai = (function() {
 		console.log("candidates = ", candidates);
 		defensivePick(candidates, uncolored.length);
 		console.log("candidates after defensivePick() = ", candidates);
-		offsensivePick(candidates);
+		offensivePick(candidates);
+		console.log("candidates after offensivePick() = ", candidates);
 		output = randomPick(candidates);
 
 		return output;
 	}
 
-	function defensivePick(candidates, uncoloredCnt) {
+	function defensivePick(candidates) {
 		var output = new Array();
 		var breakthrough = 0;
 		var i, score;
@@ -51,7 +52,7 @@ var ai = (function() {
 		for(i = 0; i < candidates.length; i++) {
 			score = evalute(candidates[i]);
 			scores.push(score);
-			if(score > 0 && uncoloredCnt%2 == score%2) {
+			if(score > 0 && uncolored.length%2 == score%2) {
 				output.push(candidates[i]);
 			}
 		}
@@ -61,18 +62,81 @@ var ai = (function() {
 			for(i = 0; i < output.length; i++) {
 				candidates[i] = output[i];
 			}
+			if(uncolored.length%2 == 0) {
+				breakthrough = 1;
+			}
 		}
 
-		console.log(scores, breakthrough, output);
+		console.log(scores, uncolored.length, breakthrough, output);
 		return breakthrough;
 	}
 
 	function offensivePick(candidates) {
-		var bkpBoard = board;
-		var bkpUncolored = uncolored;
-		var i, j, min;
+		var newCandidates = new Array();
+		var scores = new Array();
+		var output = new Array();
+		var i, j, k, min;
 		var groupID, color;
 		var breakthrough;
+
+		// Backup the whole board
+		var bkpBoard = board.slice(0);
+		var bkpUncolored = uncolored.slice(0);
+
+		// Start evalution
+		for(j = 0; j < candidates.length; j++) {
+			groupID = Math.floor(candidates[j]/10);
+			color = candidates[j]%10;
+
+			// Paint the current candidate
+			setColor(groupID, color);
+			blackout();
+
+			// Setup new candidates
+			newCandidates.length = 0;
+			for(k = 0; k < uncolored.length; k++) {
+				for(i = 1; i <= 3; i++) {
+					if(isColorOK(uncolored[k], i) == 1) {
+						newCandidates.push(uncolored[k]*10+i);
+					}
+				}
+			}
+
+			// Scoring
+			breakthrough = defensivePick(newCandidates);
+			if(breakthrough == 0) {
+				scores.push(-1);
+			} else {
+				scores.push(newCandidates.length);
+			}
+
+			// Restore the board
+			board = bkpBoard.slice(0);
+			uncolored = bkpUncolored.slice(0);
+		}
+
+		// Find the candidates with minimum score
+		min = 0;
+		output.push(candidates[0]);
+		for(i = 1; i < scores.length; i++) {
+			if(scores[i] == scores[min]) {
+				output.push(candidates[i]);
+			} else if(scores[i] < scores[min]) {
+				min = i;
+				output.length = 0;
+				output.push(candidates[i]);
+			}
+		}
+
+		// Copy output array to candidates array
+		if(output.length > 0) {
+			candidates.length = output.length;
+			for(i = 0; i < output.length; i++) {
+				candidates[i] = output[i];
+			}
+		}
+
+		return;
 	}
 
 	function randomPick(candidates) {
