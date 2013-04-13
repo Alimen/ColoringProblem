@@ -125,7 +125,7 @@ var ui = (function() {
 
 	// Slide-in animation variables
 	const maxCanvas = 25;
-	const startX = 20, startY = 10;
+	const startX = 20, startY = 20;
 	const slideSpeed = 10;
 	const glowRadius = 20;
 	var slideState;

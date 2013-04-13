@@ -170,6 +170,53 @@ var ai = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+	function presetBoard(seed, _board, _paddingX, _paddingY) {
+		// Step 0. Prepare variables
+		board = _board.slice(0);
+		paddingX = _paddingX;
+		paddingY = _paddingY;
+
+		// Step 1. Empty groups[][] and graph[][]
+		groups.length = seed;
+		graph.length = seed;
+		for(i = 0; i < seed; i++) {
+			groups[i] = new Array();
+			graph[i] = new Array();
+		}
+
+		// Step 2. Confirm groups
+		var i, j;
+		for(i = 0; i < maxCol*maxRow; i++) {
+			if(board[i] >= 61) {
+				groups[board[i]-61].push(i);
+			}
+		}
+
+		// Step 3. Confirm the graph
+		for(i = 0; i < seed-1; i++) {
+			for(j = i+1; j < seed; j = j+1) {
+				if(isNeighborG2G(groups[i], groups[j]) == 1) {
+					graph[i].push(j);
+					graph[j].push(i);
+				}
+			}
+		}
+
+		// Step 4. Extract subgraphs
+		subgraphs.length = 0;
+		borders.length = 0;
+		for(i = 0; i < seed; i++) {
+			subgraphs.push(subGraph(i + 61));
+			borders.push(findBorder(i + 61));
+		}
+
+		// Step 5. Fill the uncolored array
+		uncolored.length = 0;
+		for(i = 0; i < seed; i++) {
+			uncolored.push(i);
+		}
+	}
+
 	function setupBoard(seed, _paddingX, _paddingY) {
 		// Step 0. Prepare variables
 		if(seed > maxSeed) {
@@ -192,8 +239,8 @@ var ai = (function() {
 
 		// Step 1. Empty the board
 		emptyBoard(emptyCells);
-		groups = new Array(seed);
-		graph = new Array(seed);
+		groups.length = seed;
+		graph.length = seed;
 		for(i = 0; i < seed; i++) {
 			groups[i] = new Array();
 			graph[i] = new Array();
@@ -542,6 +589,7 @@ var ai = (function() {
 	return {
 		aiPick : aiPick,
 
+		presetBoard : presetBoard,
 		setupBoard : setupBoard,
 		findGroup : findGroup,
 
