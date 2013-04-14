@@ -5,10 +5,24 @@ var title = (function() {
 	var env;
 	var mouseX, mouseY;
 
+	// Title states
+	const titleStates = {
+		unknown		: -1,
+		animating	: 0,
+		selecting	: 1,
+		modeSelect	: 2,
+		quit		: 3,
+		leaving		: 4
+	};
+	var state;
+	var nextTitleState;
+
 	// Return variables
-	var nextState;
 	var playerCount;
 	var startLevel;
+
+	// Selecting state variables
+	var selected;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -25,26 +39,66 @@ var title = (function() {
 	}
 
 	function reset() {
+		var tmpBoard = [
+			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+			  -1, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, -1, -1,
+			-1, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, -1,
+			  -1, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, -1, -1,
+			-1, -1, -1, -1, 67, 67, 62, 62, 62, 62, 62, 62, 68, 68, -1, -1, -1, -1,
+			  -1, -1, -1, -1, -1, -1, 63, 63, 63, 63, 63, -1, -1, -1, -1, -1, -1, -1,
+			-1, -1, -1, -1, -1, 64, 63, 63, 63, 63, 63, 63, 65, -1, -1, -1, -1, -1,
+			  -1, -1, -1, -1, 64, 64, 63, 63, 63, 63, 63, 65, 65, -1, -1, -1, -1, -1,
+			-1, -1, -1, -1, -1, 64, 66, 66, 66, 66, 66, 66, 65, -1, -1, -1, -1, -1,
+			  -1, -1, -1, -1, -1, -1, 66, 66, 66, 66, 66, -1, -1, -1, -1, -1, -1, -1,
+			-1, -1, -1, -1, -1, -1, 66, 66, 66, 66, 66, 66, -1, -1, -1, -1, -1, -1,
+			  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+		];
+		ai.presetBoard(8, tmpBoard, 1, 1);
+		ai.setColor(1, 0);
+		ai.setColor(3, 2);
+		ai.setColor(4, 1);
+		ai.setColor(7, 3);
+		ui.resetSlideIn(2, 0, 0);
+
+		state = titleStates.animating;
+		nextTitleState = titleStates.selecting;
 		nextState = env.mainStates.unknown;
 		playerCount = 0;
 		startLevel = 0;
 	}
 
 	function push() {
-		return [nextState, playerCount, startLevel];
+		ui.push();
+		if(ui.isIdle() == 1 && state == titleStates.animating) {
+			changeState(nextTitleState);
+		}
+
+		if(state == titleStates.leaving) {
+			return [env.mainStates.game, playerCount, startLevel];
+		} else {
+			return [env.mainStates.unknown, playerCount, startLevel];
+		}
 	}
 
 	function draw() {
-		// Clear background
-		backContext.drawImage(img.background, 0, 0);
+		ui.draw();
+	}
 
-		// Print text messages
-		backContext.textBaseline = "bottom";	
-		backContext.fillStyle = "#000000";
-		backContext.font = "14px monospace";
-		backContext.textAlign = "center";
-		backContext.fillText("Press '1' for single player game", env.screenWidth / 2, env.screenHeight / 2 - 10);
-		backContext.fillText("Press '2' for two player game", env.screenWidth / 2, env.screenHeight / 2 + 10);
+///////////////////////////////////////////////////////////////////////////////
+//
+// Private functions
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function changeState(next) {
+		state = next;
+		switch(state) {
+		case titleStates.quit:
+			ui.resetSlideOut(2, 0, 0);
+			state = titleStates.animating;
+			nextTitleState = titleStates.leaving;
+			break;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -54,23 +108,77 @@ var title = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	function eventKeyUp(e) {
-		if(e.keyCode == 49) { // '1' 
-			nextState = env.mainStates.game;
-			playerCount = 1;
-			startLevel = 1;
-		} else if(e.keyCode == 50) { // '2'
-			nextState = env.mainStates.game;
-			playerCount = 2;
-			startLevel = 1;
-		}
 	}
 
 	function eventMouseMove(x, y) {
 		mouseX = x;
 		mouseY = y;
+
+		switch(state) {
+		case titleStates.selecting:
+			arm1.setTarget(x, y);
+			selected = ui.selection(x, y);
+			ui.setSelect(selected, 0);
+			break;
+
+		case titleStates.modeSelect:
+			panel.select(x, y);
+			break;
+		}
 	}
 	
 	function eventMouseClick(e) {
+		var res;
+
+		switch(state) {
+		case titleStates.selecting:
+			if(selected == 2) {
+				panel.popup(mouseX, mouseY, selected, [7, 8, 9]);
+				state = titleStates.modeSelect;
+			} else if(selected == 5) {
+				panel.popup(mouseX, mouseY, selected, [0, 1, 6]);
+				state = titleStates.modeSelect;
+			} else if(selected >= 0) {
+				panel.popup(mouseX, mouseY, selected, [0, 1, 2]);
+				state = titleStates.modeSelect;
+			}
+			break;
+
+		case titleStates.modeSelect:
+			res = panel.select(mouseX, mouseY);
+			if(res == -1) {
+				panel.close();
+				state = titleStates.selecting;
+				selected = ui.selection(mouseX, mouseY);
+				ui.setSelect(selected, 0);
+			} else if(res >= 0) {
+				panel.close();
+				if(selected == 2) {
+					ui.resetPaint(selected, 3, 0);
+					playerCount = 1;
+					if(res == 0) {
+						startLevel = 1;
+					} else if(res == 1) {
+						startLevel = 5;
+					} else {
+						startLevel = 9;
+					}
+					nextTitleState = titleStates.quit;
+				} else if(selected == 5) {
+					ui.resetPaint(selected, 3, 0);
+					playerCount = 2;
+					startLevel = 1;
+					nextTitleState = titleStates.quit;
+				} else {
+					ui.resetPaint(selected, res+1, 0);
+					nextTitleState = titleStates.selecting;
+				}
+				selected = -1;
+				ui.setSelect(-1, 0);
+				state = titleStates.animating;
+			}
+			break;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////

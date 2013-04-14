@@ -38,20 +38,16 @@ var panel = (function() {
 		panelContext = panelCanvas.getContext("2d");
 	}
 	
-	function popup(x, y, sel) {
-		if(ai.isColorOK(sel, 1) == 1) {
-			bottonShowed[0] = 0;
-		} else {
+	function popup(x, y, sel, _bottonShowed) {
+		bottonShowed = _bottonShowed.slice(0);
+
+		if(bottonShowed[0] == 0 && ai.isColorOK(sel, 1) == 0) {
 			bottonShowed[0] = 3;
 		}
-		if(ai.isColorOK(sel, 2) == 1) {
-			bottonShowed[1] = 1;
-		} else {
+		if(bottonShowed[1] == 1 && ai.isColorOK(sel, 2) == 0) {
 			bottonShowed[1] = 4;
 		}
-		if(ai.isColorOK(sel, 3) == 1) {
-			bottonShowed[2] = 2;
-		} else {
+		if(bottonShowed[2] == 2 && ai.isColorOK(sel, 3) == 0) {
 			bottonShowed[2] = 5;
 		}
 		bottonPress = -1;

@@ -37,6 +37,7 @@ var coloringProblem = (function() {
 	var imgHalo = new Image();
 	var imgMisc = new Image();
 	var imgDialog = new Image();
+	var imgTitle = new Image();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -245,7 +246,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 23;
+	var itemsToLoad = 24;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -290,6 +291,8 @@ var coloringProblem = (function() {
 		imgMisc.onload = eventItemLoaded;
 		imgDialog.src = "Dialog.jpg";
 		imgDialog.onload = eventItemLoaded;
+		imgTitle.src = "Title.png";
+		imgTitle.onload = eventItemLoaded;
 
 		// Pass resources to loader
 		loader.init(env, {
@@ -312,7 +315,8 @@ var coloringProblem = (function() {
 	function loadComplete() {
 		// Initialize sub modules
 		title.init(env, {
-			background : imgBackground
+			background : imgBackground,
+			title : imgTitle
 		}, backContext);
 
 		gameLogic.init(env, {

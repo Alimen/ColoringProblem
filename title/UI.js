@@ -504,7 +504,7 @@ var ui = (function() {
 					}
 					
 					// Draw target# for debug
-					graphContext[target].fillText(target, x + 15, y + 15);
+					//graphContext[target].fillText(target, x + 15, y + 15);
 					
 					// Draw borders
 					neighbor = checkNeighbor(subGraph, curRow+j, w, h, t);	

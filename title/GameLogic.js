@@ -54,22 +54,7 @@ var gameLogic = (function() {
 		
 		//ai.setupBoard(6, 5, 3);
 		ai.setupBoard(20, 1, 1);
-/*		var tmpBoard = [
-			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-			  -1, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, -1, -1,
-			-1, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, -1,
-			  -1, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, 61, -1, -1,
-			-1, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, -1,
-			  -1, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, -1, -1,
-			-1, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, 62, -1,
-			  -1, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, -1, -1,
-			-1, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, -1,
-			  -1, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, 63, -1, -1,
-			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-			  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-		];
-		ai.presetBoard(3, tmpBoard, 1, 1);
-*/
+
 		if(level%2 == 1) {
 			ui.resetSlideIn(2, 1, warp);
 			currentPlayer = 0;
@@ -172,17 +157,6 @@ var gameLogic = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	function eventKeyUp(e) {
-		if(e.keyCode == 65) { // 'A'
-			if(state == gameStates.selecting) {
-				ui.resetSlideOut(0, 0, 1);
-				state = gameStates.animating;
-				nextGameState = gameStates.unknown;
-			} else if(state == gameStates.unknown) {
-				ui.resetSlideIn(2, 1, 1);
-				state = gameStates.animating;
-				nextGameState = gameStates.selecting;
-			}
-		}
 	}
 
 	function eventMouseMove(x, y) {
@@ -204,7 +178,7 @@ var gameLogic = (function() {
 			ui.setSelect(selected, currentPlayer);
 			break;
 
-		case gameStates.colorSelecting:
+		case gameStates.colorSelect:
 			panel.select(x, y);
 			break;
 
@@ -235,12 +209,12 @@ var gameLogic = (function() {
 				nextGameState = gameStates.selecting;
 			}
 			if(selected >= 0) {
-				panel.popup(mouseX, mouseY, selected);
-				state = gameStates.colorSelecting;
+				panel.popup(mouseX, mouseY, selected, [0, 1, 2]);
+				state = gameStates.colorSelect;
 			}
 			break;
 
-		case gameStates.colorSelecting:
+		case gameStates.colorSelect:
 			res = panel.select(mouseX, mouseY);
 			if(res == -1) {
 				panel.close();
@@ -260,7 +234,7 @@ var gameLogic = (function() {
 		case gameStates.resulting:
 			if(dialog.checkPassSlot1(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.close();
-				ui.resetSlideOut(0, 0, 0);
+				ui.resetSlideOut(2, 0, 0);
 				state = gameStates.animating;
 				nextGameState = gameStates.leaving;
 			} else if(dialog.checkPassSlot2(mouseX, mouseY, currentPlayer) >= 0) {
@@ -285,7 +259,7 @@ var gameLogic = (function() {
 		case gameStates.quit:
 			if(dialog.checkPassSlot1(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.close();
-				ui.resetSlideOut(0, 0, 0);
+				ui.resetSlideOut(2, 0, 0);
 				ui.checkMousePassSound(mouseX, mouseY, currentPlayer);
 				ui.checkMousePassTitle(mouseX, mouseY, currentPlayer);
 				state = gameStates.animating;
