@@ -40,6 +40,9 @@ var ui = (function() {
 
 		// Initialize menu icon variables
 		initMenuIcon();
+
+		// Initialize overlap variables
+		initOverlap();
 	}
 
 	function push() {
@@ -520,6 +523,9 @@ var ui = (function() {
 				}
 			}
 		}
+		
+		// Draw overlaps
+		drawOverlap(target);
 	}
 
 	function checkNeighbor(subGraph, xy, w, h, t) {
@@ -614,6 +620,45 @@ var ui = (function() {
 			return output*(-1)-1;
 		} else {
 			return output;
+		}
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Overlap releted subroutines
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	// Overlap variables
+	var overlap = new Array(maxCanvas);
+
+	function initOverlap() {
+		clearOverlap();
+	}
+
+	function setOverlap(target, str) {
+		overlap[target] = str;
+	}
+
+	function clearOverlap() {
+		for(var i = 0; i < maxCanvas; i++) {
+			overlap[i] = "";
+		}
+	}
+
+	function drawOverlap(target) {
+		if(target < 0 || target >= maxCanvas) {
+			return;
+		}
+		var x = graphCanvas[target].width/2;
+		var y = graphCanvas[target].height/2;
+
+		if(overlap[target] == "title") {
+			graphContext[target].drawImage(img.title, 0, 0, 520, 80, x-260, y-45, 520, 80); 
+		} else if(overlap[target] == "p1Game") {
+			graphContext[target].drawImage(img.title, 0, 80, 190, 40, x-95, y-20, 190, 40);
+		} else if(overlap[target] == "p2Game") {
+			graphContext[target].drawImage(img.title, 260, 80, 216, 40, x-108, y-20, 216, 40);
 		}
 	}
 
@@ -847,6 +892,9 @@ var ui = (function() {
 
 		selection : selection,
 		setSelect : setSelect,
+
+		setOverlap : setOverlap,
+		clearOverlap : clearOverlap,
 
 		resetSwitching: resetSwitching,
 

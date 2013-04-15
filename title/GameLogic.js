@@ -52,8 +52,23 @@ var gameLogic = (function() {
 		playerCount = _playerCount;
 		level = _startLevel;
 		
-		//ai.setupBoard(6, 5, 3);
-		ai.setupBoard(20, 1, 1);
+		var groupCnt, px, py;
+		if(playerCount == 1) {
+			if(level < 11) {
+				groupCnt = level + 4;
+				px = 6; py = 3;
+			} else if(level < 23) {
+				groupCnt = level + 3;
+				// px, py not decided
+			} else {
+				groupCnt = 25;
+				px = 1; py = 1;
+			}
+		} else {
+			groupCnt = 20;
+			px = 1; py = 1;
+		}
+		ai.setupBoard(groupCnt, px, py);
 
 		if(level%2 == 1) {
 			ui.resetSlideIn(2, 1, warp);

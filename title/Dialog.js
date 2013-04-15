@@ -10,8 +10,8 @@ var dialog = (function() {
 	var dialogT;
 	var dialogCanvas, dialogContext;
 	var dialogState;
-	var x, y, w, h;
-	var dx, dy, dw, dh;
+	var x, y, w, h, a;
+	var dx, dy, dw, dh, da;
 
 	// Dialog dimension parameters
 	const dialogTypes = {
@@ -69,7 +69,8 @@ var dialog = (function() {
 	}
 
 	function popup(type) {
-		x = 400; y = 240; w = 20; h = 20;
+		x = 400; y = 240; w = 20; h = 20; a = 0;
+		da = 0.5/maxDialogT;
 		prepareDialog(type);
 		dialogState = 1;
 		dialogT = 0;
@@ -91,18 +92,20 @@ var dialog = (function() {
 		case 0:
 			break;
 		case 1:
-			x += dx; y += dy; w += dw; h += dh;
+			x += dx; y += dy; w += dw; h += dh; a += da;
 			dialogT++;
 			if(dialogT == maxDialogT) {
+				a = 0.5;
 				dialogState++;
 			}
 			break;
 		case 2:
 			break;
 		case 3:
-			x -= dx; y -= dy; w -= dw; h -= dh;
+			x -= dx; y -= dy; w -= dw; h -= dh; a -= da;
 			dialogT--;
 			if(dialogT == 0) {
+				a = 0;
 				dialogState = 0;
 				dialogT = -1;
 			}
@@ -116,7 +119,7 @@ var dialog = (function() {
 		}
 
 		// Draw focus
-		backContext.fillStyle = "rgba(64, 64, 64, 0.5)";
+		backContext.fillStyle = "rgba(64, 64, 64, " + a + ")";
 		backContext.fillRect(0, 0, env.screenWidth, env.screenHeight);
 
 		// Draw dialog

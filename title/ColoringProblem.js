@@ -315,8 +315,6 @@ var coloringProblem = (function() {
 	function loadComplete() {
 		// Initialize sub modules
 		title.init(env, {
-			background : imgBackground,
-			title : imgTitle
 		}, backContext);
 
 		gameLogic.init(env, {
@@ -328,6 +326,7 @@ var coloringProblem = (function() {
 			background : imgBackground,
 			shadow : imgShadow,
 			glow : imgGlow,
+			title : imgTitle,
 			beams : imgBeams,
 			sparks : imgSparks,
 			misc : imgMisc
