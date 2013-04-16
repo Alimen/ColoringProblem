@@ -56,13 +56,22 @@ var gameLogic = (function() {
 		if(playerCount == 1) {
 			if(level < 11) {
 				groupCnt = level + 4;
-				px = 6; py = 3;
 			} else if(level < 23) {
 				groupCnt = level + 3;
-				// px, py not decided
 			} else {
 				groupCnt = 25;
-				px = 1; py = 1;
+			}
+
+			if(level < 16) {
+				px = 6 - Math.floor((level-1)/3);
+			} else {
+				px = 1;
+			}
+
+			if(level < 17) {
+				py = 3 - Math.floor((level-1)/8);
+			} else {
+				py = 1;
 			}
 		} else {
 			groupCnt = 20;

@@ -713,7 +713,11 @@ var ui = (function() {
 			}
 			return;
 		}
+		
 		beamT++;
+		if(beamT > maxBeamT) {
+			return;
+		}
 
 		var t = beamT / maxBeamT;
 		beamToX = beamSweepFromX + (beamSweepToX - beamSweepFromX) * t;
@@ -735,7 +739,9 @@ var ui = (function() {
 		if(paintState != 1) {
 			return;
 		}
-
+		if(beamT > maxBeamT) {
+			return;
+		}
 		if(selection(beamToX, beamToY) != beamTarget) {
 			return;
 		}

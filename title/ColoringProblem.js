@@ -246,7 +246,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 24;
+	var itemsToLoad = 25;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -257,6 +257,7 @@ var coloringProblem = (function() {
 		loadjs("Dialog.js", 0);
 		loadjs("Panel.js", 0);
 		loadjs("RoboticArms.js", 0);
+		loadjs("HUD.js", 0);
 		loadjs("Warp.js");
 		loadjs("AI.js", 0);
 
@@ -350,6 +351,11 @@ var coloringProblem = (function() {
 
 		arm2.init(env, {
 			arm2 : imgArm2
+		}, backContext);
+
+		hud.init(env, {
+			tiles : imgTiles,
+			misc : imgMisc
 		}, backContext);
 
 		warp.init(env, {
