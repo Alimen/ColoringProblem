@@ -9,14 +9,15 @@ var gameLogic = (function() {
 	const gameStates = {
 		unknown		: -1,
 		reset		: 0,
-		animating	: 1,
-		selecting	: 2,
-		colorSelect	: 3,
-		aiSelect	: 4,
-		switching	: 5,
-		resulting	: 6,
-		quit		: 7,
-		leaving		: 8
+		level		: 1,
+		animating	: 2,
+		selecting	: 3,
+		colorSelect	: 4,
+		aiSelect	: 5,
+		switching	: 6,
+		resulting	: 7,
+		quit		: 8,
+		leaving		: 9
 	};
 	var state;
 	var nextGameState;
@@ -89,8 +90,8 @@ var gameLogic = (function() {
 		warp = 0;
 
 		state = gameStates.animating;
-		if(playerCount == 1 && currentPlayer == 1) {
-			nextGameState = gameStates.aiSelect;
+		if(playerCount == 1) {
+			nextGameState = gameStates.level;
 		} else {
 			nextGameState = gameStates.selecting;
 		}
@@ -125,6 +126,10 @@ var gameLogic = (function() {
 		switch(state) {
 		case gameStates.reset:
 			reset(playerCount, level+1);
+			break;
+
+		case gameStates.level:
+			dialog.popup("level", level);
 			break;
 
 		case gameStates.selecting:
@@ -188,6 +193,10 @@ var gameLogic = (function() {
 		mouseY = y;
 
 		switch(state) {
+		case gameStates.level:
+			dialog.checkPassSlot2(x, y, 0);
+			break;
+
 		case gameStates.selecting:
 			ui.checkMousePassSound(x, y, currentPlayer);
 			ui.checkMousePassTitle(x, y, currentPlayer);
@@ -222,6 +231,18 @@ var gameLogic = (function() {
 		var res;
 
 		switch(state) {
+		case gameStates.level:
+			if(dialog.checkPassSlot2(mouseX, mouseY, 0) >= 0) {
+				dialog.close();
+				state = gameStates.animating;
+				if(level%2 == 1) {  
+					nextGameState = gameStates.selecting;
+				} else {
+					nextGameState = gameStates.aiSelect;
+				}
+			}
+			break;
+
 		case gameStates.selecting:
 			if(ui.checkMousePassSound(mouseX, mouseY, currentPlayer) >= 0) {
 				soundon = (soundon+1)%2;

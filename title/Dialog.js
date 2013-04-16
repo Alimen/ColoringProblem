@@ -20,7 +20,8 @@ var dialog = (function() {
 		p2Wins		: 2,
 		aiWins		: 3,
 		playerWins	: 4,
-		quit		: 5
+		quit		: 5,
+		level		: 6
 	};
 	const params = [
 		[dialogTypes.unknown,	"unknown",		400, 240, 20, 20],
@@ -28,7 +29,8 @@ var dialog = (function() {
 		[dialogTypes.p2Wins,	"p2Wins",		400, 240, 450, 200],
 		[dialogTypes.aiWins,	"aiWins",		400, 240, 450, 200],
 		[dialogTypes.playerWins,"playerWins",	400, 240, 450, 200],
-		[dialogTypes.quit,		"quit",			400, 240, 340, 165]
+		[dialogTypes.quit,		"quit",			400, 240, 340, 165],
+		[dialogTypes.level,		"level",		400, 240, 370, 180]
 	];
 	var param;
 
@@ -68,10 +70,10 @@ var dialog = (function() {
 		dialogContext = dialogCanvas.getContext("2d");
 	}
 
-	function popup(type) {
+	function popup(type, options) {
 		x = 400; y = 240; w = 20; h = 20; a = 0;
 		da = 0.5/maxDialogT;
-		prepareDialog(type);
+		prepareDialog(type, options);
 		dialogState = 1;
 		dialogT = 0;
 	}
@@ -207,7 +209,7 @@ var dialog = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-	function prepareDialog(type) {
+	function prepareDialog(type, options) {
 		param = getType(type);
 		iconSlot1 = icon.none;
 		iconSlot2 = icon.none;
@@ -266,6 +268,20 @@ var dialog = (function() {
 			dialogContext.drawImage(img.dialog, 0, 130, 300, 60, param[4]/2-150, 15, 300, 60);
 			iconSlot1 = icon.title;
 			iconSlot2 = icon.cancel;
+			break;
+		case dialogTypes.level:
+			var textW;
+			if(options >= 100) {
+				textW = 35*3;
+			} else if(options >= 10) {
+				textW = 35*2;
+			} else {
+				textW = 35;
+			}
+			dialogContext.drawImage(img.dialog, 144, 75, 180, 50, param[4]/2-(215+textW)/2, 30, 180, 50);
+			ui.drawNumbers(dialogContext, options, param[4]/2-(215+textW)/2+215, 28, 1.0);
+			iconSlot1 = icon.none;
+			iconSlot2 = icon.next;
 			break;
 		}
 

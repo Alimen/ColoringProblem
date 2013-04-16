@@ -855,6 +855,22 @@ var ui = (function() {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// General utilities
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function drawNumbers(targetCanvas, numbers, x, y, scale) {
+		const w = 35, h = 54;
+		var str = numbers.toString(), tmp;
+		for(var i = 0; i < str.length; i++) {
+			tmp = Number(str[i]);
+			console.log(tmp);
+			targetCanvas.drawImage(img.numbers, tmp*w, 0, w, h, x+(i*w*scale), y, w*scale, h*scale);
+		}
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // Setup public access
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -909,6 +925,8 @@ var ui = (function() {
 
 		checkMousePassSound : checkMousePassSound,
 		checkMousePassTitle : checkMousePassTitle,
-		setSoundon : setSoundon
+		setSoundon : setSoundon,
+
+		drawNumbers : drawNumbers
 	};
 })();
