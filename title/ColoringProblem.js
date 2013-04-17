@@ -39,6 +39,7 @@ var coloringProblem = (function() {
 	var imgDialog = new Image();
 	var imgTitle = new Image();
 	var imgNumbers = new Image();
+	var imgHUD = new Image();
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -247,7 +248,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 26;
+	var itemsToLoad = 27;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -297,6 +298,8 @@ var coloringProblem = (function() {
 		imgTitle.onload = eventItemLoaded;
 		imgNumbers.src = "Numbers.png";
 		imgNumbers.onload = eventItemLoaded;
+		imgHUD.src = "HUD.png";
+		imgHUD.onload = eventItemLoaded;
 
 		// Pass resources to loader
 		loader.init(env, {
@@ -358,8 +361,9 @@ var coloringProblem = (function() {
 		}, backContext);
 
 		hud.init(env, {
-			tiles : imgTiles,
-			misc : imgMisc
+			glow : imgGlow,
+			misc : imgMisc,
+			hud : imgHUD
 		}, backContext);
 
 		warp.init(env, {

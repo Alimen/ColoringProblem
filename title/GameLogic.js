@@ -46,7 +46,7 @@ var gameLogic = (function() {
 		mouseY = env.screenHeight/2;
 		soundon = 1;
 		warp = 0;
-		ui.setSoundon(soundon);
+		hud.setSoundon(soundon);
 	}
 
 	function reset(_playerCount, _startLevel) {
@@ -206,8 +206,8 @@ var gameLogic = (function() {
 			break;
 
 		case gameStates.selecting:
-			ui.checkMousePassSound(x, y, currentPlayer);
-			ui.checkMousePassTitle(x, y, currentPlayer);
+			hud.checkMousePassSound(x, y, currentPlayer);
+			hud.checkMousePassTitle(x, y, currentPlayer);
 
 			if(currentPlayer == 0) {
 				arm1.setTarget(x, y);
@@ -252,11 +252,11 @@ var gameLogic = (function() {
 			break;
 
 		case gameStates.selecting:
-			if(ui.checkMousePassSound(mouseX, mouseY, currentPlayer) >= 0) {
+			if(hud.checkMousePassSound(mouseX, mouseY, currentPlayer) >= 0) {
 				soundon = (soundon+1)%2;
-				ui.setSoundon(soundon);
+				hud.setSoundon(soundon);
 			}
-			if(ui.checkMousePassTitle(mouseX, mouseY, currentPlayer) >= 0) {
+			if(hud.checkMousePassTitle(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.popup("quit");
 				state = gameStates.quit;
 				nextGameState = gameStates.selecting;
@@ -313,8 +313,8 @@ var gameLogic = (function() {
 			if(dialog.checkPassSlot1(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.close();
 				ui.resetSlideOut(2, 0, 0);
-				ui.checkMousePassSound(mouseX, mouseY, currentPlayer);
-				ui.checkMousePassTitle(mouseX, mouseY, currentPlayer);
+				hud.checkMousePassSound(mouseX, mouseY, currentPlayer);
+				hud.checkMousePassTitle(mouseX, mouseY, currentPlayer);
 				state = gameStates.animating;
 				nextGameState = gameStates.leaving;
 			} else if(dialog.checkPassSlot2(mouseX, mouseY, currentPlayer) >= 0) {
