@@ -864,7 +864,6 @@ var ui = (function() {
 		var str = numbers.toString(), tmp;
 		for(var i = 0; i < str.length; i++) {
 			tmp = Number(str[i]);
-			console.log(tmp);
 			targetCanvas.drawImage(img.numbers, tmp*w, 0, w, h, x+(i*w*scale), y, w*scale, h*scale);
 		}
 	}

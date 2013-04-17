@@ -53,7 +53,7 @@ var gameLogic = (function() {
 		playerCount = _playerCount;
 		level = _startLevel;
 		
-		var groupCnt, px, py;
+		var groupCnt, px, py, aiAbility;
 		if(playerCount == 1) {
 			if(level < 11) {
 				groupCnt = level + 4;
@@ -74,11 +74,19 @@ var gameLogic = (function() {
 			} else {
 				py = 1;
 			}
+
+			if(level < 13) {
+				aiAbility = 4 + (level-1)*8;
+			} else {
+				aiAbility = 100;
+			}
 		} else {
 			groupCnt = 20;
 			px = 1; py = 1;
+			aiAbility = 100;
 		}
 		ai.setupBoard(groupCnt, px, py);
+		ai.setAIability(aiAbility);
 
 		if(level%2 == 1) {
 			ui.resetSlideIn(2, 1, warp);

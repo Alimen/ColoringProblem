@@ -17,6 +17,9 @@ var ai = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+	// AI variables
+	var aiAbility = 100;
+
 	function aiPick() {
 		var candidates = new Array();
 		var res;
@@ -36,8 +39,14 @@ var ai = (function() {
 		console.log("candidates = ", candidates);
 		defensivePick(candidates, uncolored.length);
 		console.log("candidates after defensivePick() = ", candidates);
-		offensivePick(candidates);
-		console.log("candidates after offensivePick() = ", candidates);
+		if(Math.random()*100 < aiAbility) {
+			offensivePick(candidates);
+			console.log("candidates after offensivePick() = ", candidates);
+		}
+		if(Math.random() < 0.5) {
+			monopolyPick(candidates);
+			console.log("candidates after monopolyPick() = ", candidates);
+		}
 		output = randomPick(candidates);
 
 		return output;
@@ -124,6 +133,39 @@ var ai = (function() {
 			} else if(scores[i] < scores[min]) {
 				min = i;
 				output.length = 0;
+				output.push(candidates[i]);
+			}
+		}
+
+		// Copy output array to candidates array
+		if(output.length > 0) {
+			candidates.length = output.length;
+			for(i = 0; i < output.length; i++) {
+				candidates[i] = output[i];
+			}
+		}
+
+		return;
+	}
+
+	function monopolyPick(candidates) {
+		if(candidates.length <= 1) {
+			return;
+		}
+		
+		// Find out witch graph has largest link count (graph[].length)
+		var graphID, maxGraphID = Math.floor(candidates[0]/10);
+		var output = new Array();
+		var i, max = 0;
+		output.push(candidates[0]);
+		for(i = 1; i < candidates.length; i++) {
+			graphID = Math.floor(candidates[i]/10);
+			if(graph[graphID].length > graph[maxGraphID].length) {
+				max = i;
+				maxGraphID = graphID;
+				output.length = 0;
+				output.push(candidates[i]);
+			} else if(graph[graphID].length == graph[maxGraphID].length) {
 				output.push(candidates[i]);
 			}
 		}
@@ -578,6 +620,7 @@ var ai = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+	function setAIability(input) { aiAbility = input; }
 	function getMaxRow() { return maxRow; }
 	function getMaxCol() { return maxCol; }
 	function getBoard() { return board;	}
@@ -587,6 +630,7 @@ var ai = (function() {
 	function getUncoloredCount() { return uncolored.length; }
 
 	return {
+		setAIability : setAIability,
 		aiPick : aiPick,
 
 		presetBoard : presetBoard,
