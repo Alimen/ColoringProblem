@@ -23,6 +23,7 @@ var title = (function() {
 
 	// Selecting state variables
 	var selected;
+	var soundon;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -36,6 +37,7 @@ var title = (function() {
 		backContext = _backContext;
 		mouseX = env.screenWidth/2;
 		mouseY = env.screenHeight/2;
+		soundon = 1;
 	}
 
 	function reset() {
@@ -61,7 +63,7 @@ var title = (function() {
 		ui.setOverlap(0, "title");
 		ui.setOverlap(2, "p1Game");
 		ui.setOverlap(5, "p2Game");
-		ui.resetSlideIn(2, 0, 0);
+		ui.resetSlideIn(2, 0, 1, 0);
 
 		state = titleStates.animating;
 		nextTitleState = titleStates.selecting;
@@ -97,7 +99,7 @@ var title = (function() {
 		state = next;
 		switch(state) {
 		case titleStates.quit:
-			ui.resetSlideOut(2, 0, 0);
+			ui.resetSlideOut(2, 0, 1, 0);
 			state = titleStates.animating;
 			nextTitleState = titleStates.leaving;
 			break;
@@ -124,6 +126,7 @@ var title = (function() {
 		switch(state) {
 		case titleStates.selecting:
 			arm1.setTarget(x, y);
+			hud.checkMousePassSound(x, y, 0);
 			selected = ui.selection(x, y);
 			ui.setSelect(selected, 0);
 			break;
@@ -139,6 +142,10 @@ var title = (function() {
 
 		switch(state) {
 		case titleStates.selecting:
+			if(hud.checkMousePassSound(mouseX, mouseY, 0) >= 0) {
+				soundon = (soundon+1)%2;
+				hud.setSoundon(soundon);
+			}
 			if(selected == 2) {
 				panel.popup(mouseX, mouseY, selected, [7, 8, 9]);
 				state = titleStates.modeSelect;

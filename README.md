@@ -10,11 +10,10 @@ in NP-complete problems.  The following are basic gameplay rules:
 
 Important Source Files
 ----------------------
-Release/ColoringProblem.html - HTML enrtypoint for the project
+release/ColoringProblem.html - HTML enrty point for the project
 
 TODO
 ----
-* HUD for displaying player/level/uncolored area count infomation
 * New background images
 * A tutorial
 * Logo animation

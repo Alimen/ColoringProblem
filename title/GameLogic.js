@@ -88,11 +88,12 @@ var gameLogic = (function() {
 		ai.setupBoard(groupCnt, px, py);
 		ai.setAIability(aiAbility);
 
+		hud.setInfo(playerCount, level);
 		if(level%2 == 1) {
-			ui.resetSlideIn(2, 1, warp);
+			ui.resetSlideIn(2, 1, 2, warp);
 			currentPlayer = 0;
 		} else {
-			ui.resetSlideIn(1, 2, warp);
+			ui.resetSlideIn(1, 2, 2, warp);
 			currentPlayer = 1;
 		}
 		warp = 0;
@@ -287,7 +288,7 @@ var gameLogic = (function() {
 		case gameStates.resulting:
 			if(dialog.checkPassSlot1(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.close();
-				ui.resetSlideOut(2, 0, 0);
+				ui.resetSlideOut(2, 0, 1, 0);
 				state = gameStates.animating;
 				nextGameState = gameStates.leaving;
 			} else if(dialog.checkPassSlot2(mouseX, mouseY, currentPlayer) >= 0) {
@@ -295,13 +296,13 @@ var gameLogic = (function() {
 				var nextLevel = level+1;
 				if(nextLevel%4 == 1) {
 					warp = 1;
-					ui.resetSlideOut(0, 0, 1);
+					ui.resetSlideOut(0, 0, 0, 1);
 				} else {
 					warp = 0;
 					if(nextLevel%2 == 1) {
-						ui.resetSlideOut(2, 1, 0);
+						ui.resetSlideOut(2, 1, 2, 0);
 					} else {
-						ui.resetSlideOut(1, 2, 0);
+						ui.resetSlideOut(1, 2, 2, 0);
 					}
 				}
 				state = gameStates.animating;
@@ -312,7 +313,7 @@ var gameLogic = (function() {
 		case gameStates.quit:
 			if(dialog.checkPassSlot1(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.close();
-				ui.resetSlideOut(2, 0, 0);
+				ui.resetSlideOut(2, 0, 1, 0);
 				hud.checkMousePassSound(mouseX, mouseY, currentPlayer);
 				hud.checkMousePassTitle(mouseX, mouseY, currentPlayer);
 				state = gameStates.animating;

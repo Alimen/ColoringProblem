@@ -266,7 +266,7 @@ var coloringProblem = (function() {
 		// Setup image loader events
 		imgHTML5.src = "https://sites.google.com/site/alimenstorage/html5-rocks/HTML5_Logo.png";
 		imgHTML5.onload = eventItemLoaded;
-		imgBackground.src = "WhiteRoom.jpg";
+		imgBackground.src = "Background0.jpg";
 		imgBackground.onload = eventItemLoaded;
 		imgShadow.src = "Shadow.png";
 		imgShadow.onload = eventItemLoaded;
@@ -363,7 +363,9 @@ var coloringProblem = (function() {
 		hud.init(env, {
 			glow : imgGlow,
 			misc : imgMisc,
-			hud : imgHUD
+			hud : imgHUD,
+			title : imgTitle,
+			dialog : imgDialog
 		}, backContext);
 
 		warp.init(env, {

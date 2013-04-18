@@ -37,8 +37,10 @@ var ai = (function() {
 
 		// Pick the best one
 		console.log("candidates = ", candidates);
-		defensivePick(candidates, uncolored.length);
-		console.log("candidates after defensivePick() = ", candidates);
+		if(Math.random()*100 < aiAbility) {
+			defensivePick(candidates, uncolored.length);
+			console.log("candidates after defensivePick() = ", candidates);
+		}
 		if(Math.random()*100 < aiAbility) {
 			offensivePick(candidates);
 			console.log("candidates after offensivePick() = ", candidates);

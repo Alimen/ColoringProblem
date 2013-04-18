@@ -143,13 +143,14 @@ var ui = (function() {
 	// Paint animation variables
 	var paintState;
 
-	function resetSlideIn(moveArm1to, moveArm2to, isWarp) {
+	function resetSlideIn(moveArm1to, moveArm2to, moveHUDto, isWarp) {
 		maxCol = ai.getMaxCol();
 		maxRow = ai.getMaxRow();
 		maxGraph = ai.getGraphSize();
 
 		arm1.resetSliding(moveArm1to);
 		arm2.resetSliding(moveArm2to);
+		hud.resetSliding(moveHUDto);
 		prepareSubGraph();
 	
 		if(isWarp == 1) {
@@ -162,7 +163,7 @@ var ui = (function() {
 		slideState = 1;
 	}
 
-	function resetSlideOut(moveArm1to, moveArm2to, isWarp) {
+	function resetSlideOut(moveArm1to, moveArm2to, moveHUDto, isWarp) {
 		var i, x = Math.ceil(env.screenWidth * 1.2 / slideSpeed) * slideSpeed;
 		for(i = 0; i < maxGraph; i++) {
 			if(Math.random() > 0.5) {
@@ -182,6 +183,7 @@ var ui = (function() {
 			arm2.resetSliding(moveArm2to);
 			nextState = animationStates.idle;
 		}
+		hud.resetSliding(moveHUDto);
 		setSelect(-1, 0);
 		state = animationStates.slideOut;
 		slideState = 4;
@@ -209,7 +211,7 @@ var ui = (function() {
 	}
 
 	function resetPaintTile(groupID) {
-		const delay = 4;
+		const delay = 3;
 		var sub = ai.getSubGraph(groupID);
 		var rect = ai.getBorder(groupID);
 		var w = Math.floor(rect[1])-Math.floor(rect[3])+1, h = rect[2]-rect[0]+1;
