@@ -58,7 +58,8 @@ var coloringProblem = (function() {
 		showLogo	: 5,
 		resetTitle	: 6,
 		title		: 7,
-		game		: 8
+		tutorial	: 8,
+		game		: 9
 	};
 	var state = mainStates.initial;
 
@@ -97,6 +98,8 @@ var coloringProblem = (function() {
 				gameLogic.reset(res[1], res[2]);
 			}
 			break;
+		case mainStates.tutorial:
+			break;
 		case mainStates.game:
 			res = gameLogic.push();
 			gameLogic.draw();
@@ -116,17 +119,6 @@ var coloringProblem = (function() {
 
 	// Mouse position variables
 	var mouseX, mouseY;
-
-	function eventKeyUp(e) {
-		switch(state) {
-		case mainStates.title:
-			title.eventKeyUp(e);
-			break;
-		case mainStates.game:
-			gameLogic.eventKeyUp(e);
-			break;
-		}
-	}
 
 	function eventMouseMove(e) {			
 		if(e.offsetX || e.offsetX == 0) {
@@ -193,9 +185,6 @@ var coloringProblem = (function() {
 		backCanvas.height = theCanvas.height;
 		backContext = backCanvas.getContext("2d");
 
-		// Setup keyboard events
-		document.addEventListener("keyup", eventKeyUp, true);
-	
 		// Setup mouse events
 		theCanvas.addEventListener("mousemove", eventMouseMove, true);
 		theCanvas.addEventListener("click", eventMouseClick, true);	
@@ -248,7 +237,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 27;
+	var itemsToLoad = 28;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -262,6 +251,7 @@ var coloringProblem = (function() {
 		loadjs("HUD.js", 0);
 		loadjs("Warp.js");
 		loadjs("AI.js", 0);
+		loadjs("Tutorial.js", 0);
 
 		// Setup image loader events
 		imgHTML5.src = "https://sites.google.com/site/alimenstorage/html5-rocks/HTML5_Logo.png";
@@ -412,3 +402,4 @@ function eventWindowLoaded() {
 	coloringProblem.startMessageLoop();
 }
 window.addEventListener('load', eventWindowLoaded, false);
+

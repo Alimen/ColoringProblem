@@ -185,3 +185,4 @@ var hud = (function() {
 		setInfo : setInfo
 	};
 })();
+

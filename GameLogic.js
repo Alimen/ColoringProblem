@@ -194,9 +194,6 @@ var gameLogic = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-	function eventKeyUp(e) {
-	}
-
 	function eventMouseMove(x, y) {
 		mouseX = x;
 		mouseY = y;
@@ -337,8 +334,8 @@ var gameLogic = (function() {
 		reset : reset,
 		push : push,
 		draw : draw,
-		eventKeyUp : eventKeyUp,
 		eventMouseMove : eventMouseMove,
 		eventMouseClick : eventMouseClick
 	};
 })();
+

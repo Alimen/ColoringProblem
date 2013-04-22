@@ -652,3 +652,4 @@ var ai = (function() {
 		getUncoloredCount : getUncoloredCount
 	};
 })();
+

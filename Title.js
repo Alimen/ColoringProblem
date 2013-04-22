@@ -116,9 +116,6 @@ var title = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-	function eventKeyUp(e) {
-	}
-
 	function eventMouseMove(x, y) {
 		mouseX = x;
 		mouseY = y;
@@ -206,8 +203,8 @@ var title = (function() {
 		reset : reset,
 		push : push,
 		draw : draw,
-		eventKeyUp : eventKeyUp,
 		eventMouseMove : eventMouseMove,
 		eventMouseClick : eventMouseClick
 	};
 })();
+

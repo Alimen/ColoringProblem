@@ -50,3 +50,4 @@ var loader = (function() {
 		draw : draw
 	};
 })();
+

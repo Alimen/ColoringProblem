@@ -1,0 +1,60 @@
+var tutorial = (function() {
+	// Environmental variables
+	var backContext;
+	var img;
+	var env;
+	var mouseX, mouseY;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Public functions
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function init(_env, _img, _backContext) {
+		env = _env;
+		img = _img;
+		backContext = _backContext;
+		mouseX = env.screenWidth/2;
+		mouseY = env.screenHeight/2;
+	}
+
+	function reset() {
+	}
+
+	function push() {
+	}
+
+	function draw() {
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Event functions
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function eventMouseMove(x, y) {
+		mouseX = x;
+		mouseY = y;
+	}
+
+	function eventMouseClick(e) {
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Setup public access
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	return {
+		init : init,
+		reset : reset,
+		push : push,
+		draw : draw,
+		eventMouseMove : eventMouseMove,
+		eventMouseClick : eventMouseClick
+	};
+})();
+

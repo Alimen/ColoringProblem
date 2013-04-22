@@ -321,3 +321,4 @@ var dialog = (function() {
 		checkPassSlot2 : checkPassSlot2
 	};
 })();
+
