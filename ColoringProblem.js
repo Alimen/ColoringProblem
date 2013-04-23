@@ -64,6 +64,7 @@ var coloringProblem = (function() {
 	var state = mainStates.initial;
 
 	function timerTick() {
+		var gameParam;
 		var res;
 
 		switch(state) {
@@ -90,15 +91,28 @@ var coloringProblem = (function() {
 			state = mainStates.title;
 			break;
 		case mainStates.title:
-			res = title.push();
+			gameParam = title.push();
 			title.draw();
 			flip();
-			if(res[0] != mainStates.unknown) {
-				state = res[0];
-				gameLogic.reset(res[1], res[2]);
+			if(gameParam[0] != mainStates.unknown) {
+				if(tutorialStart == 1) {
+					tutorialStart = 0;
+					tutorial.reset();
+					state = mainStates.tutorial;
+				} else {
+					state = gameParam[0];
+					gameLogic.reset(gameParam[1], gameParam[2]);
+				}
 			}
 			break;
 		case mainStates.tutorial:
+			res = tutorial.push();
+			tutorial.draw();
+			flip();
+			if(res != mainStates.unknown) {
+				state = gameParam[0];
+				gameLogic.reset(gameParam[1], gameParam[2]);
+			}
 			break;
 		case mainStates.game:
 			res = gameLogic.push();
@@ -133,6 +147,9 @@ var coloringProblem = (function() {
 		case mainStates.title:
 			title.eventMouseMove(mouseX, mouseY);
 			break;
+		case mainStates.tutorial:
+			tutorial.eventMouseMove(mouseX, mouseY);
+			break;
 		case mainStates.game:
 			gameLogic.eventMouseMove(mouseX, mouseY);
 			break;
@@ -143,6 +160,9 @@ var coloringProblem = (function() {
 		switch(state) {
 		case mainStates.title:
 			title.eventMouseClick(e);
+			break;
+		case mainStates.tutorial:
+			tutorial.eventMouseClick(e);
 			break;
 		case mainStates.game:
 			gameLogic.eventMouseClick(e);
@@ -166,6 +186,9 @@ var coloringProblem = (function() {
 		screenWidth : screenWidth,
 		screenHeight : screenHeight
 	};
+
+	// Go to tutorial if the player is first time play the game.
+	var tutorialStart = 1;
 
 	function init() {
 		// Setup javascript loader events
