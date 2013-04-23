@@ -34,21 +34,38 @@ var ai = (function() {
 				}
 			}
 		}
-
-		// Pick the best one
+		var bkpCandidates = candidates.slice(0);
 		console.log("candidates = ", candidates);
-		if(Math.random()*100 < aiAbility) {
-			defensivePick(candidates, uncolored.length);
-			console.log("candidates after defensivePick() = ", candidates);
-		}
-		if(Math.random()*100 < aiAbility) {
-			offensivePick(candidates);
-			console.log("candidates after offensivePick() = ", candidates);
-		}
+
+		// Use defensivePick() tool to pick cirtical areas
+		defensivePick(candidates, uncolored.length);
+		console.log("candidates after defensivePick() = ", candidates);
+
+		// Use offensivePick() tool to minimize cirtical areas for opponent
+		offensivePick(candidates);
+		console.log("candidates after offensivePick() = ", candidates);
+		
+		// Use monopolyPick() tool to minimize variability (50%)
 		if(Math.random() < 0.5) {
 			monopolyPick(candidates);
 			console.log("candidates after monopolyPick() = ", candidates);
 		}
+
+		// Pick the worst one for lowering difficulty
+		if(Math.random()*100 >= aiAbility) {
+			var diff = new Array();
+			for(i = 0; i < bkpCandidates.length; i++) {
+				if(candidates.indexOf(bkpCandidates[i]) == -1) {
+					diff.push(bkpCandidates[i]);
+				}
+			}
+			if(diff.length > 0) {
+				candidates = diff;
+			}
+			console.log("candidates after inverse = ", candidates);
+		}
+
+		// Random pick one from the candidates
 		output = randomPick(candidates);
 
 		return output;
@@ -78,7 +95,6 @@ var ai = (function() {
 			}
 		}
 
-		console.log(scores, uncolored.length, breakthrough, output);
 		return breakthrough;
 	}
 
@@ -291,11 +307,25 @@ var ai = (function() {
 		}
 
 		// Step 2. Remove some cells for randomize
-		setupSeq = emptyCells.slice(0);
-		shuffle(setupSeq);
-		for(i = 0; i < removed; i++) {
-			board[setupSeq[i]] = ' ';
-			emptyCells.splice(emptyCells.indexOf(setupSeq[i]), 1);
+		console.log(emptyCells);
+		var repeated, remove = new Array();
+		i = 0;
+		while(i < removed) {
+			tmp = emptyCells[Math.floor(Math.random()*emptyCells.length)];
+			repeated = 0;
+			for(j = 0; j < remove.length; j++) {
+				if(isNeighborP2P(tmp, remove[j]) == 1 || tmp == remove[j]) {
+					repeated = 1;
+					break;
+				}
+			}
+			if(repeated == 0) {
+				remove.push(tmp);
+				console.log(tmp);
+				board[tmp] = ' ';
+				emptyCells.splice(emptyCells.indexOf(tmp), 1);
+				i++;
+			}
 		}
 
 		// Step 3. Generate grouping seeds

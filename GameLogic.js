@@ -76,7 +76,7 @@ var gameLogic = (function() {
 			}
 
 			if(level < 13) {
-				aiAbility = 4 + (level-1)*8;
+				aiAbility = -20 + (level-1)*10;
 			} else {
 				aiAbility = 100;
 			}
@@ -291,7 +291,7 @@ var gameLogic = (function() {
 			} else if(dialog.checkPassSlot2(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.close();
 				var nextLevel = level+1;
-				if(nextLevel%4 == 1) {
+				if(nextLevel%3 == 1) {
 					warp = 1;
 					ui.resetSlideOut(0, 0, 0, 1);
 				} else {
