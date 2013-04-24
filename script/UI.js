@@ -166,7 +166,7 @@ var ui = (function() {
 	function resetSlideOut(moveArm1to, moveArm2to, moveHUDto, isWarp) {
 		var i, x = Math.ceil(env.screenWidth * 1.2 / slideSpeed) * slideSpeed;
 		for(i = 0; i < maxGraph; i++) {
-			if(Math.random() > 0.5) {
+			if(i%2 == 0) {
 				graphTargetX[i] = graphX[i] - x;
 			} else {
 				graphTargetX[i] = graphX[i] + x;
@@ -303,7 +303,7 @@ var ui = (function() {
 			graphContext.push(graphCanvas[i].getContext("2d"));
 
 			graphTargetX.push(startX + rect[3] * tileW);
-			if(Math.random() > 0.5) {
+			if(i%2 == 1) {
 				graphX.push(graphTargetX[i] - x);
 			} else {
 				graphX.push(graphTargetX[i] + x);

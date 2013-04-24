@@ -110,7 +110,7 @@ var hud = (function() {
 			backContext.drawImage(img.title, 0, 80, 190, 40, 20, shiftY+7, 95, 20);
 			backContext.drawImage(img.dialog, 144, 75, 180, 50, 490, shiftY+8, 51.84, 18);
 			ui.drawNumbers(backContext, level, 554, shiftY+8, 0.36);
-		} else {
+		} else if(playerCount == 2) {
 			backContext.drawImage(img.title, 260, 80, 216, 40, 20, shiftY+7, 108, 20);
 		}
 

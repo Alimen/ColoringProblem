@@ -67,7 +67,6 @@ var title = (function() {
 
 		state = titleStates.animating;
 		nextTitleState = titleStates.selecting;
-		nextState = env.mainStates.unknown;
 		playerCount = 0;
 		startLevel = 0;
 	}
