@@ -62,9 +62,9 @@ var coloringProblem = (function() {
 		game		: 9
 	};
 	var state = mainStates.initial;
+	var gameParam;
 
 	function timerTick() {
-		var gameParam;
 		var res;
 
 		switch(state) {
@@ -100,7 +100,7 @@ var coloringProblem = (function() {
 					tutorial.reset();
 					state = mainStates.tutorial;
 				} else {
-					state = gameParam[0];
+					state = mainStates.game;
 					gameLogic.reset(gameParam[1], gameParam[2]);
 				}
 			}
@@ -110,7 +110,7 @@ var coloringProblem = (function() {
 			tutorial.draw();
 			flip();
 			if(res != mainStates.unknown) {
-				state = gameParam[0];
+				state = mainStates.game;
 				gameLogic.reset(gameParam[1], gameParam[2]);
 			}
 			break;
@@ -385,6 +385,9 @@ var coloringProblem = (function() {
 			dot : imgDot,
 			warpLine : imgWarpLine,
 			halo : imgHalo
+		}, backContext);
+
+		tutorial.init(env, {
 		}, backContext);
 
 		state = mainStates.resetTitle;

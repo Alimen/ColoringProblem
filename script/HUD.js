@@ -106,12 +106,18 @@ var hud = (function() {
 		backContext.drawImage(img.hud, 0, 0, 800, 79, 0, shiftY, 800, 79);
 
 		// Draw player & level infomation
-		if(playerCount == 1) {
+		switch(playerCount) {
+		case 0:
+			backContext.drawImage(img.title, 0, 120, 190, 40, 20, shiftY+7, 95, 20);
+			break;
+		case 1:
 			backContext.drawImage(img.title, 0, 80, 190, 40, 20, shiftY+7, 95, 20);
-			backContext.drawImage(img.dialog, 144, 75, 180, 50, 490, shiftY+8, 51.84, 18);
-			ui.drawNumbers(backContext, level, 554, shiftY+8, 0.36);
-		} else if(playerCount == 2) {
+			backContext.drawImage(img.title, 260, 120, 190, 40, 490, shiftY+7, 95, 20);
+			ui.drawNumbers(backContext, level, 560, shiftY+7, 0.36);
+			break;
+		case 2:
 			backContext.drawImage(img.title, 260, 80, 216, 40, 20, shiftY+7, 108, 20);
+			break;
 		}
 
 		// Draw title icon

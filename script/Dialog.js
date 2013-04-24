@@ -21,7 +21,8 @@ var dialog = (function() {
 		aiWins		: 3,
 		playerWins	: 4,
 		quit		: 5,
-		level		: 6
+		level		: 6,
+		tutorial1	: 7
 	};
 	const params = [
 		[dialogTypes.unknown,	"unknown",		400, 240, 20, 20],
@@ -30,7 +31,9 @@ var dialog = (function() {
 		[dialogTypes.aiWins,	"aiWins",		400, 240, 450, 200],
 		[dialogTypes.playerWins,"playerWins",	400, 240, 450, 200],
 		[dialogTypes.quit,		"quit",			400, 240, 340, 165],
-		[dialogTypes.level,		"level",		400, 240, 370, 180]
+		[dialogTypes.level,		"level",		400, 240, 370, 180],
+
+		[dialogTypes.tutorial1,	"tutorial1",	400, 240, 370, 180]
 	];
 	var param;
 
@@ -243,6 +246,7 @@ var dialog = (function() {
 			iconSlot1 = icon.title;
 			iconSlot2 = icon.next;
 			break;
+
 		case dialogTypes.p2Wins:
 			dialogContext.drawImage(img.dialog, 0, 0, 228, 28, param[4]/2-228/2, 20, 228, 28);
 			dialogContext.drawImage(img.dialog, 72, 25, 72, 50, param[4]/2-252/2, 50, 72, 50);
@@ -250,6 +254,7 @@ var dialog = (function() {
 			iconSlot1 = icon.title;
 			iconSlot2 = icon.next;
 			break;
+
 		case dialogTypes.aiWins:
 			dialogContext.drawImage(img.dialog, 0, 0, 228, 28, param[4]/2-228/2, 20, 228, 28);
 			dialogContext.drawImage(img.dialog, 360, 25, 72, 50, param[4]/2-252/2, 50, 72, 50);
@@ -257,6 +262,7 @@ var dialog = (function() {
 			iconSlot1 = icon.title;
 			iconSlot2 = icon.none;
 			break;
+
 		case dialogTypes.playerWins:
 			dialogContext.drawImage(img.dialog, 0, 0, 228, 28, param[4]/2-228/2, 20, 228, 28);
 			dialogContext.drawImage(img.dialog, 144, 25, 216, 50, param[4]/2-396/2, 50, 216, 50);
@@ -264,11 +270,13 @@ var dialog = (function() {
 			iconSlot1 = icon.title;
 			iconSlot2 = icon.next;
 			break;
+
 		case dialogTypes.quit:
 			dialogContext.drawImage(img.dialog, 0, 130, 300, 60, param[4]/2-150, 15, 300, 60);
 			iconSlot1 = icon.title;
 			iconSlot2 = icon.cancel;
 			break;
+
 		case dialogTypes.level:
 			var textW;
 			if(options >= 100) {
@@ -281,6 +289,12 @@ var dialog = (function() {
 			dialogContext.drawImage(img.dialog, 144, 75, 180, 50, param[4]/2-(215+textW)/2, 30, 180, 50);
 			ui.drawNumbers(dialogContext, options, param[4]/2-(215+textW)/2+215, 28, 1.0);
 			iconSlot1 = icon.none;
+			iconSlot2 = icon.next;
+			break;
+
+		case dialogTypes.tutorial1:
+			dialogContext.drawImage(img.dialog, 0, 190, 288, 50, param[4]/2-288/2, 30, 288, 50);
+			iconSlot1 = icon.skip;
 			iconSlot2 = icon.next;
 			break;
 		}

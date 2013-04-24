@@ -650,9 +650,9 @@ var ui = (function() {
 		if(overlap[target] == "title") {
 			graphContext[target].drawImage(img.title, 0, 0, 520, 80, x-260, y-45, 520, 80); 
 		} else if(overlap[target] == "p1Game") {
-			graphContext[target].drawImage(img.title, 0, 80, 190, 40, x-95, y-20, 190, 40);
+			graphContext[target].drawImage(img.title, 0, 80, 190, 37, x-95, y-20, 190, 37);
 		} else if(overlap[target] == "p2Game") {
-			graphContext[target].drawImage(img.title, 260, 80, 216, 40, x-108, y-20, 216, 40);
+			graphContext[target].drawImage(img.title, 260, 80, 216, 37, x-108, y-20, 216, 37);
 		}
 	}
 

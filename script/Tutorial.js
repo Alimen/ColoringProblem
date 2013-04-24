@@ -33,24 +33,26 @@ var tutorial = (function() {
 	function reset() {
 		var tmpBoard = [
 			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-			 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+			  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-			 -1, -1, -1, -1, -1, -1, 61, 61, 62, 62, 62, -1, -1, -1, -1, -1, -1, -1,
+			  -1, -1, -1, -1, -1, -1, 61, 61, 62, 62, 62, -1, -1, -1, -1, -1, -1, -1,
 			-1, -1, -1, -1, -1, -1, 61, 61, 62, 62, 62, 62, -1, -1, -1, -1, -1, -1,
-			 -1, -1, -1, -1, -1, 61, 61, 61, 63, 63, 63, -1, -1, -1, -1, -1, -1, -1,
+			  -1, -1, -1, -1, -1, 61, 61, 61, 63, 63, 63, -1, -1, -1, -1, -1, -1, -1,
 			-1, -1, -1, -1, -1, -1, 64, 64, 64, 63, 63, -1, -1, -1, -1, -1, -1, -1,
-			 -1, -1, -1, -1, -1, 65, 64, 64, 63, 63, 63, -1, -1, -1, -1, -1, -1, -1,
-			-1, -1, -1, -1, -1, 65, 64, 64, 64, 63, 63, -1, -1, -1, -1, -1, -1, -1,
-			 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+		 	  -1, -1, -1, -1, -1, 65, 64, 64, 63, 63, 63, -1, -1, -1, -1, -1, -1, -1,
+			-1, -1, -1, -1, -1, -1, 65, 64, 64, 63, 63, -1, -1, -1, -1, -1, -1, -1,
+			  -1, -1, -1, -1, -1, -1, 66, 66, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 			-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-			 -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+			  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 		];
-		ai.presetBoard(5, tmpBoard, 5, 3);
-		hud.setInfo(2, 1);
+		ai.presetBoard(6, tmpBoard, 5, 3);
+		ai.setColor(4, 2);
+		ai.setColor(5, 3);
+		hud.setInfo(0, 1);
 		ui.resetSlideIn(2, 1, 2, 0);
 
 		state = tutorialStates.animating;
-		nextTitleState = tutorialStates.dialog1;
+		nextTutorialState = tutorialStates.dialog1;
 	}
 
 	function push() {
@@ -79,6 +81,9 @@ var tutorial = (function() {
 	function changeState(next) {
 		state = next;
 		switch(state) {
+		case tutorialStates.dialog1:
+			dialog.popup("tutorial1");
+			break;
 		}
 	}
 
@@ -91,9 +96,28 @@ var tutorial = (function() {
 	function eventMouseMove(x, y) {
 		mouseX = x;
 		mouseY = y;
+
+		switch(state) {
+		case tutorialStates.dialog1:
+			dialog.checkPassSlot1(x, y, 0);
+			dialog.checkPassSlot2(x, y, 0);
+			break;
+		}
 	}
 
 	function eventMouseClick(e) {
+		switch(state) {
+		case tutorialStates.dialog1:
+			if(dialog.checkPassSlot1(mouseX, mouseY, 0) >= 0) {
+				dialog.close();
+				ui.resetSlideOut(2, 1, 1, 0);
+				state = tutorialStates.animating;
+				nextTutorialState = tutorialStates.leaving;
+			}
+			if(dialog.checkPassSlot2(mouseX, mouseY, 0) >= 0) {
+			}
+			break;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
