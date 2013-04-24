@@ -10,7 +10,7 @@ in NP-complete problems.  The following are basic gameplay rules:
 
 Important Source Files
 ----------------------
-release/ColoringProblem.html - HTML enrty point for the project
+ColoringProblem.html - HTML enrty point for the project
 
 TODO
 ----
