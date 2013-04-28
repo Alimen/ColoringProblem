@@ -307,7 +307,6 @@ var ai = (function() {
 		}
 
 		// Step 2. Remove some cells for randomize
-		console.log(emptyCells);
 		var repeated, remove = new Array();
 		i = 0;
 		while(i < removed) {
@@ -321,7 +320,6 @@ var ai = (function() {
 			}
 			if(repeated == 0) {
 				remove.push(tmp);
-				console.log(tmp);
 				board[tmp] = ' ';
 				emptyCells.splice(emptyCells.indexOf(tmp), 1);
 				i++;

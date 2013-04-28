@@ -5,9 +5,8 @@ var dialog = (function() {
 	var env;
 
 	// Dialog variables
-	const maxDialogT = 10;
 	const panelW = 100, panelH = 90;
-	var dialogT;
+	var dialogT, maxDialogT;
 	var dialogCanvas, dialogContext;
 	var dialogState;
 	var x, y, w, h, a;
@@ -22,7 +21,12 @@ var dialog = (function() {
 		playerWins	: 4,
 		quit		: 5,
 		level		: 6,
-		tutorial1	: 7
+		tutorial1	: 7,
+		tutorial2	: 8,
+		tutorial3	: 9,
+		tutorial4	: 10,
+		tutorial5	: 11,
+		tutorial6	: 12,
 	};
 	const params = [
 		[dialogTypes.unknown,	"unknown",		400, 240, 20, 20],
@@ -33,7 +37,12 @@ var dialog = (function() {
 		[dialogTypes.quit,		"quit",			400, 240, 340, 165],
 		[dialogTypes.level,		"level",		400, 240, 370, 180],
 
-		[dialogTypes.tutorial1,	"tutorial1",	400, 240, 370, 180]
+		[dialogTypes.tutorial1,	"tutorial1",	400, 240, 370, 180],
+		[dialogTypes.tutorial2,	"tutorial2",	600, 320, 300, 60],
+		[dialogTypes.tutorial3,	"tutorial3",	540, 400, 300, 130],
+		[dialogTypes.tutorial4,	"tutorial4",	540, 300, 220, 80],
+		[dialogTypes.tutorial5,	"tutorial5",	400, 400, 560, 140],
+		[dialogTypes.tutorial6,	"tutorial6",	400, 240, 360, 200]
 	];
 	var param;
 
@@ -74,23 +83,47 @@ var dialog = (function() {
 	}
 
 	function popup(type, options) {
-		x = 400; y = 240; w = 20; h = 20; a = 0;
-		da = 0.5/maxDialogT;
+		x = 0; y = 0; w = 20; h = 20; a = 0;
+		maxDialogT = 10;
 		prepareDialog(type, options);
+		x = param[2]; y = param[3]; dx = 0; dy = 0;
+		da = 0.5/maxDialogT;
 		dialogState = 1;
 		dialogT = 0;
 	}
 
 	function close() {
+		maxDialogT = 10;
+		dx = 0; dy = 0;
+		dw = param[4]/maxDialogT;
+		dh = param[5]/maxDialogT;
+		da = 0.5/maxDialogT;
 		dialogState = 3;
+		dialogT = 0;
 	}
 
-	function transform() {
+	function transform(type, options) {
+		if(dialogState != 2) {
+			return;
+		}
+
+		maxDialogT = 15;
+		prepareDialog(type, options);
+		da = 0;
+		dialogState = 1;
+		dialogT = 0;
 	}
 
 	function push() {
 		if(dialogT < 0) {
 			return;
+		}
+
+		var focusPos;
+		if(param[0] > dialogTypes.tutorial1 && param[0] < dialogTypes.tutorial6) {
+			focusPos = 1;
+		} else {
+			focusPos = 2;
 		}
 
 		switch(dialogState) {
@@ -103,17 +136,19 @@ var dialog = (function() {
 				a = 0.5;
 				dialogState++;
 			}
+			ui.setFocus(focusPos, a);
 			break;
 		case 2:
 			break;
 		case 3:
 			x -= dx; y -= dy; w -= dw; h -= dh; a -= da;
-			dialogT--;
-			if(dialogT == 0) {
+			dialogT++;
+			if(dialogT == maxDialogT) {
 				a = 0;
 				dialogState = 0;
 				dialogT = -1;
 			}
+			ui.setFocus(focusPos, a);
 			break;
 		}
 	}
@@ -122,10 +157,6 @@ var dialog = (function() {
 		if(dialogState == 0) {
 			return;
 		}
-
-		// Draw focus
-		backContext.fillStyle = "rgba(64, 64, 64, " + a + ")";
-		backContext.fillRect(0, 0, env.screenWidth, env.screenHeight);
 
 		// Draw dialog
 		if(dialogState == 1 || dialogState == 3) {
@@ -136,14 +167,18 @@ var dialog = (function() {
 			backContext.drawImage(dialogCanvas, 0, param[5]-10, 10, 10, x-w/2, y+h/2-10, 10, 10);
 
 			// Draw sides
-			backContext.drawImage(dialogCanvas, 0, 10, 10, param[5]-20, x-w/2, y-h/2+10, 10, h-20);
-			backContext.drawImage(dialogCanvas, 10, 0, param[4]-20, 10, x-w/2+10, y-h/2, w-20, 10);
-			backContext.drawImage(dialogCanvas, param[4]-10, 10, 10, param[5]-20, x+w/2-10, y-h/2+10, 10, h-20);
-			backContext.drawImage(dialogCanvas, 10, param[5]-10, param[4]-20, 10, x-w/2+10, y+h/2-10, w-20, 10);
+			if(h-20 > 0) {
+				backContext.drawImage(dialogCanvas, 0, 10, 10, param[5]-20, x-w/2, y-h/2+10, 10, h-20);
+				backContext.drawImage(dialogCanvas, param[4]-10, 10, 10, param[5]-20, x+w/2-10, y-h/2+10, 10, h-20);
+			}
+			if(w-20 > 0) {
+				backContext.drawImage(dialogCanvas, 10, 0, param[4]-20, 10, x-w/2+10, y-h/2, w-20, 10);
+				backContext.drawImage(dialogCanvas, 10, param[5]-10, param[4]-20, 10, x-w/2+10, y+h/2-10, w-20, 10);
+			}
 
 			// Fill center
 			if(h-20 > 0 && w-20 > 0) {
-				backContext.drawImage(dialogCanvas, param[4]/2-(w-20)/2, param[5]/2-(h-20)/2, w-20, h-20, x-w/2+10, y-h/2+10, w-20, h-20);
+				backContext.drawImage(img.panel, 10, 10, 10, 10,  x-w/2+10, y-h/2+10, w-20, h-20);
 			}
 		} else {
 			backContext.drawImage(dialogCanvas, x-w/2, y-h/2);
@@ -295,6 +330,38 @@ var dialog = (function() {
 		case dialogTypes.tutorial1:
 			dialogContext.drawImage(img.dialog, 0, 190, 288, 50, param[4]/2-288/2, 30, 288, 50);
 			iconSlot1 = icon.skip;
+			iconSlot2 = icon.next;
+			break;
+
+		case dialogTypes.tutorial2:
+			dialogContext.drawImage(img.dialog, 286, 214, 264, 26, param[4]/2-264/2, 17, 264, 26);
+			iconSlot1 = icon.none;
+			iconSlot2 = icon.none;
+			break;
+
+		case dialogTypes.tutorial3:
+			dialogContext.drawImage(img.dialog, 0, 240, 264, 94, param[4]/2-264/2, 15, 264, 94);
+			iconSlot1 = icon.none;
+			iconSlot2 = icon.none;
+			break;
+
+		case dialogTypes.tutorial4:
+			dialogContext.drawImage(img.dialog, 380, 240, 170, 54, param[4]/2-170/2, 13, 170, 54);
+			iconSlot1 = icon.none;
+			iconSlot2 = icon.none;
+			break;
+
+		case dialogTypes.tutorial5:
+			dialogContext.drawImage(img.dialog, 0, 334, 530, 56, param[4]/2-530/2, 15, 530, 56);
+			iconSlot1 = icon.none;
+			iconSlot2 = icon.next;
+			break;
+
+		case dialogTypes.tutorial6:
+			dialogContext.drawImage(img.dialog, 270, 294, 280, 40, param[4]/2-280/2, 15, 280, 40);
+			dialogContext.drawImage(img.dialog, 442, 25, 108, 50, param[4]/2-252/2, 65, 108, 50);
+			dialogContext.drawImage(img.dialog, 0, 75, 108, 50, param[4]/2-252/2+144, 65, 108, 50);
+			iconSlot1 = icon.none;
 			iconSlot2 = icon.next;
 			break;
 		}

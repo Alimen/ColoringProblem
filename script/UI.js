@@ -40,6 +40,7 @@ var ui = (function() {
 
 		// Initialize overlap variables
 		initOverlap();
+		redrawReset();
 	}
 
 	function push() {
@@ -96,8 +97,11 @@ var ui = (function() {
 		}
 
 		// Draw robotic arms
-		arm1.draw();
 		arm2.draw();
+
+		// Draw focus if in tutorial mode
+		redrawGraph();
+		arm1.draw();
 
 		// Draw fade in/out effect
 		warp.drawFade();
@@ -109,7 +113,7 @@ var ui = (function() {
 		drawBeam();
 
 		// Draw dialogs
-		dialog.draw();
+		redrawDialog();
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -127,7 +131,7 @@ var ui = (function() {
 	// Slide-in animation variables
 	const maxCanvas = 25;
 	const startX = 20, startY = 20;
-	const slideSpeed = 10;
+	const slideSpeed = 13;
 	const glowRadius = 20;
 	var slideState;
 	var graphCanvas = new Array(maxCanvas);
@@ -774,6 +778,43 @@ var ui = (function() {
 
 ///////////////////////////////////////////////////////////////////////////////
 //
+// Redraw focus releted subroutines
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	// Redraw focus vairables
+	var focusPos, focusA;
+	var focusTargets = new Array();
+
+	function redrawReset() {
+		focusPos = 0;
+		focusA = 0;
+		focusTargets.length = 0;
+	}
+
+	function redrawGraph() {
+		if(focusPos != 1) {
+			return;
+		}
+
+		backContext.fillStyle = "rgba(64, 64, 64, " + focusA + ")";
+		backContext.fillRect(0, 0, env.screenWidth, env.screenHeight);
+		for(var i = 0; i < focusTargets.length; i++) {
+			t = focusTargets[i];
+			backContext.drawImage(graphCanvas[t], graphX[t], graphY[t]);				
+		}
+	}
+
+	function redrawDialog() {
+		if(focusPos == 2) {
+			backContext.fillStyle = "rgba(64, 64, 64, " + focusA + ")";
+			backContext.fillRect(0, 0, env.screenWidth, env.screenHeight);
+		}
+		dialog.draw();
+	}
+
+///////////////////////////////////////////////////////////////////////////////
+//
 // Player switching releted subroutines
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -836,6 +877,19 @@ var ui = (function() {
 
 	function setShadow(_shadow) { shadow = _shadow; }
 
+	function setFocus(_p, _a) {
+		if(_a > 0) {
+			focusPos = _p;
+		} else {
+			focusPos = 0;
+		}
+		focusA = _a;
+	}
+
+	function setFocusTargets(_t) {
+		focusTargets = _t.slice(0);
+	}
+
 	return {
 		init : init,
 		
@@ -856,6 +910,8 @@ var ui = (function() {
 
 		isIdle : isIdle,
 		setShadow : setShadow,
+		setFocus : setFocus,
+		setFocusTargets : setFocusTargets,
 
 		drawNumbers : drawNumbers
 	};

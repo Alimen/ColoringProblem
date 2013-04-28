@@ -188,7 +188,7 @@ var coloringProblem = (function() {
 	};
 
 	// Go to tutorial if the player is first time play the game.
-	var tutorialStart = 1;
+	var tutorialStart;
 
 	function init() {
 		// Setup javascript loader events
@@ -211,6 +211,9 @@ var coloringProblem = (function() {
 		// Setup mouse events
 		theCanvas.addEventListener("mousemove", eventMouseMove, true);
 		theCanvas.addEventListener("click", eventMouseClick, true);	
+
+		// Goto tutorial mode before first game start
+		tutorialStart = 1;
 
 		// Switch to next state
 		state = mainStates.preloading;

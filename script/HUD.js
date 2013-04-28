@@ -144,7 +144,7 @@ var hud = (function() {
 			textW = 36;
 		}
 		backContext.drawImage(img.hud, 801, 0, 152, 79, env.screenWidth/2-76, counterY, 152, 79);
-		ui.drawNumbers(backContext, ai.getUncoloredCount(), env.screenWidth/2-textW/2, counterY, 1.0);
+		ui.drawNumbers(backContext, ai.getUncoloredCount(), env.screenWidth/2-textW/2, counterY+3, 1.0);
 	}
 
 	function checkMousePassTitle(x, y, turn) {

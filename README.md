@@ -15,7 +15,6 @@ ColoringProblem.html - HTML enrty point for the project
 TODO
 ----
 * New background images
-* A tutorial
 * Logo animation
 * Sound effect design
 
