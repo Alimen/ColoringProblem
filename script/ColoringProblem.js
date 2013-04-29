@@ -195,9 +195,9 @@ var coloringProblem = (function() {
 		loadjs("script/Loader.js", 1);
 
 		// Setup image loader events
-		imgTiles.src = "resource/Tiles.png";
+		imgTiles.src = "image/Tiles.png";
 		imgTiles.onload = eventItemPreLoaded;
-		imgTileBorder.src = "resource/TileBorder.png";
+		imgTileBorder.src = "image/TileBorder.png";
 		imgTileBorder.onload = eventItemPreLoaded;
 
 		// Setup canvas
@@ -282,39 +282,39 @@ var coloringProblem = (function() {
 		// Setup image loader events
 		imgHTML5.src = "https://sites.google.com/site/alimenstorage/html5-rocks/HTML5_Logo.png";
 		imgHTML5.onload = eventItemLoaded;
-		imgBackground.src = "resource/Background0.jpg";
+		imgBackground.src = "image/Background0.jpg";
 		imgBackground.onload = eventItemLoaded;
-		imgShadow.src = "resource/Shadow.png";
+		imgShadow.src = "image/Shadow.png";
 		imgShadow.onload = eventItemLoaded;
-		imgGlow.src = "resource/Glow.png";
+		imgGlow.src = "image/Glow.png";
 		imgGlow.onload = eventItemLoaded;
-		imgPanel.src = "resource/Panel.png";
+		imgPanel.src = "image/Panel.png";
 		imgPanel.onload = eventItemLoaded;
-		imgBottons.src = "resource/Bottons.png";
+		imgBottons.src = "image/Bottons.png";
 		imgBottons.onload = eventItemLoaded;
-		imgBeams.src = "resource/Beam.png";
+		imgBeams.src = "image/Beam.png";
 		imgBeams.onload = eventItemLoaded;
-		imgSparks.src = "resource/Sparks.png";
+		imgSparks.src = "image/Sparks.png";
 		imgSparks.onload = eventItemLoaded;
-		imgArm1.src = "resource/Arm1.png";
+		imgArm1.src = "image/Arm1.png";
 		imgArm1.onload = eventItemLoaded;
-		imgArm2.src = "resource/Arm2.png";
+		imgArm2.src = "image/Arm2.png";
 		imgArm2.onload = eventItemLoaded;
-		imgDot.src = "resource/Dot.png";
+		imgDot.src = "image/Dot.png";
 		imgDot.onload = eventItemLoaded;
-		imgWarpLine.src = "resource/Warpline.png";
+		imgWarpLine.src = "image/Warpline.png";
 		imgWarpLine.onload = eventItemLoaded;
-		imgHalo.src = "resource/Halos.jpg";
+		imgHalo.src = "image/Halos.jpg";
 		imgHalo.onload = eventItemLoaded;
-		imgMisc.src = "resource/Misc.png";
+		imgMisc.src = "image/Misc.png";
 		imgMisc.onload = eventItemLoaded;
-		imgDialog.src = "resource/Dialog.jpg";
+		imgDialog.src = "image/Dialog.jpg";
 		imgDialog.onload = eventItemLoaded;
-		imgTitle.src = "resource/Title.png";
+		imgTitle.src = "image/Title.png";
 		imgTitle.onload = eventItemLoaded;
-		imgNumbers.src = "resource/Numbers.png";
+		imgNumbers.src = "image/Numbers.png";
 		imgNumbers.onload = eventItemLoaded;
-		imgHUD.src = "resource/HUD.png";
+		imgHUD.src = "image/HUD.png";
 		imgHUD.onload = eventItemLoaded;
 
 		// Pass resources to loader
