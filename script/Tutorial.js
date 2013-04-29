@@ -168,7 +168,7 @@ var tutorial = (function() {
 		switch(state) {
 		case tutorialStates.dialog1:
 			dialog.checkPassSlot1(x, y, 0);
-			dialog.checkPassSlot2(x, y, 0);
+			dialog.checkPassSlot3(x, y, 0);
 			break;
 
 		case tutorialStates.dialog2:
@@ -206,7 +206,8 @@ var tutorial = (function() {
 			break;
 
 		case tutorialStates.dialog6:
-			dialog.checkPassSlot2(x, y, 0);
+			dialog.checkPassSlot1(x, y, 0);
+			dialog.checkPassSlot3(x, y, 0);
 			break;
 		}
 	}
@@ -219,7 +220,7 @@ var tutorial = (function() {
 				state = tutorialStates.animating;
 				nextTutorialState = tutorialStates.leaving;
 			}
-			if(dialog.checkPassSlot2(mouseX, mouseY, 0) >= 0) {
+			if(dialog.checkPassSlot3(mouseX, mouseY, 0) >= 0) {
 				dialog.close();
 				ui.resetSlideIn(2, 1, 2, 0);
 				state = tutorialStates.animating;
@@ -287,7 +288,14 @@ var tutorial = (function() {
 			break;
 
 		case tutorialStates.dialog6:
-			if(dialog.checkPassSlot2(mouseX, mouseY, 0) >= 0) {
+			if(dialog.checkPassSlot1(mouseX, mouseY, 0) >= 0) {
+				dialog.close();
+				ui.resetSlideOut(2, 1, 1, 0);
+				reset();
+				state = tutorialStates.animating;
+				nextTutorialState = tutorialStates.dialog1;
+			}
+			if(dialog.checkPassSlot3(mouseX, mouseY, 0) >= 0) {
 				dialog.close();
 				ui.resetSlideOut(2, 1, 1, 0);
 				state = tutorialStates.animating;

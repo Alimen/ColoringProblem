@@ -12,7 +12,7 @@ var hud = (function() {
 	
 	// HUD variables
 	var soundon;
-	var playerCount, level;
+	var playerCount, level, minimized;
 	var mousePassSound, mousePassTitle;
 	var menuIconX;
 
@@ -42,9 +42,10 @@ var hud = (function() {
 
 	function reset() {
 		soundon = 1;
-		playerCount = 2; level = 0;
+		playerCount = 2; level = 0; minimized = 0;
 		mousePassSound = -1;
 		mousePassTitle = -1;
+		mousePassMinimized = -1;
 
 		shiftY = -80;
 		counterY = -160;
@@ -120,11 +121,18 @@ var hud = (function() {
 			break;
 		}
 
-		// Draw title icon
-		if(mousePassTitle >= 0) {
-			backContext.drawImage(img.glow, mousePassTitle*80, 0, 80, 86, 745, shiftY-7, 40, 43);
+		// Draw title / minimized icon
+		if(minimized == 0) {
+			if(mousePassTitle >= 0) {
+				backContext.drawImage(img.glow, mousePassTitle*80, 0, 80, 86, 745, shiftY-7, 40, 43);
+			}
+			backContext.drawImage(img.misc, 320, 0, 80, 64, 745, shiftY+3, 40, 32);
+		} else {
+			if(mousePassMinimized >= 0) {
+				backContext.drawImage(img.glow, mousePassMinimized*80, 0, 80, 86, 745, shiftY-7, 40, 43);
+			}
+			backContext.drawImage(img.misc, 560, 0, 80, 64, 745, shiftY+3, 40, 32);
 		}
-		backContext.drawImage(img.misc, 320, 0, 80, 64, 745, shiftY+3, 40, 32);
 
 		// Draw sound on/off icon
 		if(mousePassSound >= 0) {
@@ -156,6 +164,15 @@ var hud = (function() {
 		return mousePassTitle;
 	}
 
+	function checkMousePassMinimized(x, y, turn) {
+		if(x > 745 && x <= 800 && y > shiftY-10 && y <= shiftY+40) {
+			mousePassMinimized = turn;
+		} else {
+			mousePassMinimized = -1;
+		}
+		return mousePassMinimized;
+	}
+
 	function checkMousePassSound(x, y, turn) {
 		if(x > 760 && x <= 800 && y > shiftY+40 && y <= shiftY+72) {
 			mousePassSound = turn;
@@ -177,6 +194,8 @@ var hud = (function() {
 		playerCount = _playerCount;
 		level = _level;
 	}
+
+	function setMinimized(_mini) { minimized = _mini; }
 	
 	return {
 		init : init,
@@ -187,8 +206,10 @@ var hud = (function() {
 
 		checkMousePassTitle : checkMousePassTitle,
 		checkMousePassSound : checkMousePassSound,
+		checkMousePassMinimized : checkMousePassMinimized,
 		setSoundon : setSoundon,
-		setInfo : setInfo
+		setInfo : setInfo,
+		setMinimized : setMinimized
 	};
 })();
 
