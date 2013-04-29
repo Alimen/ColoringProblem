@@ -41,6 +41,9 @@ var coloringProblem = (function() {
 	var imgNumbers = new Image();
 	var imgHUD = new Image();
 
+	// Sound components
+	var soundResult0, soundResult1, soundResult2;
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // Main state machine
@@ -263,7 +266,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 28;
+	var itemsToLoad = 31;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -278,6 +281,9 @@ var coloringProblem = (function() {
 		loadjs("script/Warp.js");
 		loadjs("script/AI.js", 0);
 		loadjs("script/Tutorial.js", 0);
+
+		// Setup sound loader events
+		audioLoaderSetup();
 
 		// Setup image loader events
 		imgHTML5.src = "https://sites.google.com/site/alimenstorage/html5-rocks/HTML5_Logo.png";
@@ -336,6 +342,8 @@ var coloringProblem = (function() {
 	}
 
 	function loadComplete() {
+		audioLoadComplete();
+
 		// Initialize sub modules
 		title.init(env, {
 		}, backContext);
@@ -361,6 +369,10 @@ var coloringProblem = (function() {
 			glow : imgGlow,
 			misc : imgMisc,
 			dialog : imgDialog
+		}, {
+			result0 : soundResult0,
+			result1 : soundResult1,
+			result2 : soundResult2,
 		}, backContext);
 
 		panel.init(env, {
@@ -394,6 +406,49 @@ var coloringProblem = (function() {
 		}, backContext);
 
 		state = mainStates.resetTitle;
+	}
+
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Audio utilities
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function audioLoaderSetup() {
+		var audioType;
+
+		soundResult0 = document.createElement("audio");
+		document.body.appendChild(soundResult0);
+		audioType = audioSupportedFormat(soundResult0);
+		soundResult0.setAttribute("src", "sound/Result0" + audioType);
+		soundResult0.addEventListener("canplaythrough", eventItemLoaded, false);
+
+		soundResult1 = document.createElement("audio");
+		document.body.appendChild(soundResult1);
+		soundResult1.setAttribute("src", "sound/Result1" + audioType);
+		soundResult1.addEventListener("canplaythrough", eventItemLoaded, false);
+
+		soundResult2 = document.createElement("audio");
+		document.body.appendChild(soundResult2);
+		soundResult2.setAttribute("src", "sound/Result2" + audioType);
+		soundResult2.addEventListener("canplaythrough", eventItemLoaded, false);
+	}
+
+	function audioLoadComplete() {
+		soundResult0.removeEventListener("canplaythrough", eventItemLoaded, false);
+		soundResult1.removeEventListener("canplaythrough", eventItemLoaded, false);
+		soundResult2.removeEventListener("canplaythrough", eventItemLoaded, false);
+	}
+
+	function audioSupportedFormat(audio) {
+		var returnExtension = "";
+		if (audio.canPlayType("audio/ogg") =="probably" || audio.canPlayType("audio/ogg") == "maybe") {
+			returnExtension = ".ogg";
+		} else if(audio.canPlayType("audio/mp3") == "probably" || audio.canPlayType("audio/mp3") == "maybe") {	
+			returnExtension = ".mp3";
+		}
+		return returnExtension;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////

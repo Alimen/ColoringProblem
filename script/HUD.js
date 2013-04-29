@@ -41,7 +41,7 @@ var hud = (function() {
 	}
 
 	function reset() {
-		soundon = 1;
+		soundon = 0;
 		playerCount = 2; level = 0; minimized = 0;
 		mousePassSound = -1;
 		mousePassTitle = -1;
@@ -189,6 +189,7 @@ var hud = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	function setSoundon(_soundon) { soundon = _soundon; }
+	function getSoundon() { return soundon; }
 
 	function setInfo(_playerCount, _level) { 
 		playerCount = _playerCount;
@@ -204,10 +205,12 @@ var hud = (function() {
 		push : push,
 		draw : draw,
 
+		setSoundon : setSoundon,
+		getSoundon : getSoundon,
+
 		checkMousePassTitle : checkMousePassTitle,
 		checkMousePassSound : checkMousePassSound,
 		checkMousePassMinimized : checkMousePassMinimized,
-		setSoundon : setSoundon,
 		setInfo : setInfo,
 		setMinimized : setMinimized
 	};

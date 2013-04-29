@@ -16,5 +16,5 @@ TODO
 ----
 * New background images
 * Logo animation
-* Sound effect design
+* Release to blogger
 

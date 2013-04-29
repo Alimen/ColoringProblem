@@ -2,6 +2,7 @@ var dialog = (function() {
 	// Environmental variables
 	var backContext;
 	var img;
+	var sound;
 	var env;
 
 	// Dialog variables
@@ -34,6 +35,7 @@ var dialog = (function() {
 		[dialogTypes.p2Wins,	"p2Wins",		400, 240, 450, 200],
 		[dialogTypes.aiWins,	"aiWins",		400, 240, 450, 200],
 		[dialogTypes.playerWins,"playerWins",	400, 240, 450, 200],
+
 		[dialogTypes.quit,		"quit",			400, 240, 340, 165],
 		[dialogTypes.level,		"level",		400, 240, 370, 180],
 
@@ -68,9 +70,10 @@ var dialog = (function() {
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-	function init(_env, _img, _backContext) {
+	function init(_env, _img, _sound, _backContext) {
 		env = _env;
 		img = _img;
+		sound = _sound;
 		backContext = _backContext;
 
 		// Initialize dialog variables
@@ -92,6 +95,10 @@ var dialog = (function() {
 		da = 0.5/maxDialogT;
 		dialogState = 1;
 		dialogT = 0;
+
+		if(param[0] >= dialogTypes.p1Wins && param[0] <= dialogTypes.playerWins) {
+			playSound();
+		}
 	}
 
 	function close() {
@@ -114,6 +121,10 @@ var dialog = (function() {
 		da = 0;
 		dialogState = 1;
 		dialogT = 0;
+
+		if(param[0] == dialogTypes.tutorial6) {
+			playSound();
+		}
 	}
 
 	function minimize() {
@@ -449,6 +460,24 @@ var dialog = (function() {
 		}
 
 		return output;
+	}
+
+	function playSound() {
+		if(hud.getSoundon() == 0) {
+			return;
+		}
+
+		switch(Math.floor(Math.random()*3)) {
+		case 0:
+			sound.result0.play();
+			break;
+		case 1:
+			sound.result1.play();
+			break;
+		case 2:
+			sound.result2.play();
+			break;
+		}
 	}
 
 ///////////////////////////////////////////////////////////////////////////////

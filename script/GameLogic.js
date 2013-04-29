@@ -24,7 +24,6 @@ var gameLogic = (function() {
 	var nextGameState;
 
 	// Game variables
-	var soundon;
 	var playerCount;
 	var currentPlayer;
 	var level;
@@ -45,9 +44,7 @@ var gameLogic = (function() {
 		backContext = _backContext;
 		mouseX = env.screenWidth/2;
 		mouseY = env.screenHeight/2;
-		soundon = 1;
 		warp = 0;
-		hud.setSoundon(soundon);
 	}
 
 	function reset(_playerCount, _startLevel) {
@@ -258,8 +255,7 @@ var gameLogic = (function() {
 
 		case gameStates.selecting:
 			if(hud.checkMousePassSound(mouseX, mouseY, currentPlayer) >= 0) {
-				soundon = (soundon+1)%2;
-				hud.setSoundon(soundon);
+				hud.setSoundon((hud.getSoundon()+1)%2);
 			}
 			if(hud.checkMousePassTitle(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.popup("quit");
@@ -296,6 +292,7 @@ var gameLogic = (function() {
 				state = gameStates.animating;
 				nextGameState = gameStates.leaving;
 			} else if(dialog.checkPassSlot2(mouseX, mouseY, currentPlayer) >= 0) {
+				dialog.checkPassSlot2(0, 0, 0);
 				dialog.minimize();
 				hud.setMinimized(1);
 				state = gameStates.viewing;
@@ -329,8 +326,7 @@ var gameLogic = (function() {
 
 		case gameStates.viewing:
 			if(hud.checkMousePassSound(mouseX, mouseY, (currentPlayer+1)%2) >= 0) {
-				soundon = (soundon+1)%2;
-				hud.setSoundon(soundon);
+				hud.setSoundon((hud.getSoundon()+1)%2);
 			}
 			if(hud.checkMousePassMinimized(mouseX, mouseY, (currentPlayer+1)%2) >= 0) {
 				dialog.restore();
