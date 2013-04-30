@@ -11,8 +11,6 @@ in NP-complete problems.  The following are basic gameplay rules:
 Important Source Files
 ----------------------
 ColoringProblem.html - HTML enrty point for the project
-
-TODO
-----
-* Release to blogger
+ColoringProblem_debug.js - Concatenation of script/*.js
+ColoringProblem_release.js - Compressed source code by UglyfyJS
 
