@@ -23,7 +23,6 @@ var title = (function() {
 
 	// Selecting state variables
 	var selected;
-	var soundon;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -37,7 +36,6 @@ var title = (function() {
 		backContext = _backContext;
 		mouseX = env.screenWidth/2;
 		mouseY = env.screenHeight/2;
-		soundon = 1;
 	}
 
 	function reset() {
@@ -139,8 +137,7 @@ var title = (function() {
 		switch(state) {
 		case titleStates.selecting:
 			if(hud.checkMousePassSound(mouseX, mouseY, 0) >= 0) {
-				soundon = (soundon+1)%2;
-				hud.setSoundon(soundon);
+				hud.setSoundon((hud.getSoundon()+1)%2);
 			}
 			if(selected == 2) {
 				panel.popup(mouseX, mouseY, selected, [7, 8, 9]);
