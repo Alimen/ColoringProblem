@@ -33,7 +33,7 @@ var ui = (function() {
 		}
 
 		// Turn on shadow at default
-		shadow = 1;
+		shadow = 0;
 
 		// Initialize paint animation variables
 		paintState = -1;
@@ -86,7 +86,7 @@ var ui = (function() {
 
 	function draw() {
 		// Clear background
-		backContext.drawImage(img.background, 0, 0);
+		backContext.drawImage(img.backgrounds[currentBackground], 0, 0);
 
 		// If not warping, draw all subgraphs to backCanvas
 		if(warp.isWarping() == 1) {
@@ -143,6 +143,9 @@ var ui = (function() {
 	var graphRedraw = new Array();
 	var graphTileFrames = new Array();
 	const min = -99999;
+
+	// Background
+	var currentBackground = 0;
 
 	// Paint animation variables
 	var paintState;
@@ -390,6 +393,7 @@ var ui = (function() {
 				arm1.reset();
 				arm2.reset();
 				warp.resetWarp();
+				currentBackground = (currentBackground+1)%5;
 				state = animationStates.warp;
 				nextState = animationStates.idle;
 				slideState = 0;

@@ -23,7 +23,6 @@ var coloringProblem = (function() {
 	var imgTiles = new Image();
 	var imgTileBorder = new Image();
 	var imgHTML5 = new Image();
-	var imgBackground = new Image();
 	var imgShadow = new Image();
 	var imgGlow = new Image();
 	var imgPanel = new Image();
@@ -40,6 +39,9 @@ var coloringProblem = (function() {
 	var imgTitle = new Image();
 	var imgNumbers = new Image();
 	var imgHUD = new Image();
+
+	// Background array
+	var imgBackgrounds = new Array(5);
 
 	// Sound components
 	var soundResult0, soundResult1, soundResult2;
@@ -90,7 +92,7 @@ var coloringProblem = (function() {
 				tiles : imgTiles,
 				tileBorder : imgTileBorder,
 				html5 : imgHTML5,
-				background : imgBackground
+				background : imgBackgrounds[0]
 			});
 			state = mainStates.showLogo;
 			break;
@@ -279,7 +281,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 31;
+	var itemsToLoad = 35;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -302,8 +304,6 @@ var coloringProblem = (function() {
 		//imgHTML5.src = "https://sites.google.com/site/alimenstorage/html5-rocks/HTML5_Logo.png";
 		imgHTML5.src = "image/HTML5_Logo.png";
 		imgHTML5.onload = eventItemLoaded;
-		imgBackground.src = "image/Background0.jpg";
-		imgBackground.onload = eventItemLoaded;
 		imgShadow.src = "image/Shadow.png";
 		imgShadow.onload = eventItemLoaded;
 		imgGlow.src = "image/Glow.png";
@@ -337,6 +337,14 @@ var coloringProblem = (function() {
 		imgHUD.src = "image/HUD.png";
 		imgHUD.onload = eventItemLoaded;
 
+		// Background array
+		for(var i = 0; i < 5; i++) {
+			imgBackgrounds[i] = new Image();
+			imgBackgrounds[i].src = "image/Background" + i + ".jpg";
+			imgBackgrounds[i].onload = eventItemLoaded;
+		}
+
+
 		// Pass resources to loader
 		loader.init(env, {
 			tiles : imgTiles,
@@ -368,7 +376,7 @@ var coloringProblem = (function() {
 		ui.init(env,  {
 			tiles : imgTiles,
 			tileBorder : imgTileBorder,
-			background : imgBackground,
+			backgrounds : imgBackgrounds,
 			shadow : imgShadow,
 			glow : imgGlow,
 			title : imgTitle,

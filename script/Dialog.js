@@ -462,22 +462,36 @@ var dialog = (function() {
 		return output;
 	}
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// Audio functions
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	// Audio variables
+	var currentSound = 2;
+
 	function playSound() {
 		if(hud.getSoundon() == 0) {
 			return;
 		}
-
-		switch(Math.floor(Math.random()*3)) {
+		
+		switch(currentSound) {
 		case 0:
+			sound.result0.currentTime = 0;
 			sound.result0.play();
 			break;
 		case 1:
+			sound.result1.currentTime = 0;
 			sound.result1.play();
 			break;
 		case 2:
+			sound.result2.currentTime = 0;
 			sound.result2.play();
 			break;
 		}
+
+		currentSound = (currentSound+1)%3;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////
