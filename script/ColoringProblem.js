@@ -23,7 +23,6 @@ var coloringProblem = (function() {
 	var imgTiles = new Image();
 	var imgTileBorder = new Image();
 	var imgHTML5 = new Image();
-	var imgBackground = new Image();
 	var imgShadow = new Image();
 	var imgGlow = new Image();
 	var imgPanel = new Image();
@@ -40,6 +39,12 @@ var coloringProblem = (function() {
 	var imgTitle = new Image();
 	var imgNumbers = new Image();
 	var imgHUD = new Image();
+
+	// Background array
+	var imgBackgrounds = new Array(5);
+
+	// Sound components
+	var soundResult0, soundResult1, soundResult2;
 
 ///////////////////////////////////////////////////////////////////////////////
 //
@@ -83,8 +88,21 @@ var coloringProblem = (function() {
 			break;
 		case mainStates.loadComplete:
 			loadComplete();
+			loader.resetLogoSliding({
+				tiles : imgTiles,
+				tileBorder : imgTileBorder,
+				html5 : imgHTML5,
+				background : imgBackgrounds[0]
+			});
+			state = mainStates.showLogo;
 			break;
 		case mainStates.showLogo:
+			res = loader.pushLogoSliding();
+			loader.drawLogoSliding();
+			flip();
+			if(res != mainStates.unknown) {
+				state = mainStates.resetTitle;
+			}
 			break;
 		case mainStates.resetTitle:
 			title.reset();
@@ -188,16 +206,16 @@ var coloringProblem = (function() {
 	};
 
 	// Go to tutorial if the player is first time play the game.
-	var tutorialStart = 1;
+	var tutorialStart;
 
 	function init() {
 		// Setup javascript loader events
 		loadjs("script/Loader.js", 1);
 
 		// Setup image loader events
-		imgTiles.src = "resource/Tiles.png";
+		imgTiles.src = "image/Tiles.png";
 		imgTiles.onload = eventItemPreLoaded;
-		imgTileBorder.src = "resource/TileBorder.png";
+		imgTileBorder.src = "image/TileBorder.png";
 		imgTileBorder.onload = eventItemPreLoaded;
 
 		// Setup canvas
@@ -211,6 +229,9 @@ var coloringProblem = (function() {
 		// Setup mouse events
 		theCanvas.addEventListener("mousemove", eventMouseMove, true);
 		theCanvas.addEventListener("click", eventMouseClick, true);	
+
+		// Goto tutorial mode before first game start
+		tutorialStart = 1;
 
 		// Switch to next state
 		state = mainStates.preloading;
@@ -260,7 +281,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Loader counters
-	var itemsToLoad = 28;
+	var itemsToLoad = 35;
 	var loadCount = 0;
 
 	function initLoader() {
@@ -276,43 +297,53 @@ var coloringProblem = (function() {
 		loadjs("script/AI.js", 0);
 		loadjs("script/Tutorial.js", 0);
 
+		// Setup sound loader events
+		audioLoaderSetup();
+
 		// Setup image loader events
-		imgHTML5.src = "https://sites.google.com/site/alimenstorage/html5-rocks/HTML5_Logo.png";
+		//imgHTML5.src = "https://sites.google.com/site/alimenstorage/html5-rocks/HTML5_Logo.png";
+		imgHTML5.src = "image/HTML5_Logo.png";
 		imgHTML5.onload = eventItemLoaded;
-		imgBackground.src = "resource/Background0.jpg";
-		imgBackground.onload = eventItemLoaded;
-		imgShadow.src = "resource/Shadow.png";
+		imgShadow.src = "image/Shadow.png";
 		imgShadow.onload = eventItemLoaded;
-		imgGlow.src = "resource/Glow.png";
+		imgGlow.src = "image/Glow.png";
 		imgGlow.onload = eventItemLoaded;
-		imgPanel.src = "resource/Panel.png";
+		imgPanel.src = "image/Panel.png";
 		imgPanel.onload = eventItemLoaded;
-		imgBottons.src = "resource/Bottons.png";
+		imgBottons.src = "image/Bottons.png";
 		imgBottons.onload = eventItemLoaded;
-		imgBeams.src = "resource/Beam.png";
+		imgBeams.src = "image/Beam.png";
 		imgBeams.onload = eventItemLoaded;
-		imgSparks.src = "resource/Sparks.png";
+		imgSparks.src = "image/Sparks.png";
 		imgSparks.onload = eventItemLoaded;
-		imgArm1.src = "resource/Arm1.png";
+		imgArm1.src = "image/Arm1.png";
 		imgArm1.onload = eventItemLoaded;
-		imgArm2.src = "resource/Arm2.png";
+		imgArm2.src = "image/Arm2.png";
 		imgArm2.onload = eventItemLoaded;
-		imgDot.src = "resource/Dot.png";
+		imgDot.src = "image/Dot.png";
 		imgDot.onload = eventItemLoaded;
-		imgWarpLine.src = "resource/Warpline.png";
+		imgWarpLine.src = "image/Warpline.png";
 		imgWarpLine.onload = eventItemLoaded;
-		imgHalo.src = "resource/Halos.jpg";
+		imgHalo.src = "image/Halos.jpg";
 		imgHalo.onload = eventItemLoaded;
-		imgMisc.src = "resource/Misc.png";
+		imgMisc.src = "image/Misc.png";
 		imgMisc.onload = eventItemLoaded;
-		imgDialog.src = "resource/Dialog.jpg";
+		imgDialog.src = "image/Dialog.jpg";
 		imgDialog.onload = eventItemLoaded;
-		imgTitle.src = "resource/Title.png";
+		imgTitle.src = "image/Title.png";
 		imgTitle.onload = eventItemLoaded;
-		imgNumbers.src = "resource/Numbers.png";
+		imgNumbers.src = "image/Numbers.png";
 		imgNumbers.onload = eventItemLoaded;
-		imgHUD.src = "resource/HUD.png";
+		imgHUD.src = "image/HUD.png";
 		imgHUD.onload = eventItemLoaded;
+
+		// Background array
+		for(var i = 0; i < 5; i++) {
+			imgBackgrounds[i] = new Image();
+			imgBackgrounds[i].src = "image/Background" + i + ".jpg";
+			imgBackgrounds[i].onload = eventItemLoaded;
+		}
+
 
 		// Pass resources to loader
 		loader.init(env, {
@@ -333,6 +364,8 @@ var coloringProblem = (function() {
 	}
 
 	function loadComplete() {
+		audioLoadComplete();
+
 		// Initialize sub modules
 		title.init(env, {
 		}, backContext);
@@ -343,7 +376,7 @@ var coloringProblem = (function() {
 		ui.init(env,  {
 			tiles : imgTiles,
 			tileBorder : imgTileBorder,
-			background : imgBackground,
+			backgrounds : imgBackgrounds,
 			shadow : imgShadow,
 			glow : imgGlow,
 			title : imgTitle,
@@ -358,6 +391,10 @@ var coloringProblem = (function() {
 			glow : imgGlow,
 			misc : imgMisc,
 			dialog : imgDialog
+		}, {
+			result0 : soundResult0,
+			result1 : soundResult1,
+			result2 : soundResult2,
 		}, backContext);
 
 		panel.init(env, {
@@ -389,8 +426,49 @@ var coloringProblem = (function() {
 
 		tutorial.init(env, {
 		}, backContext);
+	}
 
-		state = mainStates.resetTitle;
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// Audio utilities
+//
+///////////////////////////////////////////////////////////////////////////////
+
+	function audioLoaderSetup() {
+		var audioType;
+
+		soundResult0 = document.createElement("audio");
+		document.body.appendChild(soundResult0);
+		audioType = audioSupportedFormat(soundResult0);
+		soundResult0.setAttribute("src", "sound/Result0" + audioType);
+		soundResult0.addEventListener("canplaythrough", eventItemLoaded, false);
+
+		soundResult1 = document.createElement("audio");
+		document.body.appendChild(soundResult1);
+		soundResult1.setAttribute("src", "sound/Result1" + audioType);
+		soundResult1.addEventListener("canplaythrough", eventItemLoaded, false);
+
+		soundResult2 = document.createElement("audio");
+		document.body.appendChild(soundResult2);
+		soundResult2.setAttribute("src", "sound/Result2" + audioType);
+		soundResult2.addEventListener("canplaythrough", eventItemLoaded, false);
+	}
+
+	function audioLoadComplete() {
+		soundResult0.removeEventListener("canplaythrough", eventItemLoaded, false);
+		soundResult1.removeEventListener("canplaythrough", eventItemLoaded, false);
+		soundResult2.removeEventListener("canplaythrough", eventItemLoaded, false);
+	}
+
+	function audioSupportedFormat(audio) {
+		var returnExtension = "";
+		if (audio.canPlayType("audio/ogg") =="probably" || audio.canPlayType("audio/ogg") == "maybe") {
+			returnExtension = ".ogg";
+		} else if(audio.canPlayType("audio/mp3") == "probably" || audio.canPlayType("audio/mp3") == "maybe") {	
+			returnExtension = ".mp3";
+		}
+		return returnExtension;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -16,14 +16,14 @@ var gameLogic = (function() {
 		aiSelect	: 5,
 		switching	: 6,
 		resulting	: 7,
-		quit		: 8,
-		leaving		: 9
+		viewing		: 8,
+		quit		: 9,
+		leaving		: 10
 	};
 	var state;
 	var nextGameState;
 
 	// Game variables
-	var soundon;
 	var playerCount;
 	var currentPlayer;
 	var level;
@@ -44,9 +44,7 @@ var gameLogic = (function() {
 		backContext = _backContext;
 		mouseX = env.screenWidth/2;
 		mouseY = env.screenHeight/2;
-		soundon = 1;
 		warp = 0;
-		hud.setSoundon(soundon);
 	}
 
 	function reset(_playerCount, _startLevel) {
@@ -224,11 +222,17 @@ var gameLogic = (function() {
 		case gameStates.resulting:
 			dialog.checkPassSlot1(x, y, (currentPlayer+1)%2);
 			dialog.checkPassSlot2(x, y, (currentPlayer+1)%2);
+			dialog.checkPassSlot3(x, y, (currentPlayer+1)%2);
+			break;
+
+		case gameStates.viewing:
+			hud.checkMousePassSound(x, y, (currentPlayer+1)%2);
+			hud.checkMousePassMinimized(x, y, (currentPlayer+1)%2);
 			break;
 
 		case gameStates.quit:
 			dialog.checkPassSlot1(x, y, currentPlayer);
-			dialog.checkPassSlot2(x, y, currentPlayer);
+			dialog.checkPassSlot3(x, y, currentPlayer);
 			break;
 		}
 	}
@@ -251,8 +255,7 @@ var gameLogic = (function() {
 
 		case gameStates.selecting:
 			if(hud.checkMousePassSound(mouseX, mouseY, currentPlayer) >= 0) {
-				soundon = (soundon+1)%2;
-				hud.setSoundon(soundon);
+				hud.setSoundon((hud.getSoundon()+1)%2);
 			}
 			if(hud.checkMousePassTitle(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.popup("quit");
@@ -289,9 +292,23 @@ var gameLogic = (function() {
 				state = gameStates.animating;
 				nextGameState = gameStates.leaving;
 			} else if(dialog.checkPassSlot2(mouseX, mouseY, currentPlayer) >= 0) {
+				dialog.checkPassSlot2(0, 0, 0);
+				dialog.minimize();
+				hud.setMinimized(1);
+				state = gameStates.viewing;
+				nextGameState = gameStates.viewing;
+			} else if(dialog.checkPassSlot3(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.close();
-				var nextLevel = level+1;
-				if(nextLevel%3 == 1) {
+				var nextLevel, replay;
+				if(playerCount == 1 && currentPlayer == 0) {
+					nextLevel = level;
+					level--;
+					replay = 1;
+				} else {
+					nextLevel = level+1;
+					replay = 0;
+				}
+				if(nextLevel%3 == 1 && replay == 0) {
 					warp = 1;
 					ui.resetSlideOut(0, 0, 0, 1);
 				} else {
@@ -307,6 +324,18 @@ var gameLogic = (function() {
 			}
 			break;
 
+		case gameStates.viewing:
+			if(hud.checkMousePassSound(mouseX, mouseY, (currentPlayer+1)%2) >= 0) {
+				hud.setSoundon((hud.getSoundon()+1)%2);
+			}
+			if(hud.checkMousePassMinimized(mouseX, mouseY, (currentPlayer+1)%2) >= 0) {
+				dialog.restore();
+				hud.setMinimized(0);
+				hud.checkMousePassMinimized(0, 0, 0);
+				state = gameStates.resulting;
+			}
+			break;
+
 		case gameStates.quit:
 			if(dialog.checkPassSlot1(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.close();
@@ -315,9 +344,9 @@ var gameLogic = (function() {
 				hud.checkMousePassTitle(mouseX, mouseY, currentPlayer);
 				state = gameStates.animating;
 				nextGameState = gameStates.leaving;
-			} else if(dialog.checkPassSlot2(mouseX, mouseY, currentPlayer) >= 0) {
+			} else if(dialog.checkPassSlot3(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.close();
-				state = gameStates.selecting;
+				state = nextGameState;
 			}
 			break;
 		}
