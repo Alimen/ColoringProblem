@@ -86,8 +86,21 @@ var coloringProblem = (function() {
 			break;
 		case mainStates.loadComplete:
 			loadComplete();
+			loader.resetLogoSliding({
+				tiles : imgTiles,
+				tileBorder : imgTileBorder,
+				html5 : imgHTML5,
+				background : imgBackground
+			});
+			state = mainStates.showLogo;
 			break;
 		case mainStates.showLogo:
+			res = loader.pushLogoSliding();
+			loader.drawLogoSliding();
+			flip();
+			if(res != mainStates.unknown) {
+				state = mainStates.resetTitle;
+			}
 			break;
 		case mainStates.resetTitle:
 			title.reset();
@@ -286,7 +299,8 @@ var coloringProblem = (function() {
 		audioLoaderSetup();
 
 		// Setup image loader events
-		imgHTML5.src = "https://sites.google.com/site/alimenstorage/html5-rocks/HTML5_Logo.png";
+		//imgHTML5.src = "https://sites.google.com/site/alimenstorage/html5-rocks/HTML5_Logo.png";
+		imgHTML5.src = "image/HTML5_Logo.png";
 		imgHTML5.onload = eventItemLoaded;
 		imgBackground.src = "image/Background0.jpg";
 		imgBackground.onload = eventItemLoaded;
@@ -404,8 +418,6 @@ var coloringProblem = (function() {
 
 		tutorial.init(env, {
 		}, backContext);
-
-		state = mainStates.resetTitle;
 	}
 
 

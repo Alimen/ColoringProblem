@@ -15,6 +15,5 @@ ColoringProblem.html - HTML enrty point for the project
 TODO
 ----
 * New background images
-* Logo animation
 * Release to blogger
 
