@@ -2448,7 +2448,7 @@ var loader = (function() {
 		backContext.fillRect(0, 0, env.screenWidth, env.screenHeight);
 
 		drawLoadCompleted();
-		backContext.drawImage(img.html5, html5X+env.screenWidth/2-128, env.screenHeight/2-128);
+		backContext.drawImage(img.html5, html5X+env.screenWidth/2-128, env.screenHeight/2-150);
 		backContext.drawImage(img.background, bgX, 0);
 	}
 
