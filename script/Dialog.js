@@ -393,7 +393,7 @@ var dialog = (function() {
 
 		case dialogTypes.quit:
 			dialogContext.drawImage(img.dialog, 0, 130, 300, 60, param[4]/2-150, 15, 300, 60);
-			iconSlot1 = icon.title;		iconSlot2 = icon.none; 		iconSlot3 = icon.cancel;
+			iconSlot1 = icon.title;		iconSlot2 = icon.replay; 		iconSlot3 = icon.cancel;
 			break;
 
 		case dialogTypes.level:

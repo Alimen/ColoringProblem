@@ -232,6 +232,7 @@ var gameLogic = (function() {
 
 		case gameStates.quit:
 			dialog.checkPassSlot1(x, y, currentPlayer);
+			dialog.checkPassSlot2(x, y, currentPlayer);
 			dialog.checkPassSlot3(x, y, currentPlayer);
 			break;
 		}
@@ -344,6 +345,19 @@ var gameLogic = (function() {
 				hud.checkMousePassTitle(mouseX, mouseY, currentPlayer);
 				state = gameStates.animating;
 				nextGameState = gameStates.leaving;
+			} else if(dialog.checkPassSlot2(mouseX, mouseY, currentPlayer) >= 0) {
+				dialog.close();
+				hud.checkMousePassSound(0, 0, 0);
+				hud.checkMousePassTitle(0, 0, 0);
+				level--;
+				warp = 0;
+				if((level+1)%2 == 1) {
+					ui.resetSlideOut(2, 1, 2, 0);
+				} else {
+					ui.resetSlideOut(1, 2, 2, 0);
+				}
+				state = gameStates.animating;
+				nextGameState = gameStates.reset;
 			} else if(dialog.checkPassSlot3(mouseX, mouseY, currentPlayer) >= 0) {
 				dialog.close();
 				state = nextGameState;
