@@ -215,7 +215,7 @@ var coloringProblem = (function() {
 	function init() {
 		// Setup path
 		if(release == 1) {
-			path = "https://sites.google.com/site/alimenstorage/coloringproblem/";
+			path = "";
 		} else {
 			path = "";
 

@@ -693,7 +693,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Path
-	const release = 1;
+	const release = 0;
 	var path;
 
 	// Canvas
@@ -898,7 +898,7 @@ var coloringProblem = (function() {
 	function init() {
 		// Setup path
 		if(release == 1) {
-			path = "https://sites.google.com/site/alimenstorage/coloringproblem/";
+			path = "";
 		} else {
 			path = "";
 
