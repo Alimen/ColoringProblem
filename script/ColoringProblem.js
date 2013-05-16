@@ -10,7 +10,7 @@ var coloringProblem = (function() {
 ///////////////////////////////////////////////////////////////////////////////
 
 	// Path
-	const release = 0;
+	const release = 1;
 	var path;
 
 	// Canvas
@@ -215,7 +215,7 @@ var coloringProblem = (function() {
 	function init() {
 		// Setup path
 		if(release == 1) {
-			path = "";
+			path = "http://alimen.github.io/ColoringProblem/";
 		} else {
 			path = "";
 
